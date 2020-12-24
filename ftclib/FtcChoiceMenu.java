@@ -38,9 +38,9 @@ public class FtcChoiceMenu<T> extends FtcMenu
      */
     private class ChoiceItem
     {
-        private String choiceText;
-        private T choiceObject;
-        private FtcMenu childMenu;
+        private final String choiceText;
+        private final T choiceObject;
+        private final FtcMenu childMenu;
 
         /**
          * Constructor: Creates an instance of the object.

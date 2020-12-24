@@ -23,6 +23,7 @@
 package TrcFtcLib.ftclib;
 
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -38,12 +39,11 @@ import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
 import TrcCommonLib.trclib.TrcUtil;
-import TrcHalLib.hallib.HalDashboard;
 
 /**
  * This class implements a cooperative multi-tasking scheduler extending LinearOpMode.
  */
-public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
+public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode, TrcDbgTrace.DbgLog
 {
     private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
@@ -51,6 +51,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
+    private static final String DBG_TAG = "TrcDbg";
 
     private static final LynxModule.BulkCachingMode bulkCachingMode = LynxModule.BulkCachingMode.AUTO;
     private static String opModeName = null;
@@ -83,6 +84,11 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         super();
 
+        //
+        // We must set DbgLog as early as possible before any instantiation of TrcDbgTrace because TrcDbgTrace must
+        // have it or it will throw an exception.
+        //
+        TrcDbgTrace.setDbgLog(this);
         if (debugEnabled)
         {
             dbgTrace = new TrcDbgTrace(moduleName, tracingEnabled, traceLevel, msgLevel);
@@ -147,18 +153,14 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         if (textToSpeech == null)
         {
-            textToSpeech = new TextToSpeech(hardwareMap.appContext,
-                                            new TextToSpeech.OnInitListener()
-                                            {
-                                                @Override
-                                                public void onInit(int status)
-                                                {
-                                                    if (status != TextToSpeech.ERROR)
-                                                    {
-                                                        textToSpeech.setLanguage(locale);
-                                                    }
-                                                }
-                                            });
+            textToSpeech = new TextToSpeech(
+                    hardwareMap.appContext,
+                    status -> {
+                        if (status != TextToSpeech.ERROR)
+                        {
+                            textToSpeech.setLanguage(locale);
+                        }
+                    });
         }
 
         return textToSpeech;
@@ -255,7 +257,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         //
         // Create dashboard here. If any earlier, telemetry may not exist yet.
         //
-        HalDashboard dashboard = HalDashboard.createInstance(telemetry, NUM_DASHBOARD_LINES);
+        FtcDashboard dashboard = FtcDashboard.createInstance(telemetry, NUM_DASHBOARD_LINES);
         TrcRobot.RunMode runMode;
 
         if (debugEnabled)
@@ -512,6 +514,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         }
     }   //initPeriodic
 
+    //
+    // Implements TrcRobot.RobotMode interface.
+    //
+
     /**
      * This method is called when the competition mode is about to start. In FTC, this is called when the "Play"
      * button on the Driver Station phone is pressed. Typically, you put code that will prepare the robot for
@@ -561,5 +567,50 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     public void runContinuous(double elapsedTime)
     {
     }   //runContinuous
+
+    //
+    // Implements TrcDbgTrace.DbgLog interface.
+    //
+
+    /**
+     * This method is called to print a message with the specified message level to the debug console.
+     *
+     * @param level specifies the message level.
+     * @param msg specifies the message.
+     */
+    @Override
+    public void msg(TrcDbgTrace.MsgLevel level, String msg)
+    {
+        switch (level)
+        {
+            case FATAL:
+            case ERR:
+                Log.e(DBG_TAG, msg);
+                break;
+
+            case WARN:
+                Log.w(DBG_TAG, msg);
+                break;
+
+            case INFO:
+                Log.i(DBG_TAG, msg);
+                break;
+
+            case VERBOSE:
+                Log.v(DBG_TAG, msg);
+                break;
+        }
+    }   //msg
+
+    /**
+     * This method is called to print a message to the debug console.
+     *
+     * @param msg specifies the message.
+     */
+    @Override
+    public void traceMsg(String msg)
+    {
+        Log.d(DBG_TAG, msg);
+    }   //traceMsg
 
 }   //class FtcOpMode

@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcUtil;
-import TrcHalLib.hallib.HalDashboard;
 
 /**
  * This class is intended to be inherited by a specific menu class such as FtcChoiceMenu or FtcValueMenu. Therefore,
@@ -152,7 +151,7 @@ public abstract class FtcMenu
     private static final int MENUBUTTON_ALT_UP          = (1 << 4);
     private static final int MENUBUTTON_ALT_DOWN        = (1 << 5);
 
-    protected HalDashboard dashboard;
+    protected FtcDashboard dashboard;
     private FtcOpMode opMode;
     private String menuTitle;
     private FtcMenu parent;
@@ -181,7 +180,7 @@ public abstract class FtcMenu
             throw new NullPointerException("menuTitle cannot be null.");
         }
 
-        dashboard = HalDashboard.getInstance();
+        dashboard = FtcDashboard.getInstance();
         opMode = FtcOpMode.getInstance();
         this.menuTitle = menuTitle;
         this.parent = parent;
@@ -330,7 +329,7 @@ public abstract class FtcMenu
                     //
                     // We are done with the menus. Let's clear the dashboard.
                     //
-                    HalDashboard.getInstance().clearDisplay();
+                    FtcDashboard.getInstance().clearDisplay();
                 }
                 prevButtonStates = currButtonStates;
             }
