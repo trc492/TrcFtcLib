@@ -93,31 +93,31 @@ public class FtcMRColorSensor extends TrcSensor<FtcMRColorSensor.DataType>
      * @return raw sensor data of the specified index and type.
      */
     @Override
-    public SensorData<Integer> getRawData(int index, DataType dataType)
+    public SensorData<Double> getRawData(int index, DataType dataType)
     {
         final String funcName = "getRawData";
-        SensorData<Integer> data = null;
+        SensorData<Double> data = null;
 
         switch (dataType)
         {
             case COLOR_NUMBER:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.argb());
+                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.argb());
                 break;
 
             case RED:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.red());
+                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.red());
                 break;
 
             case GREEN:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.green());
+                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.green());
                 break;
 
             case BLUE:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.blue());
+                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.blue());
                 break;
 
             case WHITE:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.alpha());
+                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.alpha());
                 break;
         }
 
