@@ -20,14 +20,14 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcSensor;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the Modern Color sensor extending TrcAnalogInput. It provides implementation of the abstract

@@ -20,19 +20,19 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-import trclib.TrcEvent;
-import trclib.TrcRobot;
-import trclib.TrcServo;
-import trclib.TrcDbgTrace;
-import trclib.TrcStateMachine;
-import trclib.TrcTaskMgr;
-import trclib.TrcTimer;
+import TrcCommonLib.trclib.TrcEvent;
+import TrcCommonLib.trclib.TrcRobot;
+import TrcCommonLib.trclib.TrcServo;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcStateMachine;
+import TrcCommonLib.trclib.TrcTaskMgr;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements a platform dependent servo extending TrcServo. It provides implementation of the abstract

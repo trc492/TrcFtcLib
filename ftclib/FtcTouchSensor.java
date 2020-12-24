@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import trclib.TrcDigitalInput;
-import trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcDigitalInput;
+import TrcCommonLib.trclib.TrcDbgTrace;
 
 /**
  * This class implements a platform dependent touch sensor extending TrcDigitalInput. It provides implementation of

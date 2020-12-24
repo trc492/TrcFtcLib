@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import java.util.ArrayList;
 
-import trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcDbgTrace;
 
 /**
  * This class implements a choice menu where a number of choices are presented to the user. The user can press the

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
@@ -36,12 +36,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Quaternion;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-import trclib.TrcAccelerometer;
-import trclib.TrcDbgTrace;
-import trclib.TrcGyro;
-import trclib.TrcRobot;
-import trclib.TrcTaskMgr;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcAccelerometer;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcGyro;
+import TrcCommonLib.trclib.TrcRobot;
+import TrcCommonLib.trclib.TrcTaskMgr;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the BNO055 IMU which is actually an Adafruit BNO055. It encapsulates two sub-classes:

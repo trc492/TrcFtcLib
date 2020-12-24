@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcDigitalInput;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcDigitalInput;
 
 /**
  * This class implements a platform dependent digital input sensor extending TrcDigitalInput. It provides

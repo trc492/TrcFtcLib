@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceReader;
 
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class extends I2cDeviceReader so we can add methods to retrieve different parameters of the reader.

@@ -20,12 +20,12 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the common features of all Modern Robotics I2C devices. Typically, this class will be

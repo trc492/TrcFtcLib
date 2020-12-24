@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.graphics.Bitmap;
 
@@ -47,7 +47,7 @@ import org.opencv.core.Mat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import trclib.TrcVideoSource;
+import TrcCommonLib.trclib.TrcVideoSource;
 
 /**
  * This class makes using Vuforia a little easier by minimizing the number of calls to it. It only exposes the

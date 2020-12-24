@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -31,7 +31,7 @@ import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 
 import java.util.Arrays;
 
-import trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcDbgTrace;
 
 /**
  * This class implements a platform dependent I2C Device that provides synchronous read/write access to the device.

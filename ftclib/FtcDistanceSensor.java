@@ -20,16 +20,16 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcSensor;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements a generic Distance sensor extending TrcAnalogInput. It provides implementation of the abstract

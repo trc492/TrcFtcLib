@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.graphics.Color;
 
@@ -29,9 +29,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcSensor;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements a generic Color sensor extending TrcAnalogInput. It provides implementation of the abstract

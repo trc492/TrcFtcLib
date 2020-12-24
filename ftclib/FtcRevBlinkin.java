@@ -20,14 +20,14 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcHashMap;
-import trclib.TrcRevBlinkin;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcHashMap;
+import TrcCommonLib.trclib.TrcRevBlinkin;
 
 /**
  * This class implements a platform dependent REV Blinkin device. It provides platform dependent methods that

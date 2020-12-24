@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.speech.tts.TextToSpeech;
 
@@ -33,12 +33,12 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Locale;
 
-import hallib.HalDashboard;
-import trclib.TrcDbgTrace;
-import trclib.TrcMotor;
-import trclib.TrcRobot;
-import trclib.TrcTaskMgr;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcMotor;
+import TrcCommonLib.trclib.TrcRobot;
+import TrcCommonLib.trclib.TrcTaskMgr;
+import TrcCommonLib.trclib.TrcUtil;
+import TrcHalLib.hallib.HalDashboard;
 
 /**
  * This class implements a cooperative multi-tasking scheduler extending LinearOpMode.

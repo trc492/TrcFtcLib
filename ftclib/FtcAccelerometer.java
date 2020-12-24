@@ -20,17 +20,17 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.AccelerationSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 
-import trclib.TrcAccelerometer;
-import trclib.TrcDbgTrace;
-import trclib.TrcFilter;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcAccelerometer;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcFilter;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the platform dependent accelerometer extending TrcAccelerometer. It provides implementation

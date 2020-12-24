@@ -20,10 +20,10 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
-import trclib.TrcEnhancedServo;
-import trclib.TrcEvent;
+import TrcCommonLib.trclib.TrcEnhancedServo;
+import TrcCommonLib.trclib.TrcEvent;
 
 /**
  * This class implements a platform dependent servo actuator. A servo actuator consists of one or two servos. Servo

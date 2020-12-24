@@ -20,15 +20,15 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcSensor;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the ZX Distance sensor extending FtcI2cDevice.

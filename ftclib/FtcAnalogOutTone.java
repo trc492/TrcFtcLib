@@ -20,16 +20,16 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.AnalogOutput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcRobot;
-import trclib.TrcTimer;
-import trclib.TrcTone;
-import trclib.TrcTaskMgr;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcRobot;
+import TrcCommonLib.trclib.TrcTimer;
+import TrcCommonLib.trclib.TrcTone;
+import TrcCommonLib.trclib.TrcTaskMgr;
 
 /**
  * This class implements a platform dependent sound player that can play a tone with specified waveform, frequency,

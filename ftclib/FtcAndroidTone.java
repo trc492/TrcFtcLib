@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -28,8 +28,8 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcTone;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcTone;
 
 /**
  * This class implements a platform dependent sound player that can play a tone with specified waveform, frequency,

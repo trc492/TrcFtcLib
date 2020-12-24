@@ -20,18 +20,18 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcAnalogInput;
-import trclib.TrcDigitalInput;
-import trclib.TrcDbgTrace;
-import trclib.TrcMotor;
-import trclib.TrcPidController;
+import TrcCommonLib.trclib.TrcAnalogInput;
+import TrcCommonLib.trclib.TrcDigitalInput;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcMotor;
+import TrcCommonLib.trclib.TrcPidController;
 
 /**
  * This class implements the generic DC Motor Controller extending TrcMotor. It provides implementation of the

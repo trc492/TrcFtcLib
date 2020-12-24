@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import hallib.HalDashboard;
-import trclib.TrcDbgTrace;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcUtil;
+import TrcHalLib.hallib.HalDashboard;
 
 /**
  * This class is intended to be inherited by a specific menu class such as FtcChoiceMenu or FtcValueMenu. Therefore,

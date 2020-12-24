@@ -20,15 +20,15 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
-import trclib.TrcAccelerometer;
-import trclib.TrcDbgTrace;
-import trclib.TrcFilter;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcAccelerometer;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcFilter;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the Android accelerometer extending TrcAccelerometer. It provides implementation of the

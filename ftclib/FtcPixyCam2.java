@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -28,8 +28,8 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import java.util.Arrays;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcPixyCam2;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcPixyCam2;
 
 /**
  * This class implements a platform dependent pixy camera 2 that is connected to an I2C bus.

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.util.Xml;
 
@@ -32,8 +32,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcSong;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcSong;
 
 /**
  * This class implements a parser of notated song in an xml file.

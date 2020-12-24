@@ -20,12 +20,12 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcGameController;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcGameController;
 
 /**
  * This class implements the platform dependent gamepad. It provides monitoring of the gamepad buttons. If the caller

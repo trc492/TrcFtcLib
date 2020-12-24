@@ -20,12 +20,12 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
-import trclib.TrcEvent;
-import trclib.TrcPidActuator;
-import trclib.TrcPidController;
-import trclib.TrcTone;
+import TrcCommonLib.trclib.TrcEvent;
+import TrcCommonLib.trclib.TrcPidActuator;
+import TrcCommonLib.trclib.TrcPidController;
+import TrcCommonLib.trclib.TrcTone;
 
 /**
  * This class implements a platform dependent motor actuator. A motor actuator consists of a DC motor, a lower limit

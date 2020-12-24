@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -30,10 +30,10 @@ import android.hardware.SensorManager;
 
 import java.util.Locale;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcFilter;
-import trclib.TrcSensor;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcFilter;
+import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements an Android sensor that may have multiple axes.

@@ -20,15 +20,15 @@
  * SOFTWARE.
  */
 
-package ftclib;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.TrcDbgTrace;
-import trclib.TrcFilter;
-import trclib.TrcGyro;
-import trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcFilter;
+import TrcCommonLib.trclib.TrcGyro;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the Modern Robotics gyro extending TrcGyro. It provides implementation of the abstract
