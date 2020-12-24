@@ -24,6 +24,7 @@ package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -152,6 +153,13 @@ public class FtcDcMotor extends TrcMotor
     public double getVoltage()
     {
         final String funcName = "getVoltage";
+        DcMotorController controller = motor.getController();
+
+        if (!(controller instanceof ModernRoboticsUsbDcMotorController))
+        {
+            throw new UnsupportedOperationException("getVoltage is not supported with this motor controller.");
+        }
+
         double voltage = ((ModernRoboticsUsbDcMotorController)motor.getController()).getVoltage();
 
         if (debugEnabled)
