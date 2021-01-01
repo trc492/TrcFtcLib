@@ -306,7 +306,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 dbgTrace.traceWarn(funcName, "Odometry motors list is not empty (numMotors=%d)!",
                         TrcMotor.getNumOdometryMotors());
             }
-            TrcMotor.clearOdometryMotorsList();
+            TrcMotor.clearOdometryMotorsList(true);
         }
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
@@ -347,7 +347,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             while (!isStarted())
             {
                 loopCounter++;
-                loopStartNanoTime = TrcUtil.getCurrentTimeNanos();
+                loopStartNanoTime = TrcUtil.getNanoTime();
 
                 if (debugEnabled)
                 {
@@ -383,13 +383,13 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
             startMode(null, runMode);
 
-            long nextPeriodNanoTime = TrcUtil.getCurrentTimeNanos();
-            long startNanoTime = TrcUtil.getCurrentTimeNanos();
+            long nextPeriodNanoTime = TrcUtil.getNanoTime();
+            long startNanoTime = TrcUtil.getNanoTime();
 
             loopCounter = 0;
             while (opModeIsActive())
             {
-                loopStartNanoTime = TrcUtil.getCurrentTimeNanos();
+                loopStartNanoTime = TrcUtil.getNanoTime();
                 loopCounter++;
                 sdkTotalNanoTime += loopStartNanoTime - startNanoTime;
                 double opModeElapsedTime = TrcUtil.getModeElapsedTime();
@@ -414,9 +414,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 {
                     dbgTrace.traceInfo(funcName, "Running runContinuous");
                 }
-                startNanoTime = TrcUtil.getCurrentTimeNanos();
+                startNanoTime = TrcUtil.getNanoTime();
                 runContinuous(opModeElapsedTime);
-                continuousTotalNanoTime += TrcUtil.getCurrentTimeNanos() - startNanoTime;
+                continuousTotalNanoTime += TrcUtil.getNanoTime() - startNanoTime;
                 continuousTimeSlotCount++;
 
                 if (debugEnabled)
@@ -425,7 +425,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 }
                 taskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK, runMode);
 
-                if (TrcUtil.getCurrentTimeNanos() >= nextPeriodNanoTime)
+                if (TrcUtil.getNanoTime() >= nextPeriodNanoTime)
                 {
                     dashboard.displayPrintf(0, "%s: %.3f", opModeName, opModeElapsedTime);
                     nextPeriodNanoTime += LOOP_PERIOD_NANO;
@@ -440,9 +440,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     {
                         dbgTrace.traceInfo(funcName, "Running runPeriodic");
                     }
-                    startNanoTime = TrcUtil.getCurrentTimeNanos();
+                    startNanoTime = TrcUtil.getNanoTime();
                     runPeriodic(opModeElapsedTime);
-                    periodicTotalNanoTime += TrcUtil.getCurrentTimeNanos() - startNanoTime;
+                    periodicTotalNanoTime += TrcUtil.getNanoTime() - startNanoTime;
                     periodicTimeSlotCount++;
 
                     if (debugEnabled)
@@ -453,7 +453,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     taskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTPERIODIC_TASK, runMode);
                 }
 
-                startNanoTime = TrcUtil.getCurrentTimeNanos();
+                startNanoTime = TrcUtil.getNanoTime();
             }
 
             if (debugEnabled)
@@ -474,7 +474,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             // Make sure we properly clean up and shut down even if the code throws an exception but we are not
             // catching the exception and let it propagate up.
             //
-            TrcMotor.clearOdometryMotorsList();
+            TrcMotor.clearOdometryMotorsList(true);
             taskMgr.shutdown();
         }
     }   //runOpMode

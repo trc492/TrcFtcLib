@@ -51,11 +51,8 @@ public class FtcDashboard extends TrcDashboard
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    public static final int DEF_NUM_TEXTLINES = 16;
-
-    private static final String displayKeyFormat = "%02d";
     private Telemetry telemetry = null;
-    private int numLines = DEF_NUM_TEXTLINES;
+    private int numLines = MAX_NUM_TEXTLINES;
     private Paint paint = null;
     private Telemetry.Item[] display;
 
@@ -86,7 +83,7 @@ public class FtcDashboard extends TrcDashboard
      */
     public static FtcDashboard createInstance(Telemetry telemetry)
     {
-        return createInstance(telemetry, DEF_NUM_TEXTLINES);
+        return createInstance(telemetry, MAX_NUM_TEXTLINES);
     }   //createInstance
 
     /**

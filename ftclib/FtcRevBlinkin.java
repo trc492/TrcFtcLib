@@ -152,9 +152,10 @@ public class FtcRevBlinkin extends TrcRevBlinkin
             .add(LEDPattern.SolidGray, RevBlinkinLedDriver.BlinkinPattern.GRAY)
             .add(LEDPattern.SolidDarkGray, RevBlinkinLedDriver.BlinkinPattern.DARK_GRAY)
             .add(LEDPattern.SolidBlack, RevBlinkinLedDriver.BlinkinPattern.BLACK);
+    private static final LEDPattern offPattern = LEDPattern.SolidBlack;
 
     private final RevBlinkinLedDriver blinkinLedDriver;
-    private LEDPattern currPattern = LEDPattern.SolidBlack;
+    private LEDPattern currPattern = offPattern;
 
     /**
      * Constructor: Create an instance of the object.
@@ -218,8 +219,8 @@ public class FtcRevBlinkin extends TrcRevBlinkin
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "pattern=%s", pattern);
         }
 
-        currPattern = pattern;
-        blinkinLedDriver.setPattern(patternMap.get(pattern));
+        currPattern = pattern == null ? offPattern : pattern;
+        blinkinLedDriver.setPattern(patternMap.get(currPattern));
 
         if (debugEnabled)
         {
