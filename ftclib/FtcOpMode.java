@@ -84,6 +84,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         super();
 
+        TrcUtil.recordTimestamp();  //take a snapshot of the start timestamp.
         //
         // We must set DbgLog as early as possible before any instantiation of TrcDbgTrace because TrcDbgTrace must
         // have it or it will throw an exception.
