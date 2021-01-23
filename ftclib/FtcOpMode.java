@@ -468,6 +468,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
             taskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
         }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         finally
         {
             //
