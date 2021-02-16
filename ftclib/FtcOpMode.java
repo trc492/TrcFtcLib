@@ -31,6 +31,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,7 +44,7 @@ import TrcCommonLib.trclib.TrcUtil;
 /**
  * This class implements a cooperative multi-tasking scheduler extending LinearOpMode.
  */
-public abstract class FtcOpMode extends FtcLinearOpMode implements TrcRobot.RobotMode, TrcDbgTrace.DbgLog
+public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode, TrcDbgTrace.DbgLog
 {
     private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
@@ -75,6 +76,7 @@ public abstract class FtcOpMode extends FtcLinearOpMode implements TrcRobot.Robo
     private long continuousTotalNanoTime = 0;
     private int continuousTimeSlotCount = 0;
     private long sdkTotalNanoTime = 0;
+    private Object startNotifier = null;
 
     /**
      * Constructor: Creates an instance of the object. It calls the constructor of the LinearOpMode class and saves
@@ -95,6 +97,15 @@ public abstract class FtcOpMode extends FtcLinearOpMode implements TrcRobot.Robo
         }
 
         instance = this;
+        try
+        {
+            Field runningNotifierField = LinearOpMode.class.getDeclaredField("runnningNotifier");
+            runningNotifierField.setAccessible(true);
+            startNotifier = runningNotifierField.get(this);
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
+        }
     }   //FtcOpMode
 
     /**
@@ -508,11 +519,11 @@ public abstract class FtcOpMode extends FtcLinearOpMode implements TrcRobot.Robo
      */
     public synchronized void initPeriodic()
     {
-        synchronized (runningNotifier)
+        synchronized (startNotifier)
         {
             try
             {
-                runningNotifier.wait();
+                startNotifier.wait();
             }
             catch (InterruptedException e)
             {
