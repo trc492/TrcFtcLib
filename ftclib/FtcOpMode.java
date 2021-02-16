@@ -43,7 +43,7 @@ import TrcCommonLib.trclib.TrcUtil;
 /**
  * This class implements a cooperative multi-tasking scheduler extending LinearOpMode.
  */
-public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode, TrcDbgTrace.DbgLog
+public abstract class FtcOpMode extends FtcLinearOpMode implements TrcRobot.RobotMode, TrcDbgTrace.DbgLog
 {
     private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
@@ -508,13 +508,16 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      */
     public synchronized void initPeriodic()
     {
-        try
+        synchronized (runningNotifier)
         {
-            this.wait();
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
+            try
+            {
+                runningNotifier.wait();
+            }
+            catch (InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+            }
         }
     }   //initPeriodic
 

@@ -246,7 +246,7 @@ public abstract class FtcMenu
      */
     public static void walkMenuTree(FtcMenu rootMenu)
     {
-        LinearOpMode opmode = FtcOpMode.getInstance();
+        FtcOpMode opmode = FtcOpMode.getInstance();
 
         setRootMenu(rootMenu);
         rootMenu.displayMenu();
