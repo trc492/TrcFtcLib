@@ -99,13 +99,14 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         instance = this;
         try
         {
-            Field runningNotifierField = LinearOpMode.class.getDeclaredField("runnningNotifier");
+            Field runningNotifierField = LinearOpMode.class.getDeclaredField("runningNotifier");
             runningNotifierField.setAccessible(true);
             startNotifier = runningNotifierField.get(this);
         }
         catch (NoSuchFieldException | IllegalAccessException e)
         {
             e.printStackTrace();
+            throw new RuntimeException("Failed to access runningNotifier.");
         }
     }   //FtcOpMode
 
