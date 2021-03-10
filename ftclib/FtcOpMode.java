@@ -377,7 +377,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 }
 
                 initPeriodic();
-                idle();
             }
             dashboard.displayPrintf(0, "initPeriodic completed!");
             TrcUtil.recordModeStartTime();
