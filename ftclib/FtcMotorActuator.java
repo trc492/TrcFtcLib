@@ -256,6 +256,14 @@ public class FtcMotorActuator
     }   //setManualOverride
 
     /**
+     * This method cancels a previous active PID motor operation.
+     */
+    public void cancel()
+    {
+        pidActuator.cancel();
+    }   //cancel
+
+    /**
      * This method moves the actuator at the given power level. However, if the actuator is close to the limits and
      * manual override mode is not active, the power will be reduced by the PID controller.
      *
@@ -267,28 +275,49 @@ public class FtcMotorActuator
     }   //setPower
 
     /**
-     * This method starts moving the actuator to the specified position.
+     * This method starts moving the actuator to the specified position. Generally, when PID operation has reached
+     * target, event will be notified and PID operation will end. However, if holdTarget is true, PID operation
+     * cannot end because it needs to keep monitoring the position and maintaining it. In this case, it will just
+     * notify the event and continue on. The caller is responsible for stopping the PID operation by calling cancel()
+     * when done with holding position.
      *
      * @param target specifies the target position to set the actuator.
+     * @param holdPosition specifies true to hold position after PID operation is completed.
      * @param event specifies the event to be signal when the actuator reaches the specified position.
      * @param timeout specifies the maximum timeout for the actuator movement. If the actuator does not reach target
      *                within timeout time, the event will be signaled so autonomous state machine will not be hung
      *                if for some reason the actuator never reaches target.
      */
-    public void setPosition(double target, TrcEvent event, double timeout)
+    public void setPosition(double target, boolean holdPosition, TrcEvent event, double timeout)
     {
-        pidActuator.setTarget(target, event, timeout);
+        pidActuator.setTarget(target, holdPosition, event, timeout);
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position. Generally, when PID operation has reached
+     * target, event will be notified and PID operation will end. However, if holdTarget is true, PID operation
+     * cannot end because it needs to keep monitoring the position and maintaining it. In this case, it will just
+     * notify the event and continue on. The caller is responsible for stopping the PID operation by calling cancel()
+     * when done with holding position.
+     *
+     * @param target specifies the target position to set the actuator.
+     * @param holdPosition specifies true to hold position after PID operation is completed.
+     * @param event specifies the event to be signal when the actuator reaches the specified position.
+     */
+    public void setPosition(double target, boolean holdPosition, TrcEvent event)
+    {
+        pidActuator.setTarget(target, holdPosition, event, 0.0);
     }   //setPosition
 
     /**
      * This method starts moving the actuator to the specified position.
      *
      * @param target specifies the target position to set the actuator.
-     * @param event specifies the event to be signal when the actuator reaches the specified position.
+     * @param holdPosition specifies true to hold position after PID operation is completed.
      */
-    public void setPosition(double target, TrcEvent event)
+    public void setPosition(double target, boolean holdPosition)
     {
-        pidActuator.setTarget(target, event, 0.0);
+        pidActuator.setTarget(target, holdPosition, null, 0.0);
     }   //setPosition
 
     /**
@@ -299,7 +328,7 @@ public class FtcMotorActuator
      */
     public void setPosition(double target)
     {
-        pidActuator.setTarget(target, true);
+        pidActuator.setTarget(target, true, null, 0.0);
     }   //setPosition
 
     /**
