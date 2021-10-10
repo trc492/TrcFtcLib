@@ -32,6 +32,7 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -90,6 +91,7 @@ public class FtcVuforia implements TrcVideoSource<Mat>
 
     }   //class TargetInfo
 
+    private CameraName cameraName;
     private VuforiaLocalizer.CameraDirection cameraDir;
     private VuforiaLocalizer localizer;
     private ArrayList<VuforiaTrackables> targetLists = new ArrayList<>();
@@ -105,11 +107,65 @@ public class FtcVuforia implements TrcVideoSource<Mat>
      *
      * @param licenseKey specifies the Vuforia license key.
      * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
-     * @param cameraDir specifies which camera to use (front or back).
+     * @param cameraName specifies the webcam hardware name.
+     * @param extendedTracking specifies true if you want Vuforia to track beyond the target.
      * @param cameraMonitorFeedback specifies the feedback image showing the orientation of the target.
      */
     public FtcVuforia(
-            String licenseKey, int cameraViewId, VuforiaLocalizer.CameraDirection cameraDir,
+        String licenseKey, int cameraViewId, CameraName cameraName, boolean extendedTracking,
+        VuforiaLocalizer.Parameters.CameraMonitorFeedback cameraMonitorFeedback)
+    {
+        this.cameraName = cameraName;
+        //
+        // If no camera view ID, do not activate camera monitor view to save power.
+        //
+        VuforiaLocalizer.Parameters params =
+            cameraViewId == -1? new VuforiaLocalizer.Parameters(): new VuforiaLocalizer.Parameters(cameraViewId);
+        params.vuforiaLicenseKey = licenseKey;
+        params.cameraName = cameraName;
+        params.useExtendedTracking = extendedTracking;
+        params.cameraMonitorFeedback = cameraMonitorFeedback != null?
+            cameraMonitorFeedback: VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
+        localizer = ClassFactory.getInstance().createVuforia(params);
+    }   //FtcVuforia
+
+    /**
+     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
+     * other parameters.
+     *
+     * @param licenseKey specifies the Vuforia license key.
+     * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
+     * @param cameraName specifies the webcam hardware name.
+     */
+    public FtcVuforia(String licenseKey, int cameraViewId, CameraName cameraName)
+    {
+        this(licenseKey, cameraViewId, cameraName, false, null);
+    }   //FtcVuforia
+
+    /**
+     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
+     * other parameters.
+     *
+     * @param licenseKey specifies the Vuforia license key.
+     * @param cameraName specifies the webcam hardware name.
+     */
+    public FtcVuforia(String licenseKey, CameraName cameraName)
+    {
+        this(licenseKey, -1, cameraName, false, null);
+    }   //FtcVuforia
+
+    /**
+     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
+     * other parameters.
+     *
+     * @param licenseKey specifies the Vuforia license key.
+     * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
+     * @param cameraDir specifies which camera to use (front or back).
+     * @param extendedTracking specifies true if you want Vuforia to track beyond the target.
+     * @param cameraMonitorFeedback specifies the feedback image showing the orientation of the target.
+     */
+    public FtcVuforia(
+            String licenseKey, int cameraViewId, VuforiaLocalizer.CameraDirection cameraDir, boolean extendedTracking,
             VuforiaLocalizer.Parameters.CameraMonitorFeedback cameraMonitorFeedback)
     {
         this.cameraDir = cameraDir;
@@ -119,8 +175,10 @@ public class FtcVuforia implements TrcVideoSource<Mat>
         VuforiaLocalizer.Parameters params =
                 cameraViewId == -1? new VuforiaLocalizer.Parameters(): new VuforiaLocalizer.Parameters(cameraViewId);
         params.vuforiaLicenseKey = licenseKey;
-        params.cameraDirection = cameraDir;
-        params.cameraMonitorFeedback = cameraMonitorFeedback;
+        params.cameraDirection = cameraDir != null? cameraDir: VuforiaLocalizer.CameraDirection.BACK;
+        params.useExtendedTracking = extendedTracking;
+        params.cameraMonitorFeedback = cameraMonitorFeedback != null?
+            cameraMonitorFeedback: VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
         localizer = ClassFactory.getInstance().createVuforia(params);
     }   //FtcVuforia
 
@@ -134,7 +192,7 @@ public class FtcVuforia implements TrcVideoSource<Mat>
      */
     public FtcVuforia(String licenseKey, int cameraViewId, VuforiaLocalizer.CameraDirection cameraDir)
     {
-        this(licenseKey, cameraViewId, cameraDir, null);
+        this(licenseKey, cameraViewId, cameraDir, false, null);
     }   //FtcVuforia
 
     /**
@@ -147,7 +205,7 @@ public class FtcVuforia implements TrcVideoSource<Mat>
         return localizer;
     }   //getLocalizer
 
-    public void addTargetList(String trackablesFile, TargetInfo[] targets, OpenGLMatrix phoneLocationOnRobot)
+    public void addTargetList(String trackablesFile, TargetInfo[] targets, OpenGLMatrix cameraLocationOnRobot)
     {
         VuforiaTrackables targetList = localizer.loadTrackablesFromAsset(trackablesFile);
 
@@ -164,10 +222,24 @@ public class FtcVuforia implements TrcVideoSource<Mat>
                 target.setLocation(targetInfo.locationOnField);
             }
 
-            if (phoneLocationOnRobot != null)
+            if (cameraLocationOnRobot != null)
             {
-                ((VuforiaTrackableDefaultListener) target.getListener()).setPhoneInformation(
-                        phoneLocationOnRobot, cameraDir);
+                if (cameraName != null)
+                {
+                    //
+                    // USB Webcam.
+                    //
+                    ((VuforiaTrackableDefaultListener) target.getListener()).setCameraLocationOnRobot(
+                        cameraName, cameraLocationOnRobot);
+                }
+                else
+                {
+                    //
+                    // Phone camera.
+                    //
+                    ((VuforiaTrackableDefaultListener) target.getListener()).setPhoneInformation(
+                        cameraLocationOnRobot, cameraDir);
+                }
             }
 
             targetMap.put(targetInfo.name, targetInfo);
