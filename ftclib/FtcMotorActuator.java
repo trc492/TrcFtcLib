@@ -25,6 +25,7 @@ package TrcFtcLib.ftclib;
 import TrcCommonLib.trclib.TrcEvent;
 import TrcCommonLib.trclib.TrcPidActuator;
 import TrcCommonLib.trclib.TrcPidController;
+import TrcCommonLib.trclib.TrcPidMotor;
 import TrcCommonLib.trclib.TrcTone;
 
 /**
@@ -50,6 +51,7 @@ public class FtcMotorActuator
         double stallTimeout = 0.0;
         double resetTimeout = 0.0;
         double[] posPresets = null;
+        TrcPidMotor.PowerCompensation powerCompensation = null;
 
         /**
          * This method sets the position range limits of the motor actuator.
@@ -146,6 +148,19 @@ public class FtcMotorActuator
             return this;
         }   //setPosPresets
 
+        /**
+         * This method sets the power compensation callback method. When specified, the power compensation method will
+         * be called periodically to calculate the motor power to compensation for gravity.
+         *
+         * @param powerCompensation specifies the motor power compensation method.
+         * @return this parameter object.
+         */
+        public Parameters setPowerCompensation(TrcPidMotor.PowerCompensation powerCompensation)
+        {
+            this.powerCompensation = powerCompensation;
+            return this;
+        }   //setPowerCompensation
+
     }   //class Parameters
 
     private final String instanceName;
@@ -184,7 +199,7 @@ public class FtcMotorActuator
 
         pidActuator = new TrcPidActuator(
                 "pid" + instanceName, actuatorMotor, lowerLimitSwitch, pidController,
-                params.calPower, params.minPos, params.maxPos);
+                params.calPower, params.minPos, params.maxPos, params.powerCompensation);
         pidActuator.setPositionScale(params.scale, params.offset);
         if (params.stallMinPower != 0.0)
         {
