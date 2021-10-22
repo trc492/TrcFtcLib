@@ -53,7 +53,9 @@ import TrcCommonLib.trclib.TrcVideoSource;
 /**
  * This class makes using Vuforia a little easier by minimizing the number of calls to it. It only exposes the
  * minimum things you need to set for the FTC competition. If you want to do more complex stuff, you may consider
- * not using this and call Vuforia directly so you can customize other stuff.
+ * not using this and call Vuforia directly so you can customize other stuff. Alternatively, you can also call
+ * the getLocalizer method to get the Vuforia localizer object and use it to call Vuforia directly. This class
+ * provides methods to simplify getting robot location from trackable images.
  */
 public class FtcVuforia implements TrcVideoSource<Mat>
 {
@@ -105,94 +107,25 @@ public class FtcVuforia implements TrcVideoSource<Mat>
      * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
      * other parameters.
      *
-     * @param licenseKey specifies the Vuforia license key.
-     * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
-     * @param cameraName specifies the webcam hardware name.
-     * @param extendedTracking specifies true if you want Vuforia to track beyond the target.
-     * @param cameraMonitorFeedback specifies the feedback image showing the orientation of the target.
+     * @param vuforiaParams specifies the Vuforia parameters.
      */
-    public FtcVuforia(
-        String licenseKey, int cameraViewId, CameraName cameraName, boolean extendedTracking,
-        VuforiaLocalizer.Parameters.CameraMonitorFeedback cameraMonitorFeedback)
+    public FtcVuforia(VuforiaLocalizer.Parameters vuforiaParams)
     {
-        this.cameraName = cameraName;
-        //
-        // If no camera view ID, do not activate camera monitor view to save power.
-        //
-        VuforiaLocalizer.Parameters params =
-            cameraViewId == -1? new VuforiaLocalizer.Parameters(): new VuforiaLocalizer.Parameters(cameraViewId);
-        params.vuforiaLicenseKey = licenseKey;
-        params.cameraName = cameraName;
-        params.useExtendedTracking = extendedTracking;
-        params.cameraMonitorFeedback = cameraMonitorFeedback != null?
-            cameraMonitorFeedback: VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
-        localizer = ClassFactory.getInstance().createVuforia(params);
-    }   //FtcVuforia
+        if (vuforiaParams.cameraName != null)
+        {
+            this.cameraName = vuforiaParams.cameraName;
+        }
+        else if (vuforiaParams.cameraDirection != null)
+        {
+            this.cameraDir = vuforiaParams.cameraDirection;
+        }
+        else
+        {
+            throw new IllegalArgumentException(
+                "Must specify either the camera direction on the phone or the USB camera name");
+        }
 
-    /**
-     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
-     * other parameters.
-     *
-     * @param licenseKey specifies the Vuforia license key.
-     * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
-     * @param cameraName specifies the webcam hardware name.
-     */
-    public FtcVuforia(String licenseKey, int cameraViewId, CameraName cameraName)
-    {
-        this(licenseKey, cameraViewId, cameraName, false, null);
-    }   //FtcVuforia
-
-    /**
-     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
-     * other parameters.
-     *
-     * @param licenseKey specifies the Vuforia license key.
-     * @param cameraName specifies the webcam hardware name.
-     */
-    public FtcVuforia(String licenseKey, CameraName cameraName)
-    {
-        this(licenseKey, -1, cameraName, false, null);
-    }   //FtcVuforia
-
-    /**
-     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
-     * other parameters.
-     *
-     * @param licenseKey specifies the Vuforia license key.
-     * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
-     * @param cameraDir specifies which camera to use (front or back).
-     * @param extendedTracking specifies true if you want Vuforia to track beyond the target.
-     * @param cameraMonitorFeedback specifies the feedback image showing the orientation of the target.
-     */
-    public FtcVuforia(
-            String licenseKey, int cameraViewId, VuforiaLocalizer.CameraDirection cameraDir, boolean extendedTracking,
-            VuforiaLocalizer.Parameters.CameraMonitorFeedback cameraMonitorFeedback)
-    {
-        this.cameraDir = cameraDir;
-        //
-        // If no camera view ID, do not activate camera monitor view to save power.
-        //
-        VuforiaLocalizer.Parameters params =
-                cameraViewId == -1? new VuforiaLocalizer.Parameters(): new VuforiaLocalizer.Parameters(cameraViewId);
-        params.vuforiaLicenseKey = licenseKey;
-        params.cameraDirection = cameraDir != null? cameraDir: VuforiaLocalizer.CameraDirection.BACK;
-        params.useExtendedTracking = extendedTracking;
-        params.cameraMonitorFeedback = cameraMonitorFeedback != null?
-            cameraMonitorFeedback: VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES;
-        localizer = ClassFactory.getInstance().createVuforia(params);
-    }   //FtcVuforia
-
-    /**
-     * Constructor: Create an instance of this object. It initializes Vuforia with the specified target images and
-     * other parameters.
-     *
-     * @param licenseKey specifies the Vuforia license key.
-     * @param cameraViewId specifies the camera view ID on the activity, -1 if none given.
-     * @param cameraDir specifies which camera to use (front or back).
-     */
-    public FtcVuforia(String licenseKey, int cameraViewId, VuforiaLocalizer.CameraDirection cameraDir)
-    {
-        this(licenseKey, cameraViewId, cameraDir, false, null);
+        localizer = ClassFactory.getInstance().createVuforia(vuforiaParams);
     }   //FtcVuforia
 
     /**
@@ -402,7 +335,7 @@ public class FtcVuforia implements TrcVideoSource<Mat>
     }   //setFlashlightEnabled
 
     //
-    // Implements HalVideoSource interface.
+    // Implements TrcVideoSource interface.
     //
 
     /**
