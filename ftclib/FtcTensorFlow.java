@@ -257,7 +257,7 @@ public class FtcTensorFlow
      * @param target specifies the detected target
      * @return information about the detected target.
      */
-    private TargetInfo getTargetInfo(Recognition target)
+    public TargetInfo getTargetInfo(Recognition target)
     {
         final String funcName = "getTargetInfo";
         double imageWidth = target.getImageWidth();
