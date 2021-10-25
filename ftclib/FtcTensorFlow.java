@@ -59,13 +59,13 @@ public class FtcTensorFlow
      */
     public static class TargetInfo
     {
-        String label;
-        Rect rect;
-        Point distanceFromCenter;
-        double angle;
-        double confidence;
-        int imageWidth;
-        int imageHeight;
+        public String label;
+        public Rect rect;
+        public Point distanceFromCenter;
+        public double angle;
+        public double confidence;
+        public int imageWidth;
+        public int imageHeight;
 
         TargetInfo(
             String label, Rect rect, Point distanceFromCenter, double angle, double confidence, int imageWidth,
