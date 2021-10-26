@@ -43,9 +43,11 @@ public class FtcMotorActuator
         double minPos = 0.0, maxPos = 1.0;
         double scale = 1.0, offset = 0.0;
         double kP = 1.0, kI = 0.0, kD = 0.0, tolerance = 1.0;
-        boolean inverted = false;
+        boolean motorInverted = false;
         boolean hasLowerLimitSwitch = false;
+        boolean lowerLimitInverted = false;
         boolean hasUpperLimitSwitch = false;
+        boolean upperLimitInverted = false;
         double calPower = 0.3;
         double stallMinPower = 0.0;
         double stallTimeout = 0.0;
@@ -103,18 +105,23 @@ public class FtcMotorActuator
         /**
          * This method sets the motor parameters of the motor actuator.
          *
-         * @param inverted specifies true if the motor direction should be reverse, false otherwise.
+         * @param motorInverted specifies true if the motor direction should be reverse, false otherwise.
          * @param hasLowerLimitSwitch specifies true if it has a lower limit switch, false otherwise.
+         * @param lowerLimitInverted specifies true if lower limit switch is inverted, false otherwise.
          * @param hasUpperLimitSwitch specifies true if it has an upper limit switch, false otherwise.
+         * @param upperLimitInverted specifies true if upper limit switch is inverted, false otherwise.
          * @param calPower specifies the motor power to use for zero calibration.
          * @return this parameter object.
          */
         public Parameters setMotorParams(
-                boolean inverted, boolean hasLowerLimitSwitch, boolean hasUpperLimitSwitch, double calPower)
+                boolean motorInverted, boolean hasLowerLimitSwitch, boolean lowerLimitInverted,
+                boolean hasUpperLimitSwitch, boolean upperLimitInverted, double calPower)
         {
-            this.inverted = inverted;
+            this.motorInverted = motorInverted;
             this.hasLowerLimitSwitch = hasLowerLimitSwitch;
+            this.lowerLimitInverted = lowerLimitInverted;
             this.hasUpperLimitSwitch = hasUpperLimitSwitch;
+            this.upperLimitInverted = upperLimitInverted;
             this.calPower = calPower;
             return this;
         }   //setMotorParams
@@ -164,9 +171,9 @@ public class FtcMotorActuator
     }   //class Parameters
 
     private final String instanceName;
-    private FtcDigitalInput lowerLimitSwitch;
-    private FtcDigitalInput upperLimitSwitch;
-    private TrcPidActuator pidActuator;
+    private final FtcDigitalInput lowerLimitSwitch;
+    private final FtcDigitalInput upperLimitSwitch;
+    private final TrcPidActuator pidActuator;
 
     private double[] posPresets;
     private int posLevel;
@@ -190,7 +197,9 @@ public class FtcMotorActuator
                 instanceName + "Motor", lowerLimitSwitch, upperLimitSwitch);
         actuatorMotor.setBrakeModeEnabled(true);
         actuatorMotor.setOdometryEnabled(true);
-        actuatorMotor.setInverted(params.inverted);
+        actuatorMotor.setInverted(params.motorInverted);
+        if (lowerLimitSwitch != null) lowerLimitSwitch.setInverted(params.lowerLimitInverted);
+        if (upperLimitSwitch != null) upperLimitSwitch.setInverted(params.upperLimitInverted);
 
         TrcPidController pidController = new TrcPidController(
                 instanceName + "PidController",
