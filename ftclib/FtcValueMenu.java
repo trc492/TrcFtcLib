@@ -31,11 +31,23 @@ import TrcCommonLib.trclib.TrcDbgTrace;
  */
 public class FtcValueMenu extends FtcMenu
 {
+    /**
+     * This interface can be used to dynamically set the Value Menu default value. Generally, the default value is
+     * set in the ValueMenu constructor but there are scenarios where the default value could be changed after the
+     * menu object is created. When this interface is implemented, the ValueMenu will call the getValue method
+     * before displaying the menu.
+     */
+    public interface DefaultValue
+    {
+        double getValue();
+    }   //interface DefaultValue
+
     private final double minValue;
     private final double maxValue ;
     private final double valueStep;
     private final String valueFormat;
-    private double currValue;
+    private final DefaultValue defaultValue;
+    private Double currValue;
     private double multiplier = 1.0;
     private FtcMenu childMenu = null;
 
@@ -61,7 +73,34 @@ public class FtcValueMenu extends FtcMenu
         this.maxValue = maxValue;
         this.valueStep = valueStep;
         this.valueFormat = valueFormat;
+        this.defaultValue = null;
         this.currValue = defaultValue;
+    }   //FtcValueMenu
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param menuTitle specifies the title of the menu. The title will be displayed as the first line in the menu.
+     * @param parent specifies the parent menu to go back to if the BACK button is pressed. If this is the root menu,
+     *               it can be set to null.
+     * @param menuButtons specifies the object that implements the MenuButtons interface.
+     * @param minValue specifies the minimum value of the value range.
+     * @param maxValue specifies the maximum value of the value range.
+     * @param valueStep specifies the value step.
+     * @param defaultValue specifies the method to call to set default value.
+     * @param valueFormat specifies the format string for the value.
+     */
+    public FtcValueMenu(
+        String menuTitle, FtcMenu parent, MenuButtons menuButtons, double minValue, double maxValue,
+        double valueStep, DefaultValue defaultValue, String valueFormat)
+    {
+        super(menuTitle, parent, menuButtons);
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.valueStep = valueStep;
+        this.valueFormat = valueFormat;
+        this.defaultValue = defaultValue;
+        this.currValue = null;
     }   //FtcValueMenu
 
     /**
@@ -79,6 +118,25 @@ public class FtcValueMenu extends FtcMenu
     public FtcValueMenu(
             String menuTitle, FtcMenu parent, double minValue, double maxValue, double valueStep, double defaultValue,
             String valueFormat)
+    {
+        this(menuTitle, parent, null, minValue, maxValue, valueStep, defaultValue, valueFormat);
+    }   //FtcValueMenu
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param menuTitle specifies the title of the menu. The title will be displayed as the first line in the menu.
+     * @param parent specifies the parent menu to go back to if the BACK button is pressed. If this is the root menu,
+     *               it can be set to null.
+     * @param minValue specifies the minimum value of the value range.
+     * @param maxValue specifies the maximum value of the value range.
+     * @param valueStep specifies the value step.
+     * @param defaultValue specifies the method to call to set default value.
+     * @param valueFormat specifies the format string for the value.
+     */
+    public FtcValueMenu(
+        String menuTitle, FtcMenu parent, double minValue, double maxValue, double valueStep,
+        DefaultValue defaultValue, String valueFormat)
     {
         this(menuTitle, parent, null, minValue, maxValue, valueStep, defaultValue, valueFormat);
     }   //FtcValueMenu
@@ -240,6 +298,15 @@ public class FtcValueMenu extends FtcMenu
         }
 
         dashboard.clearDisplay();
+        //
+        // If there is a callback to get the default value, call it only for the first time. This method gets called
+        // every time an up or down button is pressed, we only want to display the "default value" the first time
+        // the menu is displayed.
+        //
+        if (defaultValue != null && currValue == null)
+        {
+            currValue = defaultValue.getValue();
+        }
         dashboard.displayPrintf(0, "%s" + valueFormat + "%s", getTitle(), currValue, childMenu != null? " ...": "");
     }   //displayMenu
 
