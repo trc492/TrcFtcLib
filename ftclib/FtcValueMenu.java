@@ -176,7 +176,7 @@ public class FtcValueMenu extends FtcMenu
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", currValue);
         }
 
-        return currValue;
+        return currValue == null? 0.0: currValue;
     }   //getCurrentValue
 
     //
