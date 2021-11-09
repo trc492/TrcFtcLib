@@ -35,7 +35,6 @@ public class FtcMatchInfo
         FINAL
     }   //enum MatchType
 
-    private static FtcMatchInfo instance = null;
     public Date matchDate;
     public MatchType matchType;
     public int matchNumber;
@@ -63,41 +62,38 @@ public class FtcMatchInfo
     }   //toString
 
     /**
-     * This method creates the singleton of the FtcMatchInfo class if not already. It displays the match info menus,
-     * displays them and populates the match info according to the choices.
+     * This method creates the FtcMatchInfo object. It creates the match info menus, displays them and let the user
+     * enter the match info and return it.
      *
-     * @return match info instance.
+     * @return match info.
      */
     public static FtcMatchInfo getMatchInfo()
     {
-        if (instance == null)
-        {
-            instance = new FtcMatchInfo(new Date());
-            //
-            // Construct menus.
-            //
-            FtcChoiceMenu<MatchType> matchTypeMenu = new FtcChoiceMenu<>("Match type:", null);
-            FtcValueMenu matchNumberMenu = new FtcValueMenu(
-                "Match number:", matchTypeMenu, 1.0, 50.0, 1.0, 1.0, "%.0f");
-            //
-            // Populate choice menus.
-            //
-            matchTypeMenu.addChoice("Practice", MatchType.PRACTICE, true, matchNumberMenu);
-            matchTypeMenu.addChoice("Qualification", MatchType.QUALIFICATION, false, matchNumberMenu);
-            matchTypeMenu.addChoice("Semi-final", MatchType.SEMI_FINAL, false, matchNumberMenu);
-            matchTypeMenu.addChoice("Final", MatchType.FINAL, false, matchNumberMenu);
-            //
-            // Traverse menus.
-            //
-            FtcMenu.walkMenuTree(matchTypeMenu);
-            //
-            // Fetch choices.
-            //
-            instance.matchType = matchTypeMenu.getCurrentChoiceObject();
-            instance.matchNumber = (int)matchNumberMenu.getCurrentValue();
-        }
+        FtcMatchInfo matchInfo = new FtcMatchInfo(new Date());
+        //
+        // Construct menus.
+        //
+        FtcChoiceMenu<MatchType> matchTypeMenu = new FtcChoiceMenu<>("Match type:", null);
+        FtcValueMenu matchNumberMenu = new FtcValueMenu(
+            "Match number:", matchTypeMenu, 1.0, 50.0, 1.0, 1.0, "%.0f");
+        //
+        // Populate choice menus.
+        //
+        matchTypeMenu.addChoice("Practice", MatchType.PRACTICE, true, matchNumberMenu);
+        matchTypeMenu.addChoice("Qualification", MatchType.QUALIFICATION, false, matchNumberMenu);
+        matchTypeMenu.addChoice("Semi-final", MatchType.SEMI_FINAL, false, matchNumberMenu);
+        matchTypeMenu.addChoice("Final", MatchType.FINAL, false, matchNumberMenu);
+        //
+        // Traverse menus.
+        //
+        FtcMenu.walkMenuTree(matchTypeMenu);
+        //
+        // Fetch choices.
+        //
+        matchInfo.matchType = matchTypeMenu.getCurrentChoiceObject();
+        matchInfo.matchNumber = (int)matchNumberMenu.getCurrentValue();
 
-        return instance;
-    }   //doMatchInfoMenus
+        return matchInfo;
+    }   //getMatchInfo
 
 }   //class FtcMatchInfo
