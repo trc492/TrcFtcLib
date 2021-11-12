@@ -349,6 +349,18 @@ public class FtcMotorActuator
      * after target is reached.
      *
      * @param target specifies the target position to set the actuator.
+     * @param event specifies the event to notify when done.
+     */
+    public void setPosition(double target, TrcEvent event)
+    {
+        pidActuator.setTarget(target, true, event, 0.0);
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position. The actuator will maintain the target position
+     * after target is reached.
+     *
+     * @param target specifies the target position to set the actuator.
      */
     public void setPosition(double target)
     {
@@ -360,7 +372,7 @@ public class FtcMotorActuator
      *
      * @param level specifies the index to the preset position array.
      */
-    public void setLevel(int level)
+    public void setLevel(int level, TrcEvent event)
     {
         if (posPresets != null)
         {
@@ -377,8 +389,18 @@ public class FtcMotorActuator
                 posLevel = level;
             }
 
-            setPosition(posPresets[posLevel]);
+            setPosition(posPresets[posLevel], event);
         }
+    }   //setLevel
+
+    /**
+     * This method sets the actuator to the specified preset position.
+     *
+     * @param level specifies the index to the preset position array.
+     */
+    public void setLevel(int level)
+    {
+        setLevel(level, null);
     }   //setLevel
 
     /**
