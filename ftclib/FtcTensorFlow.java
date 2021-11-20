@@ -23,7 +23,6 @@
 
 package TrcFtcLib.ftclib;
 
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -61,19 +60,21 @@ public class FtcTensorFlow
     {
         public String label;
         public Rect rect;
-        public Point distanceFromCenter;
+        public Point distanceFromImageCenter;
+        public Point distanceFromCamera;
         public double angle;
         public double confidence;
         public int imageWidth;
         public int imageHeight;
 
         TargetInfo(
-            String label, Rect rect, Point distanceFromCenter, double angle, double confidence, int imageWidth,
-            int imageHeight)
+            String label, Rect rect, Point distanceFromImageCenter, Point distanceFromCamera, double angle,
+            double confidence, int imageWidth, int imageHeight)
         {
             this.label = label;
             this.rect = rect;
-            this.distanceFromCenter = distanceFromCenter;
+            this.distanceFromImageCenter = distanceFromImageCenter;
+            this.distanceFromCamera = distanceFromCamera;
             this.angle = angle;
             this.confidence = confidence;
             this.imageWidth = imageWidth;
@@ -83,10 +84,29 @@ public class FtcTensorFlow
         @Override
         public String toString()
         {
-            return String.format(Locale.US,
-                "%s: Rect[%d,%d,%d,%d] DistanceFromCenter[%.1f,%.1f] angle=%.1f, confidence=%.1f, image(w=%d,h=%d)",
-                label, rect.x, rect.y, rect.width, rect.height, distanceFromCenter.x, distanceFromCenter.y, angle,
-                confidence, imageWidth, imageHeight);
+            String s;
+
+            if (distanceFromCamera != null)
+            {
+                s = String.format(Locale.US,
+                                  "%s: Rect[%d,%d,%d,%d] distImageCenter[%.0f,%.0f] distCamera[%.1f,%.1f] " +
+                                  "angle=%.1f confidence=%.1f image(w=%d,h=%d)",
+                                  label, rect.x, rect.y, rect.width, rect.height,
+                                  distanceFromImageCenter.x, distanceFromImageCenter.y,
+                                  distanceFromCamera.x, distanceFromCamera.y, angle, confidence,
+                                  imageWidth, imageHeight);
+            }
+            else
+            {
+                s = String.format(Locale.US,
+                                  "%s: Rect[%d,%d,%d,%d] distImageCenter[%.0f,%.0f] angle=%.1f confidence=%.1f " +
+                                  "image (w=%d,h=%d)",
+                                  label, rect.x, rect.y, rect.width, rect.height,
+                                  distanceFromImageCenter.x, distanceFromImageCenter.y,
+                                  angle, confidence, imageWidth, imageHeight);
+            }
+
+            return s;
         }
     }   //class TargetInfo
 
@@ -264,15 +284,14 @@ public class FtcTensorFlow
         double imageHeight = target.getImageHeight();
         Rect targetRect = new Rect(
             (int)target.getLeft(), (int)target.getTop(), (int)target.getWidth(), (int)target.getHeight());
-        Point distanceFromCenter = new Point(
-            targetRect.x + targetRect.width/2.0 - imageWidth/2.0,
-            targetRect.y + targetRect.height/2.0 - imageHeight/2.0);
-        if (homographyMapper != null)
-        {
-            distanceFromCenter = homographyMapper.mapPoint(distanceFromCenter);
-        }
+        Point pixelDistance = new Point(targetRect.x + targetRect.width/2.0 - imageWidth/2.0,
+                                        targetRect.y + targetRect.height/2.0 - imageHeight/2.0);
+        Point bottomCenter = new Point(targetRect.x + targetRect.width/2.0, targetRect.y + targetRect.height);
+
+        bottomCenter = homographyMapper != null? homographyMapper.mapPoint(bottomCenter): null;
+
         TargetInfo targetInfo = new TargetInfo(
-            target.getLabel(), targetRect, distanceFromCenter, target.estimateAngleToObject(AngleUnit.DEGREES),
+            target.getLabel(), targetRect, pixelDistance, bottomCenter, target.estimateAngleToObject(AngleUnit.DEGREES),
             target.getConfidence(), target.getImageWidth(), target.getImageHeight());
 
         if (tracer != null)
