@@ -26,6 +26,7 @@ import TrcCommonLib.trclib.TrcEvent;
 import TrcCommonLib.trclib.TrcPidActuator;
 import TrcCommonLib.trclib.TrcPidController;
 import TrcCommonLib.trclib.TrcPidMotor;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcTone;
 
 /**
@@ -174,9 +175,15 @@ public class FtcMotorActuator
     private final FtcDigitalInput lowerLimitSwitch;
     private final FtcDigitalInput upperLimitSwitch;
     private final TrcPidActuator pidActuator;
+    private final TrcTimer timer;
 
     private double[] posPresets;
     private int posLevel;
+
+    private double target;
+    private boolean holdPosition;
+    private TrcEvent onFinishedEvent;
+    private double timeout;
 
     /**
      * Constructor: Create an instance of the object.
@@ -189,12 +196,11 @@ public class FtcMotorActuator
         this.instanceName = instanceName;
 
         lowerLimitSwitch =
-                params.hasLowerLimitSwitch? new FtcDigitalInput(instanceName + "LowerLimit"): null;
+            params.hasLowerLimitSwitch? new FtcDigitalInput(instanceName + "LowerLimit"): null;
         upperLimitSwitch =
-                params.hasUpperLimitSwitch? new FtcDigitalInput(instanceName + "UpperLimit"): null;
+            params.hasUpperLimitSwitch? new FtcDigitalInput(instanceName + "UpperLimit"): null;
 
-        FtcDcMotor actuatorMotor = new FtcDcMotor(
-                instanceName + "Motor", lowerLimitSwitch, upperLimitSwitch);
+        FtcDcMotor actuatorMotor = new FtcDcMotor(instanceName + "Motor", lowerLimitSwitch, upperLimitSwitch);
         actuatorMotor.setBrakeModeEnabled(true);
         actuatorMotor.setOdometryEnabled(true);
         actuatorMotor.setInverted(params.motorInverted);
@@ -202,19 +208,20 @@ public class FtcMotorActuator
         if (upperLimitSwitch != null) upperLimitSwitch.setInverted(params.upperLimitInverted);
 
         TrcPidController pidController = new TrcPidController(
-                instanceName + "PidController",
-                new TrcPidController.PidCoefficients(params.kP, params.kI, params.kD),
-                params.tolerance, this::getPosition);
+            instanceName + "PidController",
+            new TrcPidController.PidCoefficients(params.kP, params.kI, params.kD),
+            params.tolerance, this::getPosition);
 
         pidActuator = new TrcPidActuator(
-                "pid" + instanceName, actuatorMotor, lowerLimitSwitch, pidController,
-                params.calPower, params.minPos, params.maxPos, params.powerCompensation);
+            "pid" + instanceName, actuatorMotor, lowerLimitSwitch, pidController,
+            params.calPower, params.minPos, params.maxPos, params.powerCompensation);
         pidActuator.setPositionScale(params.scale, params.offset);
         if (params.stallMinPower != 0.0)
         {
             pidActuator.setStallProtection(params.stallMinPower, params.stallTimeout, params.resetTimeout);
         }
 
+        this.timer = new TrcTimer(instanceName);
         this.posPresets = params.posPresets;
         this.posLevel = 0;
     }   //FtcMotorActuator
@@ -305,6 +312,37 @@ public class FtcMotorActuator
      * notify the event and continue on. The caller is responsible for stopping the PID operation by calling cancel()
      * when done with holding position.
      *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
+     * @param target specifies the target position to set the actuator.
+     * @param holdPosition specifies true to hold position after PID operation is completed.
+     * @param event specifies the event to be signal when the actuator reaches the specified position.
+     * @param timeout specifies the maximum timeout for the actuator movement. If the actuator does not reach target
+     *                within timeout time, the event will be signaled so autonomous state machine will not be hung
+     *                if for some reason the actuator never reaches target.
+     */
+    public void setPosition(double delay, double target, boolean holdPosition, TrcEvent event, double timeout)
+    {
+        if (delay > 0.0)
+        {
+            this.target = target;
+            this.holdPosition = holdPosition;
+            this.onFinishedEvent = event;
+            this.timeout = timeout;
+            timer.set(delay, this::timerExpired);
+        }
+        else
+        {
+            pidActuator.setTarget(target, holdPosition, event, timeout);
+        }
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position. Generally, when PID operation has reached
+     * target, event will be notified and PID operation will end. However, if holdTarget is true, PID operation
+     * cannot end because it needs to keep monitoring the position and maintaining it. In this case, it will just
+     * notify the event and continue on. The caller is responsible for stopping the PID operation by calling cancel()
+     * when done with holding position.
+     *
      * @param target specifies the target position to set the actuator.
      * @param holdPosition specifies true to hold position after PID operation is completed.
      * @param event specifies the event to be signal when the actuator reaches the specified position.
@@ -314,7 +352,24 @@ public class FtcMotorActuator
      */
     public void setPosition(double target, boolean holdPosition, TrcEvent event, double timeout)
     {
-        pidActuator.setTarget(target, holdPosition, event, timeout);
+        setPosition(0.0, target, holdPosition, event, timeout);
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position. Generally, when PID operation has reached
+     * target, event will be notified and PID operation will end. However, if holdTarget is true, PID operation
+     * cannot end because it needs to keep monitoring the position and maintaining it. In this case, it will just
+     * notify the event and continue on. The caller is responsible for stopping the PID operation by calling cancel()
+     * when done with holding position.
+     *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
+     * @param target specifies the target position to set the actuator.
+     * @param holdPosition specifies true to hold position after PID operation is completed.
+     * @param event specifies the event to be signal when the actuator reaches the specified position.
+     */
+    public void setPosition(double delay, double target, boolean holdPosition, TrcEvent event)
+    {
+        setPosition(delay, target, holdPosition, event, 0.0);
     }   //setPosition
 
     /**
@@ -330,7 +385,19 @@ public class FtcMotorActuator
      */
     public void setPosition(double target, boolean holdPosition, TrcEvent event)
     {
-        pidActuator.setTarget(target, holdPosition, event, 0.0);
+        setPosition(0.0, target, holdPosition, event, 0.0);
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position.
+     *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
+     * @param target specifies the target position to set the actuator.
+     * @param holdPosition specifies true to hold position after PID operation is completed.
+     */
+    public void setPosition(double delay, double target, boolean holdPosition)
+    {
+        setPosition(delay, target, holdPosition, null, 0.0);
     }   //setPosition
 
     /**
@@ -341,7 +408,20 @@ public class FtcMotorActuator
      */
     public void setPosition(double target, boolean holdPosition)
     {
-        pidActuator.setTarget(target, holdPosition, null, 0.0);
+        setPosition(0.0, target, holdPosition, null, 0.0);
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position. The actuator will maintain the target position
+     * after target is reached.
+     *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
+     * @param target specifies the target position to set the actuator.
+     * @param event specifies the event to notify when done.
+     */
+    public void setPosition(double delay, double target, TrcEvent event)
+    {
+        setPosition(delay, target, true, event, 0.0);
     }   //setPosition
 
     /**
@@ -353,7 +433,19 @@ public class FtcMotorActuator
      */
     public void setPosition(double target, TrcEvent event)
     {
-        pidActuator.setTarget(target, true, event, 0.0);
+        setPosition(0.0, target, true, event, 0.0);
+    }   //setPosition
+
+    /**
+     * This method starts moving the actuator to the specified position. The actuator will maintain the target position
+     * after target is reached.
+     *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
+     * @param target specifies the target position to set the actuator.
+     */
+    public void setPosition(double delay, double target)
+    {
+        setPosition(delay, target, true, null, 0.0);
     }   //setPosition
 
     /**
@@ -364,15 +456,17 @@ public class FtcMotorActuator
      */
     public void setPosition(double target)
     {
-        pidActuator.setTarget(target, true, null, 0.0);
+        setPosition(0.0, target, true, null, 0.0);
     }   //setPosition
 
     /**
      * This method sets the actuator to the specified preset position.
      *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
      * @param level specifies the index to the preset position array.
+     * @param event specifies the event to notify when done.
      */
-    public void setLevel(int level, TrcEvent event)
+    public void setLevel(double delay, int level, TrcEvent event)
     {
         if (posPresets != null)
         {
@@ -389,8 +483,29 @@ public class FtcMotorActuator
                 posLevel = level;
             }
 
-            setPosition(posPresets[posLevel], event);
+            setPosition(delay, posPresets[posLevel], event);
         }
+    }   //setLevel
+
+    /**
+     * This method sets the actuator to the specified preset position.
+     *
+     * @param level specifies the index to the preset position array.
+     */
+    public void setLevel(int level, TrcEvent event)
+    {
+        setLevel(0.0, level, event);
+    }   //setLevel
+
+    /**
+     * This method sets the actuator to the specified preset position.
+     *
+     * @param delay specifies delay time in seconds before setting position, can be zero if no delay.
+     * @param level specifies the index to the preset position array.
+     */
+    public void setLevel(double delay, int level)
+    {
+        setLevel(delay, level, null);
     }   //setLevel
 
     /**
@@ -400,7 +515,7 @@ public class FtcMotorActuator
      */
     public void setLevel(int level)
     {
-        setLevel(level, null);
+        setLevel(0.0, level, null);
     }   //setLevel
 
     /**
@@ -458,6 +573,16 @@ public class FtcMotorActuator
     {
         return upperLimitSwitch != null && upperLimitSwitch.isActive();
     }   //isUpperLimitSwitchActive
+
+    /**
+     * This method is called when the setPosition delay timer has expired. It will perform the setPosition.
+     *
+     * @param timer
+     */
+    private void timerExpired(Object timer)
+    {
+        pidActuator.setTarget(target, holdPosition, onFinishedEvent, timeout);
+    }   //timerExpired
 
 }   //class FtcMotorActuator
 
