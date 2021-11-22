@@ -49,8 +49,9 @@ public class FtcDigitalInput extends TrcDigitalInput
      *
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
+     * @param inverted specifies true to invert the digital input, false otherwise.
      */
-    public FtcDigitalInput(HardwareMap hardwareMap, String instanceName)
+    public FtcDigitalInput(HardwareMap hardwareMap, String instanceName, boolean inverted)
     {
         super(instanceName);
 
@@ -61,6 +62,18 @@ public class FtcDigitalInput extends TrcDigitalInput
 
         digitalInput = hardwareMap.get(DigitalChannel.class, instanceName);
         digitalInput.setMode(DigitalChannel.Mode.INPUT);
+        this.inverted = inverted;
+    }   //FtcDigitalInput
+
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param inverted specifies true to invert the digital input, false otherwise.
+     */
+    public FtcDigitalInput(String instanceName, boolean inverted)
+    {
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, inverted);
     }   //FtcDigitalInput
 
     /**
@@ -70,7 +83,7 @@ public class FtcDigitalInput extends TrcDigitalInput
      */
     public FtcDigitalInput(String instanceName)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, false);
     }   //FtcDigitalInput
 
     /**
