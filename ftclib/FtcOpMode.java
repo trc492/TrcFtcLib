@@ -35,6 +35,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 
+import TrcCommonLib.trclib.TrcDashboard;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcRobot;
@@ -44,7 +45,7 @@ import TrcCommonLib.trclib.TrcUtil;
 /**
  * This class implements a cooperative multi-tasking scheduler extending LinearOpMode.
  */
-public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode, TrcDbgTrace.DbgLog
+public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
 {
     private static final String moduleName = "FtcOpMode";
     private static final boolean debugEnabled = false;
@@ -52,7 +53,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
-    private static final String DBG_TAG = "TrcDbg";
 
     private static final LynxModule.BulkCachingMode bulkCachingMode = LynxModule.BulkCachingMode.AUTO;
     private static String opModeName = null;
@@ -90,7 +90,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         // We must set DbgLog as early as possible before any instantiation of TrcDbgTrace because TrcDbgTrace must
         // have it or it will throw an exception.
         //
-        TrcDbgTrace.setDbgLog(this);
+        TrcDbgTrace.setDbgLog(new FtcDbgLog());
         if (debugEnabled)
         {
             dbgTrace = new TrcDbgTrace(moduleName, tracingEnabled, traceLevel, msgLevel);
@@ -584,50 +584,5 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     public void runContinuous(double elapsedTime)
     {
     }   //runContinuous
-
-    //
-    // Implements TrcDbgTrace.DbgLog interface.
-    //
-
-    /**
-     * This method is called to print a message with the specified message level to the debug console.
-     *
-     * @param level specifies the message level.
-     * @param msg specifies the message.
-     */
-    @Override
-    public void msg(TrcDbgTrace.MsgLevel level, String msg)
-    {
-        switch (level)
-        {
-            case FATAL:
-            case ERR:
-                Log.e(DBG_TAG, msg);
-                break;
-
-            case WARN:
-                Log.w(DBG_TAG, msg);
-                break;
-
-            case INFO:
-                Log.i(DBG_TAG, msg);
-                break;
-
-            case VERBOSE:
-                Log.v(DBG_TAG, msg);
-                break;
-        }
-    }   //msg
-
-    /**
-     * This method is called to print a message to the debug console.
-     *
-     * @param msg specifies the message.
-     */
-    @Override
-    public void traceMsg(String msg)
-    {
-        Log.d(DBG_TAG, msg);
-    }   //traceMsg
 
 }   //class FtcOpMode

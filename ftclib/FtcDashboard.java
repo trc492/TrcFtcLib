@@ -44,15 +44,7 @@ import TrcCommonLib.trclib.TrcDbgTrace;
  */
 public class FtcDashboard extends TrcDashboard
 {
-    private static final String moduleName = "FtcDashboard";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private Telemetry telemetry = null;
-    private int numLines = MAX_NUM_TEXTLINES;
     private Paint paint = null;
     private Telemetry.Item[] display;
 
@@ -106,13 +98,10 @@ public class FtcDashboard extends TrcDashboard
      */
     private FtcDashboard(Telemetry telemetry, int numLines)
     {
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName, tracingEnabled, traceLevel, msgLevel);
-        }
+        super(numLines);
 
+        instance = this;
         this.telemetry = telemetry;
-        this.numLines = numLines;
         telemetry.clearAll();
         telemetry.setAutoClear(false);
         display = new Telemetry.Item[numLines];
@@ -123,43 +112,7 @@ public class FtcDashboard extends TrcDashboard
         }
 
         telemetry.update();
-    }   //HalDashboard
-
-    /**
-     * This method clears all the display lines.
-     */
-    public void clearDisplay()
-    {
-        final String funcName = "clearDisplay";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        for (int i = 0; i < numLines; i++)
-        {
-            display[i].setValue("");
-        }
-        telemetry.update();
-    }   //clearDisplay
-
-    /**
-     * This method refresh the display lines to the Driver Station.
-     */
-    public void refreshDisplay()
-    {
-        final String funcName = "refreshDisplay";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        telemetry.update();
-    }   //refreshDisplay
+    }   //FtcDashboard
 
     /**
      * This method returns the value of the named boolean data read from the Telemetry class.
@@ -200,62 +153,6 @@ public class FtcDashboard extends TrcDashboard
     }   //getBoolean
 
     /**
-     * This method returns the value of the named boolean data read from the Telemetry class. If the named data does
-     * not exist, it is created and assigned the given default value. Then it is sent to the Driver Station.
-     *
-     * @param key specifies the name associated with the boolean data.
-     * @param defaultValue specifies the default value if it does not exist.
-     * @return boolean data value.
-     */
-    public boolean getBoolean(String key, boolean defaultValue)
-    {
-        final String funcName = "getBoolean";
-        boolean value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                    "key=%s,defValue=%s", key, Boolean.toString(defaultValue));
-        }
-
-        try
-        {
-            value = getBoolean(key);
-        }
-        catch (NoSuchElementException e)
-        {
-            putBoolean(key, defaultValue);
-            value = defaultValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(value));
-        }
-
-        return value;
-    }   //getBoolean
-
-    /**
-     * This method sets the named boolean data with the given value and also sends it to the Driver Station.
-     *
-     * @param key specifies the name associated with the boolean data.
-     * @param value specifies the data value.
-     */
-    public void putBoolean(String key, boolean value)
-    {
-        final String funcName = "putBoolean";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%s", key, Boolean.toString(value));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        telemetry.addData(key, Boolean.toString(value));
-    }   //putBoolean
-
-    /**
      * This method returns the value of the named double data read from the Telemetry class.
      *
      * @param key specifies the name associated with the double data.
@@ -289,61 +186,6 @@ public class FtcDashboard extends TrcDashboard
     }   //getNumber
 
     /**
-     * This method returns the value of the named double data read from the Telemetry class. If the named data does
-     * not exist, it is created and assigned the given default value. Then it is sent to the Driver Station.
-     *
-     * @param key specifies the name associated with the double data.
-     * @param defaultValue specifies the default value if it does not exist.
-     * @return double data value.
-     */
-    public double getNumber(String key, double defaultValue)
-    {
-        final String funcName = "getNumber";
-        double value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%f", key, defaultValue);
-        }
-
-        try
-        {
-            value = getNumber(key);
-        }
-        catch (NoSuchElementException e)
-        {
-            putNumber(key, defaultValue);
-            value = defaultValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
-    }   //getNumber
-
-    /**
-     * This method sets the named double data with the given value and also sends it to the Driver Station.
-     *
-     * @param key specifies the name associated with the double data.
-     * @param value specifies the data value.
-     */
-    public void putNumber(String key, double value)
-    {
-        final String funcName = "putNumber";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%f", key, value);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        telemetry.addData(key, Double.toString(value));
-    }   //putNumber
-
-    /**
      * This method returns the value of the named string data read from the Telemetry class.
      *
      * @param key specifies the name associated with the string data.
@@ -364,61 +206,6 @@ public class FtcDashboard extends TrcDashboard
     }   //getString
 
     /**
-     * This method returns the value of the named string data read from the Telemetry class. If the named data does
-     * not exist, it is created and assigned the given default value. Then it is sent to the Driver Station.
-     *
-     * @param key specifies the name associated with the string data.
-     * @param defaultValue specifies the default value if it does not exist.
-     * @return string data value.
-     */
-    public String getString(String key, String defaultValue)
-    {
-        final String funcName = "getString";
-        String value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%s", key, defaultValue);
-        }
-
-        try
-        {
-            value = getString(key);
-        }
-        catch (NoSuchElementException e)
-        {
-            putString(key, defaultValue);
-            value = defaultValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", value);
-        }
-
-        return value;
-    }   //getString
-
-    /**
-     * This method sets the named string data with the given value and also sends it to the Driver Station.
-     *
-     * @param key specifies the name associated with the string data.
-     * @param value specifies the data value.
-     */
-    public void putString(String key, String value)
-    {
-        final String funcName = "putString";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%s", key, value);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        telemetry.addData(key, value);
-    }   //putString
-
-    /**
      * This method calls Telemetry class to retrieve the named data item.
      *
      * @param key specifies the name associated with the string data.
@@ -426,6 +213,9 @@ public class FtcDashboard extends TrcDashboard
      */
     private String getValue(String key)
     {
+        //
+        // Currently, FTC does not support this. We will implement this if it is supported in the future.
+        //
         throw new UnsupportedOperationException("Not support in FTC.");
     }   //getValue
 
@@ -458,16 +248,6 @@ public class FtcDashboard extends TrcDashboard
                 paint == null? 0: Math.round((totalWidth - paint.measureText(text))/paint.measureText(" ")/2);
         return String.format("%" + (paddingSpaces + text.length()) + "s", text);
     }   //centeredText
-
-    /**
-     * This method returns the number of text lines on the display.
-     *
-     * @return number of display lines.
-     */
-    public int getNumTextLines()
-    {
-        return numLines;
-    }   //getNumTextLines
 
     /**
      * This method sets the TextView object from which to query the typeface measurement for centering/right justifying
@@ -596,6 +376,44 @@ public class FtcDashboard extends TrcDashboard
     //
 
     /**
+     * This method clears all the display lines.
+     */
+    @Override
+    public void clearDisplay()
+    {
+        final String funcName = "clearDisplay";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        for (int i = 0; i < numLines; i++)
+        {
+            display[i].setValue("");
+        }
+        telemetry.update();
+    }   //clearDisplay
+
+    /**
+     * This method refresh the display lines on the Driver Station.
+     */
+    @Override
+    public void refreshDisplay()
+    {
+        final String funcName = "refreshDisplay";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        telemetry.update();
+    }   //refreshDisplay
+
+    /**
      * This method displays a formatted message in the specified display line on the Driver Station.
      *
      * @param lineNum specifies the line number on the display.
@@ -608,5 +426,177 @@ public class FtcDashboard extends TrcDashboard
         String text = String.format(format, args);
         displayText(lineNum, text, 0, false);
     }   //displayPrintf
+
+    /**
+     * This method returns the value of the named boolean data read from the Telemetry class. If the named data does
+     * not exist, it is created and assigned the given default value. Then it is sent to the Driver Station.
+     *
+     * @param key specifies the name associated with the boolean data.
+     * @param defaultValue specifies the default value if it does not exist.
+     * @return boolean data value.
+     */
+    @Override
+    public boolean getBoolean(String key, boolean defaultValue)
+    {
+        final String funcName = "getBoolean";
+        boolean value;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%s", key, Boolean.toString(defaultValue));
+        }
+
+        try
+        {
+            value = getBoolean(key);
+        }
+        catch (NoSuchElementException e)
+        {
+            putBoolean(key, defaultValue);
+            value = defaultValue;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", value);
+        }
+
+        return value;
+    }   //getBoolean
+
+    /**
+     * This method sets the named boolean data with the given value and also sends it to the Driver Station.
+     *
+     * @param key specifies the name associated with the boolean data.
+     * @param value specifies the data value.
+     */
+    @Override
+    public void putBoolean(String key, boolean value)
+    {
+        final String funcName = "putBoolean";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%s", key, Boolean.toString(value));
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        telemetry.addData(key, Boolean.toString(value));
+    }   //putBoolean
+
+    /**
+     * This method returns the value of the named double data read from the Telemetry class. If the named data does
+     * not exist, it is created and assigned the given default value. Then it is sent to the Driver Station.
+     *
+     * @param key specifies the name associated with the double data.
+     * @param defaultValue specifies the default value if it does not exist.
+     * @return double data value.
+     */
+    @Override
+    public double getNumber(String key, double defaultValue)
+    {
+        final String funcName = "getNumber";
+        double value;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%f", key, defaultValue);
+        }
+
+        try
+        {
+            value = getNumber(key);
+        }
+        catch (NoSuchElementException e)
+        {
+            putNumber(key, defaultValue);
+            value = defaultValue;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
+        }
+
+        return value;
+    }   //getNumber
+
+    /**
+     * This method sets the named double data with the given value and also sends it to the Driver Station.
+     *
+     * @param key specifies the name associated with the double data.
+     * @param value specifies the data value.
+     */
+    @Override
+    public void putNumber(String key, double value)
+    {
+        final String funcName = "putNumber";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%f", key, value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        telemetry.addData(key, Double.toString(value));
+    }   //putNumber
+
+    /**
+     * This method returns the value of the named string data read from the Telemetry class. If the named data does
+     * not exist, it is created and assigned the given default value. Then it is sent to the Driver Station.
+     *
+     * @param key specifies the name associated with the string data.
+     * @param defaultValue specifies the default value if it does not exist.
+     * @return string data value.
+     */
+    @Override
+    public String getString(String key, String defaultValue)
+    {
+        final String funcName = "getString";
+        String value;
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%s", key, defaultValue);
+        }
+
+        try
+        {
+            value = getString(key);
+        }
+        catch (NoSuchElementException e)
+        {
+            putString(key, defaultValue);
+            value = defaultValue;
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", value);
+        }
+
+        return value;
+    }   //getString
+
+    /**
+     * This method sets the named string data with the given value and also sends it to the Driver Station.
+     *
+     * @param key specifies the name associated with the string data.
+     * @param value specifies the data value.
+     */
+    @Override
+    public void putString(String key, String value)
+    {
+        final String funcName = "putString";
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%s", key, value);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+        }
+
+        telemetry.addData(key, value);
+    }   //putString
 
 }   //class FtcDashboard
