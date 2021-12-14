@@ -23,7 +23,6 @@
 package TrcFtcLib.ftclib;
 
 import android.speech.tts.TextToSpeech;
-import android.util.Log;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -35,7 +34,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 
-import TrcCommonLib.trclib.TrcDashboard;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcRobot;
@@ -71,12 +69,12 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private static long loopCounter = 0;
 
     private TrcTaskMgr taskMgr;
-    private long periodicTotalNanoTime = 0;
+    private long periodicTotalElapsedTime = 0;
     private int periodicTimeSlotCount = 0;
-    private long continuousTotalNanoTime = 0;
+    private long continuousTotalElapsedTime = 0;
     private int continuousTimeSlotCount = 0;
-    private long sdkTotalNanoTime = 0;
-    private Object startNotifier = null;
+    private long sdkTotalElapsedTime = 0;
+    private final Object startNotifier;
 
     /**
      * Constructor: Creates an instance of the object. It calls the constructor of the LinearOpMode class and saves
@@ -206,7 +204,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      * @param opmodeType specifies Autonomous.class for autonomous opmode and TeleOp.class for TeleOp opmode.
      * @return opmode type name.
      */
-    public String getOpmodeTypeName(Class opmodeType)
+    public String getOpmodeTypeName(Class<?> opmodeType)
     {
         String opmodeTypeName = null;
 
@@ -232,7 +230,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      * @param opmodeType specifies Autonomous.class for autonomous opmode and TeleOp.class for TeleOp opmode.
      * @return opmode type group.
      */
-    public String getOpmodeTypeGroup(Class opmodeType)
+    public String getOpmodeTypeGroup(Class<?> opmodeType)
     {
         String opmodeTypeGroup = null;
 
@@ -405,7 +403,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             {
                 loopStartNanoTime = TrcUtil.getNanoTime();
                 loopCounter++;
-                sdkTotalNanoTime += loopStartNanoTime - startNanoTime;
+                sdkTotalElapsedTime += loopStartNanoTime - startNanoTime;
                 double opModeElapsedTime = TrcUtil.getModeElapsedTime();
 
                 if (bulkCachingMode == LynxModule.BulkCachingMode.MANUAL)
@@ -430,7 +428,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 }
                 startNanoTime = TrcUtil.getNanoTime();
                 runContinuous(opModeElapsedTime);
-                continuousTotalNanoTime += TrcUtil.getNanoTime() - startNanoTime;
+                continuousTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
                 continuousTimeSlotCount++;
 
                 if (debugEnabled)
@@ -456,7 +454,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     }
                     startNanoTime = TrcUtil.getNanoTime();
                     runPeriodic(opModeElapsedTime);
-                    periodicTotalNanoTime += TrcUtil.getNanoTime() - startNanoTime;
+                    periodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
                     periodicTimeSlotCount++;
 
                     if (debugEnabled)
@@ -504,9 +502,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 moduleName,
                 "%16s: Periodic=%.6f, Continuous=%.6f, SDK=%.6f",
                 opModeName,
-                (double)periodicTotalNanoTime/periodicTimeSlotCount/1000000000,
-                (double)continuousTotalNanoTime/continuousTimeSlotCount/1000000000,
-                (double)sdkTotalNanoTime/loopCounter/1000000000);
+                (double)periodicTotalElapsedTime/periodicTimeSlotCount/1000000000,
+                (double)continuousTotalElapsedTime/continuousTimeSlotCount/1000000000,
+                (double)sdkTotalElapsedTime/loopCounter/1000000000);
         taskMgr.printTaskPerformanceMetrics(tracer);
     }   //printPerformanceMetrics
 
