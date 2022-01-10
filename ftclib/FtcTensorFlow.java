@@ -31,6 +31,8 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -110,7 +112,6 @@ public class FtcTensorFlow
         }
     }   //class TargetInfo
 
-    private final FtcVuforia vuforia;
     private final TrcDbgTrace tracer;
     private final TFObjectDetector tfod;
     private final TrcHomographyMapper homographyMapper;
@@ -130,7 +131,6 @@ public class FtcTensorFlow
         FtcVuforia vuforia, TFObjectDetector.Parameters tfodParams, String modelAsset, String[] objectLabels,
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
     {
-        this.vuforia = vuforia;
         this.tracer = tracer;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParams, vuforia.getLocalizer());
         tfod.loadModelFromAsset(modelAsset, objectLabels);
@@ -307,9 +307,11 @@ public class FtcTensorFlow
      *
      * @param label specifies the target label to filter the target list, can be null if no filtering.
      * @param filter specifies the filter to call to filter out false positive targets.
+     * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
      * @return filtered target info array.
      */
-    public TargetInfo[] getDetectedTargetsInfo(String label, FilterTarget filter)
+    public TargetInfo[] getDetectedTargetsInfo(
+        String label, FilterTarget filter, Comparator<? super TargetInfo> comparator)
     {
         ArrayList<Recognition> targets = getDetectedTargets(label, filter);
         TargetInfo[] targetsInfo = targets != null && targets.size() > 0 ?new TargetInfo[targets.size()] :null;
@@ -320,20 +322,14 @@ public class FtcTensorFlow
             {
                 targetsInfo[i] = getTargetInfo(targets.get(i));
             }
+
+            if (comparator != null)
+            {
+                Arrays.sort(targetsInfo, comparator);
+            }
         }
 
         return targetsInfo;
-    }   //getDetectedTargetsInfo
-
-    /**
-     * This method returns an array of target info on the filtered detected targets.
-     *
-     * @param label specifies the target label to filter the target list, can be null if no filtering.
-     * @return filtered target info array.
-     */
-    public TargetInfo[] getDetectedTargetsInfo(String label)
-    {
-        return getDetectedTargetsInfo(label, null);
     }   //getDetectedTargetsInfo
 
 }   //class FtcTensorFlow
