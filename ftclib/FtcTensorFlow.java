@@ -332,4 +332,15 @@ public class FtcTensorFlow
         return targetsInfo;
     }   //getDetectedTargetsInfo
 
+    /**
+     * This method maps a camera screen point to the real world point using homography.
+     *
+     * @param point specifies the camera screen point.
+     * @return real world coordinate point.
+     */
+    public Point mapPoint(Point point)
+    {
+        return homographyMapper != null? homographyMapper.mapPoint(point): null;
+    }   //mapPoint
+
 }   //class FtcTensorFlow
