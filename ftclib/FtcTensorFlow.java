@@ -64,19 +64,21 @@ public class FtcTensorFlow
         public Rect rect;
         public Point distanceFromImageCenter;
         public Point distanceFromCamera;
+        public double objectWidth;
         public double angle;
         public double confidence;
         public int imageWidth;
         public int imageHeight;
 
         TargetInfo(
-            String label, Rect rect, Point distanceFromImageCenter, Point distanceFromCamera, double angle,
-            double confidence, int imageWidth, int imageHeight)
+            String label, Rect rect, Point distanceFromImageCenter, Point distanceFromCamera,
+            double objectWidth, double angle, double confidence, int imageWidth, int imageHeight)
         {
             this.label = label;
             this.rect = rect;
             this.distanceFromImageCenter = distanceFromImageCenter;
             this.distanceFromCamera = distanceFromCamera;
+            this.objectWidth = objectWidth;
             this.angle = angle;
             this.confidence = confidence;
             this.imageWidth = imageWidth;
@@ -91,11 +93,11 @@ public class FtcTensorFlow
             if (distanceFromCamera != null)
             {
                 s = String.format(Locale.US,
-                                  "%s: Rect[%d,%d,%d,%d] distImageCenter[%.0f,%.0f] distCamera[%.1f,%.1f] " +
+                                  "%s: Rect[%d,%d,%d,%d] distImageCenter[%.0f,%.0f] distCamera[%.1f,%.1f] width=%.1f " +
                                   "angle=%.1f confidence=%.1f image(w=%d,h=%d)",
                                   label, rect.x, rect.y, rect.width, rect.height,
                                   distanceFromImageCenter.x, distanceFromImageCenter.y,
-                                  distanceFromCamera.x, distanceFromCamera.y, angle, confidence,
+                                  distanceFromCamera.x, distanceFromCamera.y, objectWidth, angle, confidence,
                                   imageWidth, imageHeight);
             }
             else
@@ -286,12 +288,21 @@ public class FtcTensorFlow
             (int)target.getLeft(), (int)target.getTop(), (int)target.getWidth(), (int)target.getHeight());
         Point pixelDistance = new Point(targetRect.x + targetRect.width/2.0 - imageWidth/2.0,
                                         targetRect.y + targetRect.height/2.0 - imageHeight/2.0);
-        Point bottomCenter = new Point(targetRect.x + targetRect.width/2.0, targetRect.y + targetRect.height);
+        Point bottomCenter = null;
+        double targetWidth = 0.0;
 
-        bottomCenter = homographyMapper != null? homographyMapper.mapPoint(bottomCenter): null;
+        if (homographyMapper != null)
+        {
+            Point bottomLeft = homographyMapper.mapPoint(new Point(targetRect.x, targetRect.y + targetRect.height));
+            Point bottomRight = homographyMapper.mapPoint(
+                new Point(targetRect.x + targetRect.width, targetRect.y + targetRect.height));
+            bottomCenter = new Point((bottomLeft.x + bottomRight.x)/2.0, (bottomLeft.y + bottomRight.y)/2.0);
+            targetWidth = bottomRight.x - bottomLeft.x;
+        }
 
         TargetInfo targetInfo = new TargetInfo(
-            target.getLabel(), targetRect, pixelDistance, bottomCenter, target.estimateAngleToObject(AngleUnit.DEGREES),
+            target.getLabel(), targetRect, pixelDistance, bottomCenter,
+            targetWidth, target.estimateAngleToObject(AngleUnit.DEGREES),
             target.getConfidence(), target.getImageWidth(), target.getImageHeight());
 
         if (tracer != null)
@@ -314,7 +325,7 @@ public class FtcTensorFlow
         String label, FilterTarget filter, Comparator<? super TargetInfo> comparator)
     {
         ArrayList<Recognition> targets = getDetectedTargets(label, filter);
-        TargetInfo[] targetsInfo = targets != null && targets.size() > 0 ?new TargetInfo[targets.size()] :null;
+        TargetInfo[] targetsInfo = targets != null && targets.size() > 0? new TargetInfo[targets.size()]: null;
 
         if (targetsInfo != null)
         {
