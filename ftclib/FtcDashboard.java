@@ -47,6 +47,7 @@ public class FtcDashboard extends TrcDashboard
     private Telemetry telemetry = null;
     private Paint paint = null;
     private Telemetry.Item[] display;
+    private Telemetry.DisplayFormat displayFormat;
 
     /**
      * This static methods creates an instance of the object if none already exist. If the object exists previously,
@@ -110,7 +111,7 @@ public class FtcDashboard extends TrcDashboard
         {
             display[i] = telemetry.addData(String.format(Locale.US, displayKeyFormat, i), "");
         }
-
+        setDisplayFormat(Telemetry.DisplayFormat.CLASSIC);
         telemetry.update();
     }   //FtcDashboard
 
@@ -261,29 +262,51 @@ public class FtcDashboard extends TrcDashboard
     }   //setTextView
 
     /**
+     * This sets the telemetry display format.
+     *
+     * @param displayFormat specifies the telemetry display format (e.g. CLASSIC, MONOSPACE, HTML).
+     */
+    public void setDisplayFormat(Telemetry.DisplayFormat displayFormat)
+    {
+        this.displayFormat = displayFormat;
+        telemetry.setDisplayFormat(displayFormat);
+    }   //setDisplayFormat
+
+    /**
      * This method displays a text message in the specified display line on the Driver Station.
      *
      * @param lineNum specifies the line number on the display.
      * @param text specifies the text message.
+     * @param colorAttrib specifies the HTML color attribute (only valid if telemetry display format is set to HTML).
      * @param fieldWidth specified the field width in pixel units that the message will be centered or right justified
      *                   in. If specified 0, the message will be left justified.
      * @param rightJustified specifies true if text message is right justified, false if text is centered. fieldWidth
      *                       must be greater than 0. If not, this parameter is ignored.
      */
-    public void displayText(int lineNum, String text, int fieldWidth, boolean rightJustified)
+    public void displayText(int lineNum, String text, String colorAttrib, int fieldWidth, boolean rightJustified)
     {
         final String funcName = "displayText";
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                                "lineNum=%d,text=%s,width=%d,rightJust=%s",
-                                lineNum, text, fieldWidth, Boolean.toString(rightJustified));
+                                "lineNum=%d,text=%s,color=%s,width=%d,rightJust=%s",
+                                lineNum, text, colorAttrib, fieldWidth, Boolean.toString(rightJustified));
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
 
         if (lineNum >= 0 && lineNum < numLines)
         {
+            if (displayFormat == Telemetry.DisplayFormat.HTML && colorAttrib != null)
+            {
+                text.replaceAll("<","&lt")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll(" ", "&nbsp;")
+                    .replaceAll("\"", "&quot")
+                    .replaceAll("'", "&apos;");
+                text = "<span style=\"color:" + colorAttrib + "\">" + text + "</span>";
+            }
+
             if (fieldWidth > 0)
             {
                 text = rightJustified? rightJustifiedText(fieldWidth, text): centeredText(fieldWidth, text);
@@ -298,11 +321,62 @@ public class FtcDashboard extends TrcDashboard
      *
      * @param lineNum specifies the line number on the display.
      * @param text specifies the text message.
+     * @param fieldWidth specified the field width in pixel units that the message will be centered or right justified
+     *                   in. If specified 0, the message will be left justified.
+     * @param rightJustified specifies true if text message is right justified, false if text is centered. fieldWidth
+     *                       must be greater than 0. If not, this parameter is ignored.
+     */
+    public void displayText(int lineNum, String text, int fieldWidth, boolean rightJustified)
+    {
+        displayText(lineNum, text, null, fieldWidth, rightJustified);
+    }   //displayText
+
+    /**
+     * This method displays a text message in the specified display line on the Driver Station.
+     *
+     * @param lineNum specifies the line number on the display.
+     * @param text specifies the text message.
+     * @param colorAttrib specifies the HTML color attribute (only valid if telemetry display format is set to HTML).
+     */
+    public void displayText(int lineNum, String colorAttrib, String text)
+    {
+        displayText(lineNum, text, colorAttrib, 0, false);
+    }   //displayText
+
+    /**
+     * This method displays a text message in the specified display line on the Driver Station.
+     *
+     * @param lineNum specifies the line number on the display.
+     * @param text specifies the text message.
      */
     public void displayText(int lineNum, String text)
     {
-        displayText(lineNum, text, 0, false);
+        displayText(lineNum, text, null, 0, false);
     }   //displayText
+
+    /**
+     * This method displays the HTML text message in the specified display line on the Driver Station.
+     *
+     * @param lineNum specifies the line number on the display.
+     * @param text specifies the HTML text message.
+     */
+    public void displayHTMLText(int lineNum, String text)
+    {
+        Telemetry.DisplayFormat prevFormat = null;
+
+        if (displayFormat != Telemetry.DisplayFormat.HTML)
+        {
+            prevFormat = displayFormat;
+            setDisplayFormat(Telemetry.DisplayFormat.HTML);
+        }
+
+        displayText(lineNum, text);
+
+        if (prevFormat != null)
+        {
+            setDisplayFormat(prevFormat);
+        }
+    }   //displayHTMLText
 
     /**
      * This method centers a text message in the specified display line on the Driver Station.
