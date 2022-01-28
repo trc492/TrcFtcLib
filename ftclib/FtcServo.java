@@ -87,7 +87,7 @@ public class FtcServo extends TrcServo
         holdTimer = new TrcTimer(instanceName);
         event = new TrcEvent(instanceName);
         sm = new TrcStateMachine<>(instanceName);
-        servoTaskObj = TrcTaskMgr.getInstance().createTask(instanceName + ".servoTask", this::servoTask);
+        servoTaskObj = TrcTaskMgr.createTask(instanceName + ".servoTask", this::servoTask);
     }   //FtcServo
 
     /**

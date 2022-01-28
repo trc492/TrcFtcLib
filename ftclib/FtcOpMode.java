@@ -68,7 +68,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private static long loopStartNanoTime = 0;
     private static long loopCounter = 0;
 
-    private TrcTaskMgr taskMgr;
     private long periodicTotalElapsedTime = 0;
     private int periodicTimeSlotCount = 0;
     private long continuousTotalElapsedTime = 0;
@@ -262,10 +261,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         final String funcName = "runOpMode";
         //
-        // Create task manager if not already. There is only one global instance of task manager.
-        //
-        taskMgr = TrcTaskMgr.getInstance();
-        //
         // Create dashboard here. If any earlier, telemetry may not exist yet.
         //
         FtcDashboard dashboard = FtcDashboard.createInstance(telemetry, NUM_DASHBOARD_LINES);
@@ -387,7 +382,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             {
                 dbgTrace.traceInfo(funcName, "Running Start Mode Tasks");
             }
-            taskMgr.executeTaskType(TrcTaskMgr.TaskType.START_TASK, runMode);
+            TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.START_TASK, runMode);
 
             if (debugEnabled)
             {
@@ -420,7 +415,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                             loopCounter, loopStartNanoTime/1000000000.0);
                     dbgTrace.traceInfo(funcName, "Running PreContinuous Tasks");
                 }
-                taskMgr.executeTaskType(TrcTaskMgr.TaskType.PRECONTINUOUS_TASK, runMode);
+                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.PRECONTINUOUS_TASK, runMode);
 
                 if (debugEnabled)
                 {
@@ -435,7 +430,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 {
                     dbgTrace.traceInfo(funcName, "Running PostContinuous Tasks");
                 }
-                taskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK, runMode);
+                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK, runMode);
 
                 if (TrcUtil.getNanoTime() >= nextPeriodNanoTime)
                 {
@@ -446,7 +441,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     {
                         dbgTrace.traceInfo(funcName, "Running PrePeriodic Tasks");
                     }
-                    taskMgr.executeTaskType(TrcTaskMgr.TaskType.PREPERIODIC_TASK, runMode);
+                    TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.PREPERIODIC_TASK, runMode);
 
                     if (debugEnabled)
                     {
@@ -462,7 +457,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                         dbgTrace.traceInfo(funcName, "Running PostPeriodic Tasks");
                     }
 
-                    taskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTPERIODIC_TASK, runMode);
+                    TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTPERIODIC_TASK, runMode);
                 }
 
                 startNanoTime = TrcUtil.getNanoTime();
@@ -478,7 +473,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             {
                 dbgTrace.traceInfo(funcName, "Running Stop Mode Tasks");
             }
-            taskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
+            TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
         }
         finally
         {
@@ -487,7 +482,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             // catching the exception and let it propagate up.
             //
             TrcMotor.clearOdometryMotorsList(true);
-            taskMgr.shutdown();
+            TrcTaskMgr.shutdown();
         }
     }   //runOpMode
 
@@ -505,7 +500,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 (double)periodicTotalElapsedTime/periodicTimeSlotCount/1000000000,
                 (double)continuousTotalElapsedTime/continuousTimeSlotCount/1000000000,
                 (double)sdkTotalElapsedTime/loopCounter/1000000000);
-        taskMgr.printTaskPerformanceMetrics(tracer);
+        TrcTaskMgr.printTaskPerformanceMetrics(tracer);
     }   //printPerformanceMetrics
 
     /**

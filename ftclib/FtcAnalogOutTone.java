@@ -71,8 +71,7 @@ public class FtcAnalogOutTone extends TrcTone
 
         analogOut = hardwareMap.analogOutput.get(instanceName);
         timer = new TrcTimer(instanceName);
-        TrcTaskMgr.TaskObject stopTaskObj = TrcTaskMgr.getInstance().createTask(
-                instanceName + ".stopTask", this::stopTask);
+        TrcTaskMgr.TaskObject stopTaskObj = TrcTaskMgr.createTask(instanceName + ".stopTask", this::stopTask);
         stopTaskObj.registerTask(TrcTaskMgr.TaskType.STOP_TASK);
     }   //FtcAnalogOutTone
 
