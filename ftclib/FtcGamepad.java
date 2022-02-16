@@ -22,6 +22,8 @@
 
 package TrcFtcLib.ftclib;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
@@ -33,6 +35,42 @@ import TrcCommonLib.trclib.TrcGameController;
  */
 public class FtcGamepad extends TrcGameController
 {
+    public enum GamepadButton
+    {
+        a("ButtonA", (int)1 << 0),
+        b("ButtonB", (int)1 << 1),
+        x("ButtonX", (int)1 << 2),
+        y("ButtonY", (int)1 << 3),
+        back("ButtonBack", (int)1 << 4),
+        start("ButtonStart", (int)1 << 5),
+        leftBumper("LeftBumper", (int)1 << 6),
+        rightBumper("RightBumper", (int)1 << 7),
+        leftStickButton("LeftStickButton", (int)1 << 8),
+        rightStickButton("RightStickButton", (int)1 << 9),
+        dpadLeft("DPadLeft", (int)1 << 10),
+        dpadRight("DPadRight", (int)1 << 11),
+        dpadUp("DPadUp", (int)1 << 12),
+        dpadDown("DPadDown", (int)1 << 13),
+        guide("Guide", (int)1 << 14);
+
+        private final String name;
+        private final int value;
+
+        GamepadButton(String name, int value)
+        {
+            this.name = name;
+            this.value = value;
+        }   //GamepadButton
+
+        @NonNull
+        @Override
+        public String toString()
+        {
+            return name;
+        }   //toString
+
+    }   //enum GamepadButtons
+
     public static final int GAMEPAD_A           = ((int)1 << 0);
     public static final int GAMEPAD_B           = ((int)1 << 1);
     public static final int GAMEPAD_X           = ((int)1 << 2);
@@ -47,6 +85,7 @@ public class FtcGamepad extends TrcGameController
     public static final int GAMEPAD_DPAD_RIGHT  = ((int)1 << 11);
     public static final int GAMEPAD_DPAD_UP     = ((int)1 << 12);
     public static final int GAMEPAD_DPAD_DOWN   = ((int)1 << 13);
+    public static final int GAMEPAD_GUIDE       = ((int)1 << 14);
 
     private Gamepad gamepad;
     private int ySign;
@@ -673,6 +712,21 @@ public class FtcGamepad extends TrcGameController
         final String funcName = "getButtons";
 
         int buttons = 0;
+//        buttons |= gamepad.a? GamepadButton.a.value: 0;
+//        buttons |= gamepad.b? GamepadButton.b.value: 0;
+//        buttons |= gamepad.x? GamepadButton.x.value: 0;
+//        buttons |= gamepad.y? GamepadButton.y.value: 0;
+//        buttons |= gamepad.back? GamepadButton.back.value: 0;
+//        buttons |= gamepad.start? GamepadButton.start.value: 0;
+//        buttons |= gamepad.left_bumper? GamepadButton.leftBumper.value: 0;
+//        buttons |= gamepad.right_bumper? GamepadButton.rightBumper.value: 0;
+//        buttons |= gamepad.left_stick_button? GamepadButton.leftStickButton.value: 0;
+//        buttons |= gamepad.right_stick_button? GamepadButton.rightStickButton.value: 0;
+//        buttons |= gamepad.dpad_left? GamepadButton.dpadLeft.value: 0;
+//        buttons |= gamepad.dpad_right? GamepadButton.dpadRight.value: 0;
+//        buttons |= gamepad.dpad_up? GamepadButton.dpadUp.value: 0;
+//        buttons |= gamepad.dpad_down? GamepadButton.dpadDown.value: 0;
+//        buttons |= gamepad.guide? GamepadButton.guide.value: 0;
         buttons |= gamepad.a? GAMEPAD_A: 0;
         buttons |= gamepad.b? GAMEPAD_B: 0;
         buttons |= gamepad.x? GAMEPAD_X: 0;
@@ -687,6 +741,7 @@ public class FtcGamepad extends TrcGameController
         buttons |= gamepad.dpad_right? GAMEPAD_DPAD_RIGHT: 0;
         buttons |= gamepad.dpad_up? GAMEPAD_DPAD_UP: 0;
         buttons |= gamepad.dpad_down? GAMEPAD_DPAD_DOWN: 0;
+        buttons |= gamepad.guide? GAMEPAD_GUIDE: 0;
 
         if (debugEnabled)
         {
