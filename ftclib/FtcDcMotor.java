@@ -224,6 +224,14 @@ public class FtcDcMotor extends TrcMotor
     }   //setMotorPower
 
     /**
+     * This method stops the motor regardless of what control mode the motor is on.
+     */
+    public void stopMotor()
+    {
+        setMotorPower(0.0);
+    }   //stopMotor
+
+    /**
      * This method gets the last set power.
      *
      * @return the last setPower value.

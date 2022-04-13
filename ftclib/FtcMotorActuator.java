@@ -31,29 +31,64 @@ import TrcCommonLib.trclib.TrcPidActuator;
  */
 public class FtcMotorActuator
 {
+    /**
+     * This class contains all the parameters related to the actuator motor.
+     */
+    public static class MotorParams
+    {
+        public boolean motorInverted = false;
+        public boolean hasLowerLimitSwitch = false;
+        public boolean lowerLimitInverted = false;
+        public boolean hasUpperLimitSwitch = false;
+        public boolean upperLimitInverted = false;
+
+        /**
+         * Constructor: Create an instance of the object.
+         *
+         * @param motorInverted specifies true if actuator motor direction is inverted, false otherwise.
+         * @param hasLowerLimitSwitch specifies true if actuator has a lower limit switch, false otherwise.
+         * @param lowerLimitInverted specifies true if lower limit switch is inverted, false otherwise.
+         * @param hasUpperLimitSwitch specifies true if actuator has an upper limit switch, false otherwise.
+         * @param upperLimitInverted specifies true if upper limit switch is inverted, false otherwise.
+         */
+        public MotorParams(
+            boolean motorInverted, boolean hasLowerLimitSwitch, boolean lowerLimitInverted,
+            boolean hasUpperLimitSwitch, boolean upperLimitInverted)
+        {
+            this.motorInverted = motorInverted;
+            this.hasLowerLimitSwitch = hasLowerLimitSwitch;
+            this.lowerLimitInverted = lowerLimitInverted;
+            this.hasUpperLimitSwitch = hasUpperLimitSwitch;
+            this.upperLimitInverted = upperLimitInverted;
+        }   //MotorParams
+
+    }   //class MotorParams
+
     private final TrcPidActuator pidActuator;
 
     /**
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param params specifies the parameters to set up the PID actuator.
+     * @param motorParams specifies the parameters to set up the actuator motor.
+     * @param actuatorParams specifies the parameters to set up the PID actuator.
      */
-    public FtcMotorActuator(String instanceName, TrcPidActuator.Parameters params)
+    public FtcMotorActuator(String instanceName, MotorParams motorParams, TrcPidActuator.Parameters actuatorParams)
     {
         FtcDigitalInput lowerLimitSwitch =
-            params.hasLowerLimitSwitch?
-                new FtcDigitalInput(instanceName + ".lowerLimit", params.lowerLimitInverted): null;
+            motorParams.hasLowerLimitSwitch?
+                new FtcDigitalInput(instanceName + ".lowerLimit", motorParams.lowerLimitInverted): null;
         FtcDigitalInput upperLimitSwitch =
-            params.hasUpperLimitSwitch?
-                new FtcDigitalInput(instanceName + ".upperLimit", params.upperLimitInverted): null;
+            motorParams.hasUpperLimitSwitch?
+                new FtcDigitalInput(instanceName + ".upperLimit", motorParams.upperLimitInverted): null;
 
         FtcDcMotor actuatorMotor = new FtcDcMotor(instanceName + ".motor", lowerLimitSwitch, upperLimitSwitch);
         actuatorMotor.setBrakeModeEnabled(true);
-        actuatorMotor.setOdometryEnabled(true);
-        actuatorMotor.setInverted(params.motorInverted);
+        actuatorMotor.setOdometryEnabled(true, true, true);
+        actuatorMotor.setInverted(motorParams.motorInverted);
 
-        pidActuator = new TrcPidActuator(instanceName, actuatorMotor, lowerLimitSwitch, upperLimitSwitch, params);
+        pidActuator = new TrcPidActuator(
+            instanceName, actuatorMotor, lowerLimitSwitch, upperLimitSwitch, actuatorParams);
     }   //FtcMotorActuator
 
     /**
