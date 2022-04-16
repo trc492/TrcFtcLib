@@ -56,7 +56,7 @@ public class FtcBNO055Imu
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private static final boolean USE_QUATERNION = true;
+    private static final boolean USE_QUATERNION = false;
 
     /**
      * This class implements the gyro part of hte BNO055 IMU. It extends TrcGyro so that it implements the standard
