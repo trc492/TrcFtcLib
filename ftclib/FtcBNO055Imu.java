@@ -141,7 +141,7 @@ public class FtcBNO055Imu
             }
             else
             {
-                orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+                orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             }
             angularVelocity = imu.getAngularVelocity();
 
@@ -171,9 +171,9 @@ public class FtcBNO055Imu
                 }
                 else if (orientation != null)
                 {
-                    gyroData.xAngle = orientation.firstAngle;
+                    gyroData.xAngle = orientation.thirdAngle;
                     gyroData.yAngle = orientation.secondAngle;
-                    gyroData.zAngle = -orientation.thirdAngle;
+                    gyroData.zAngle = -orientation.firstAngle;
                 }
 
                 gyroData.xRotationRate = angularVelocity.xRotationRate;
