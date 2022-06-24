@@ -353,12 +353,15 @@ public class FtcVuforia implements TrcVideoSource<Mat>
         try
         {
             VuforiaLocalizer.CloseableFrame closeableFrame = localizer.getFrameQueue().take();
+            long numImages = closeableFrame.getNumImages();
 
-            for (int i = 0; i < closeableFrame.getNumImages(); i++)
+            for (int i = 0; i < numImages; i++)
             {
                 Image image = closeableFrame.getImage(i);
-                if (image.getWidth() == imageWidth && image.getHeight() == imageHeight &&
-                        image.getFormat() == PIXEL_FORMAT.RGB565)
+
+                if (image.getFormat() == PIXEL_FORMAT.RGB565 &&
+                    (imageWidth == 0 || image.getWidth() == imageWidth) &&
+                    (imageHeight == 0 || image.getHeight() == imageHeight))
                 {
                     Bitmap bm = Bitmap.createBitmap(image.getWidth(), image.getHeight(), Bitmap.Config.RGB_565);
                     bm.copyPixelsFromBuffer(image.getPixels());
