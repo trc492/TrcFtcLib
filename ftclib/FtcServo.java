@@ -148,11 +148,11 @@ public class FtcServo extends TrcServo
     {
         if (enabled)
         {
-            servoTaskObj.registerTask(TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK); //TODO: should use OUTPUT_TASK
+            servoTaskObj.registerTask(TrcTaskMgr.TaskType.FAST_POSTPERIODIC_TASK);
         }
         else
         {
-            servoTaskObj.unregisterTask(TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK);
+            servoTaskObj.unregisterTask();
         }
     }   //setTaskEnabled
 

@@ -413,24 +413,24 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 {
                     dbgTrace.traceInfo(funcName, "[%d:%.3f]: OpMode loop",
                             loopCounter, loopStartNanoTime/1000000000.0);
-                    dbgTrace.traceInfo(funcName, "Running PreContinuous Tasks");
+                    dbgTrace.traceInfo(funcName, "Running FastPrePeriodic Tasks");
                 }
-                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.PRECONTINUOUS_TASK, runMode);
+                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.FAST_PREPERIODIC_TASK, runMode);
 
                 if (debugEnabled)
                 {
-                    dbgTrace.traceInfo(funcName, "Running runContinuous");
+                    dbgTrace.traceInfo(funcName, "Running fastPeriodic");
                 }
                 startNanoTime = TrcUtil.getNanoTime();
-                runContinuous(opModeElapsedTime);
+                fastPeriodic(opModeElapsedTime);
                 continuousTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
                 continuousTimeSlotCount++;
 
                 if (debugEnabled)
                 {
-                    dbgTrace.traceInfo(funcName, "Running PostContinuous Tasks");
+                    dbgTrace.traceInfo(funcName, "Running FastPostPeriodic Tasks");
                 }
-                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTCONTINUOUS_TASK, runMode);
+                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.FAST_POSTPERIODIC_TASK, runMode);
 
                 if (TrcUtil.getNanoTime() >= nextPeriodNanoTime)
                 {
@@ -439,25 +439,25 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
                     if (debugEnabled)
                     {
-                        dbgTrace.traceInfo(funcName, "Running PrePeriodic Tasks");
+                        dbgTrace.traceInfo(funcName, "Running SlowPrePeriodic Tasks");
                     }
-                    TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.PREPERIODIC_TASK, runMode);
+                    TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_PREPERIODIC_TASK, runMode);
 
                     if (debugEnabled)
                     {
-                        dbgTrace.traceInfo(funcName, "Running runPeriodic");
+                        dbgTrace.traceInfo(funcName, "Running slowPeriodic");
                     }
                     startNanoTime = TrcUtil.getNanoTime();
-                    runPeriodic(opModeElapsedTime);
+                    slowPeriodic(opModeElapsedTime);
                     periodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
                     periodicTimeSlotCount++;
 
                     if (debugEnabled)
                     {
-                        dbgTrace.traceInfo(funcName, "Running PostPeriodic Tasks");
+                        dbgTrace.traceInfo(funcName, "Running SlowPostPeriodic Tasks");
                     }
 
-                    TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.POSTPERIODIC_TASK, runMode);
+                    TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_POSTPERIODIC_TASK, runMode);
                 }
 
                 startNanoTime = TrcUtil.getNanoTime();
@@ -555,27 +555,28 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     }   //stopMode
 
     /**
-     * This method is called periodically about 50 times a second. Typically, you put code that doesn't require
-     * frequent update here. For example, TeleOp joystick code can be put here since human responses are considered
-     * slow.
+     * This method is called periodically at a fast rate. Typically, you put code that requires servicing at a
+     * high frequency here. To make the robot as responsive and as accurate as possible especially in autonomous
+     * mode, you will typically put that code here.
      *
      * @param elapsedTime specifies the elapsed time since the mode started.
      */
     @Override
-    public void runPeriodic(double elapsedTime)
+    public void fastPeriodic(double elapsedTime)
     {
-    }   //runPeriodic
+
+    }   //fastPeriodic
 
     /**
-     * This method is called periodically as fast as the control system allows. Typically, you put code that requires
-     * servicing at a higher frequency here. To make the robot as responsive and as accurate as possible especially
-     * in autonomous mode, you will typically put that code here.
+     * This method is called periodically at a slow rate. Typically, you put code that doesn't require frequent
+     * update here. For example, TeleOp joystick code or status display code can be put here since human responses
+     * are considered slow.
      *
      * @param elapsedTime specifies the elapsed time since the mode started.
      */
     @Override
-    public void runContinuous(double elapsedTime)
+    public void slowPeriodic(double elapsedTime)
     {
-    }   //runContinuous
+    }   //slowPeriodic
 
 }   //class FtcOpMode

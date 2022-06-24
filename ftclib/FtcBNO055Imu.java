@@ -106,7 +106,7 @@ public class FtcBNO055Imu
             }
             else
             {
-                gyroTaskObj.unregisterTask(TrcTaskMgr.TaskType.INPUT_TASK);
+                gyroTaskObj.unregisterTask();
             }
 
             taskEnabled = enabled;
@@ -357,7 +357,7 @@ public class FtcBNO055Imu
             }
             else
             {
-                accelTaskObj.unregisterTask(TrcTaskMgr.TaskType.INPUT_TASK);
+                accelTaskObj.unregisterTask();
             }
 
             taskEnabled = enabled;
