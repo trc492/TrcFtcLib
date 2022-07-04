@@ -34,10 +34,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHomographyMapper;
+import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
  * This class makes using TensorFlow a little easier by minimizing the number of calls to it. It only exposes the
@@ -48,71 +48,63 @@ import TrcCommonLib.trclib.TrcHomographyMapper;
 public class FtcTensorFlow
 {
     /**
+     * This class encapsulates info of the detected object. It extends TrcVisionTargetInfo.ObjectInfo that requires
+     * it to provide a method to return the detected object rect.
+     */
+    public static class DetectedObject extends TrcVisionTargetInfo.ObjectInfo
+    {
+        public final String label;
+        public final Rect rect;
+        public final double angle;
+        public final double confidence;
+
+        /**
+         * Constructor: Creates an instance of the object.
+         *
+         * @param label specifies the object label.
+         * @param rect specifies the rect of the object.
+         * @param angle specifies an estimation of the horizontal angle to the detected object
+         * @param confidence specifies the confidence of the detection.
+         */
+        public DetectedObject(String label, Rect rect, double angle, double confidence)
+        {
+            this.label = label;
+            this.rect = rect;
+            this.angle = angle;
+            this.confidence = confidence;
+        }   //DetectedObject
+
+        /**
+         * This method returns the rect of the detected object.
+         *
+         * @return rect of the detected object.
+         */
+        @Override
+        public Rect getRect()
+        {
+            return rect;
+        }   //getRect
+
+        /**
+         * This method returns the string form of the target info.
+         *
+         * @return string form of the target info.
+         */
+        @Override
+        public String toString()
+        {
+            return "{" + label + "," + rect.toString() + ",angle=" + angle + ",confidence=" + confidence + "}";
+        }   //toString
+
+    }   //class DetectedObject
+
+    /**
      * This interface provides a method for filtering false positive objects in the detected target list.
      */
     public interface FilterTarget
     {
         boolean validateTarget(Recognition object);
     }   //interface FilterTarget
-
-    /**
-     * This class stores the info for a detected target.
-     */
-    public static class TargetInfo
-    {
-        public String label;
-        public Rect rect;
-        public Point distanceFromImageCenter;
-        public Point distanceFromCamera;
-        public double objectWidth;
-        public double angle;
-        public double confidence;
-        public int imageWidth;
-        public int imageHeight;
-
-        TargetInfo(
-            String label, Rect rect, Point distanceFromImageCenter, Point distanceFromCamera,
-            double objectWidth, double angle, double confidence, int imageWidth, int imageHeight)
-        {
-            this.label = label;
-            this.rect = rect;
-            this.distanceFromImageCenter = distanceFromImageCenter;
-            this.distanceFromCamera = distanceFromCamera;
-            this.objectWidth = objectWidth;
-            this.angle = angle;
-            this.confidence = confidence;
-            this.imageWidth = imageWidth;
-            this.imageHeight = imageHeight;
-        }   //TargetInfo
-
-        @Override
-        public String toString()
-        {
-            String s;
-
-            if (distanceFromCamera != null)
-            {
-                s = String.format(Locale.US,
-                                  "%s: Rect[%d,%d,%d,%d] distImageCenter[%.0f,%.0f] distCamera[%.1f,%.1f] width=%.1f " +
-                                  "angle=%.1f confidence=%.1f image(w=%d,h=%d)",
-                                  label, rect.x, rect.y, rect.width, rect.height,
-                                  distanceFromImageCenter.x, distanceFromImageCenter.y,
-                                  distanceFromCamera.x, distanceFromCamera.y, objectWidth, angle, confidence,
-                                  imageWidth, imageHeight);
-            }
-            else
-            {
-                s = String.format(Locale.US,
-                                  "%s: Rect[%d,%d,%d,%d] distImageCenter[%.0f,%.0f] angle=%.1f confidence=%.1f " +
-                                  "image (w=%d,h=%d)",
-                                  label, rect.x, rect.y, rect.width, rect.height,
-                                  distanceFromImageCenter.x, distanceFromImageCenter.y,
-                                  angle, confidence, imageWidth, imageHeight);
-            }
-
-            return s;
-        }
-    }   //class TargetInfo
 
     private final TrcDbgTrace tracer;
     private final TFObjectDetector tfod;
@@ -279,31 +271,15 @@ public class FtcTensorFlow
      * @param target specifies the detected target
      * @return information about the detected target.
      */
-    public TargetInfo getTargetInfo(Recognition target)
+    public TrcVisionTargetInfo<DetectedObject> getTargetInfo(Recognition target)
     {
         final String funcName = "getTargetInfo";
-        double imageWidth = target.getImageWidth();
-        double imageHeight = target.getImageHeight();
-        Rect targetRect = new Rect(
-            (int)target.getLeft(), (int)target.getTop(), (int)target.getWidth(), (int)target.getHeight());
-        Point pixelDistance = new Point(targetRect.x + targetRect.width/2.0 - imageWidth/2.0,
-                                        targetRect.y + targetRect.height/2.0 - imageHeight/2.0);
-        Point bottomCenter = null;
-        double targetWidth = 0.0;
-
-        if (homographyMapper != null)
-        {
-            Point bottomLeft = homographyMapper.mapPoint(new Point(targetRect.x, targetRect.y + targetRect.height));
-            Point bottomRight = homographyMapper.mapPoint(
-                new Point(targetRect.x + targetRect.width, targetRect.y + targetRect.height));
-            bottomCenter = new Point((bottomLeft.x + bottomRight.x)/2.0, (bottomLeft.y + bottomRight.y)/2.0);
-            targetWidth = bottomRight.x - bottomLeft.x;
-        }
-
-        TargetInfo targetInfo = new TargetInfo(
-            target.getLabel(), targetRect, pixelDistance, bottomCenter,
-            targetWidth, target.estimateAngleToObject(AngleUnit.DEGREES),
-            target.getConfidence(), target.getImageWidth(), target.getImageHeight());
+        TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
+            new DetectedObject(
+                target.getLabel(),
+                new Rect((int)target.getLeft(), (int)target.getTop(), (int)target.getWidth(), (int)target.getHeight()),
+                target.estimateAngleToObject(AngleUnit.DEGREES), target.getConfidence()),
+            target.getImageWidth(), target.getImageHeight(), homographyMapper);
 
         if (tracer != null)
         {
@@ -321,11 +297,12 @@ public class FtcTensorFlow
      * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
      * @return filtered target info array.
      */
-    public TargetInfo[] getDetectedTargetsInfo(
-        String label, FilterTarget filter, Comparator<? super TargetInfo> comparator)
+    public TrcVisionTargetInfo<DetectedObject>[] getDetectedTargetsInfo(
+        String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
     {
         ArrayList<Recognition> targets = getDetectedTargets(label, filter);
-        TargetInfo[] targetsInfo = targets != null && targets.size() > 0? new TargetInfo[targets.size()]: null;
+        TrcVisionTargetInfo<DetectedObject>[] targetsInfo =
+            targets != null && targets.size() > 0? new TrcVisionTargetInfo[targets.size()]: null;
 
         if (targetsInfo != null)
         {
