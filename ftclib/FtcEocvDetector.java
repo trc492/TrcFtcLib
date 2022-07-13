@@ -122,6 +122,12 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
         TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>[] targets = null;
         TrcOpenCVDetector.DetectedObject[] detectedObjs = getDetectedObjects();
 
+        if (debugEnabled)
+        {
+            dbgTrace.traceEnter(
+                funcName, TrcDbgTrace.TraceLevel.API, "filter=%s,comparator=%s", filter != null, comparator != null);
+        }
+
         if (detectedObjs != null)
         {
             ArrayList<TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>> targetList = new ArrayList<>();
@@ -152,6 +158,11 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
                     tracer.traceInfo(funcName, "[%d] Target=%s", i, targets[i]);
                 }
             }
+        }
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", targets == null? 0: targets.length);
         }
 
         return targets;
