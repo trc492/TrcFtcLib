@@ -22,6 +22,8 @@
 
 package TrcFtcLib.ftclib;
 
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
@@ -56,6 +58,8 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
 
     private final String instanceName;
     private final int imageWidth, imageHeight;
+    private final OpenCvCamera openCvCamera;
+    private final OpenCvCameraRotation cameraRotation;
     private final TrcDbgTrace tracer;
     private final TrcHomographyMapper homographyMapper;
 
@@ -67,11 +71,14 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
      * @param imageHeight specifies the height of the camera image.
      * @param cameraRect specifies the camera rectangle for Homography Mapper, can be null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
+     * @param openCvCamera specifies the camera object.
+     * @param cameraRotation specifies the camera orientation.
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvDetector(
         String instanceName, int imageWidth, int imageHeight,
-        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
+        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
+        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation, TrcDbgTrace tracer)
     {
         if (debugEnabled)
         {
@@ -83,6 +90,8 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
         this.instanceName = instanceName;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
+        this.openCvCamera = openCvCamera;
+        this.cameraRotation = cameraRotation;
         this.tracer = tracer;
 
         if (cameraRect != null && worldRect != null)
@@ -94,6 +103,23 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
             homographyMapper = null;
         }
     }   //FtcEocvDetector
+
+    /**
+     * This method starts/stops camera streaming.
+     *
+     * @param enabled specifies true to start camera streaming, false to stop.
+     */
+    public void setEnabled(boolean enabled)
+    {
+        if (enabled)
+        {
+            openCvCamera.startStreaming(imageWidth, imageHeight, cameraRotation);
+        }
+        else
+        {
+            openCvCamera.stopStreaming();
+        }
+    }   //setEnabled
 
     /**
      * This method returns the instance name.
