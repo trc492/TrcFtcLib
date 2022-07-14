@@ -116,23 +116,6 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
     }   //toString
 
     /**
-     * This method starts/stops camera streaming.
-     *
-     * @param enabled specifies true to start camera streaming, false to stop.
-     */
-    public void setEnabled(boolean enabled)
-    {
-        if (enabled)
-        {
-            openCvCamera.startStreaming(imageWidth, imageHeight, cameraRotation);
-        }
-        else
-        {
-            openCvCamera.stopStreaming();
-        }
-    }   //setEnabled
-
-    /**
      * This method returns an array of detected targets from EasyOpenCV vision.
      *
      * @param filter specifies the filter to call to filter out false positive targets.
