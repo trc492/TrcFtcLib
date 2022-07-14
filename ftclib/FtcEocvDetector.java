@@ -105,6 +105,17 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
     }   //FtcEocvDetector
 
     /**
+     * This method returns the instance name.
+     *
+     * @return instance name.
+     */
+    @Override
+    public String toString()
+    {
+        return instanceName;
+    }   //toString
+
+    /**
      * This method starts/stops camera streaming.
      *
      * @param enabled specifies true to start camera streaming, false to stop.
@@ -120,17 +131,6 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
             openCvCamera.stopStreaming();
         }
     }   //setEnabled
-
-    /**
-     * This method returns the instance name.
-     *
-     * @return instance name.
-     */
-    @Override
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
 
     /**
      * This method returns an array of detected targets from EasyOpenCV vision.
