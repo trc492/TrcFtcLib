@@ -59,9 +59,10 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
     private final String instanceName;
     private final int imageWidth, imageHeight;
     private final OpenCvCamera openCvCamera;
-    private final OpenCvCameraRotation cameraRotation;
+    private final boolean showEocvView;
     private final TrcDbgTrace tracer;
     private final TrcHomographyMapper homographyMapper;
+    private boolean eocvEnabled = false;
 
     /**
      * Constructor: Create an instance of the object.
@@ -73,12 +74,13 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
      * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
      * @param openCvCamera specifies the camera object.
      * @param cameraRotation specifies the camera orientation.
+     * @param showEocvView specifies true to show the annotated image on robot controller screen, false to hide the
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvDetector(
         String instanceName, int imageWidth, int imageHeight,
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
-        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation, TrcDbgTrace tracer)
+        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation, boolean showEocvView, TrcDbgTrace tracer)
     {
         if (debugEnabled)
         {
@@ -91,7 +93,7 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.openCvCamera = openCvCamera;
-        this.cameraRotation = cameraRotation;
+        this.showEocvView = showEocvView;
         this.tracer = tracer;
 
         if (cameraRect != null && worldRect != null)
@@ -102,6 +104,21 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
         {
             homographyMapper = null;
         }
+
+        openCvCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+                openCvCamera.startStreaming(imageWidth, imageHeight, cameraRotation);
+            }
+
+            @Override
+            public void onError(int errorCode)
+            {
+            }
+        });
+        openCvCamera.pauseViewport();
     }   //FtcEocvDetector
 
     /**
@@ -114,6 +131,40 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
     {
         return instanceName;
     }   //toString
+
+    /**
+     * This method pauses/resumes pipeline processing.
+     *
+     * @param enabled specifies true to start pipeline processing, false to stop.
+     */
+    public void setEnabled(boolean enabled)
+    {
+        if (enabled && !eocvEnabled)
+        {
+            openCvCamera.setPipeline(this);
+            if (showEocvView)
+            {
+                openCvCamera.resumeViewport();
+            }
+        }
+        else if (!enabled && eocvEnabled)
+        {
+            openCvCamera.pauseViewport();
+            openCvCamera.setPipeline(null);
+        }
+
+        eocvEnabled = enabled;
+    }   //setEnabled
+
+    /**
+     * This method returns the state of EocvVision.
+     *
+     * @return true if the EocvVision is enabled, false otherwise.
+     */
+    public boolean isEnabled()
+    {
+        return eocvEnabled;
+    }   //isTaskEnabled
 
     /**
      * This method returns an array of detected targets from EasyOpenCV vision.
