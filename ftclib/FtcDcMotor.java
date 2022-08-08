@@ -22,9 +22,7 @@
 
 package TrcFtcLib.ftclib;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsUsbDcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -137,32 +135,6 @@ public class FtcDcMotor extends TrcMotor
     {
         return instanceName;
     }   //toString
-
-    /**
-     * This method returns the battery voltage that powers the motor. This method is specific to FTC.
-     *
-     * @return battery voltage.
-     */
-    public double getVoltage()
-    {
-        final String funcName = "getVoltage";
-        DcMotorController controller = motor.getController();
-
-        if (!(controller instanceof ModernRoboticsUsbDcMotorController))
-        {
-            throw new UnsupportedOperationException("getVoltage is not supported with this motor controller.");
-        }
-
-        double voltage = ((ModernRoboticsUsbDcMotorController)motor.getController()).getVoltage();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%.3f", voltage);
-        }
-
-        return voltage;
-    }   //getVoltage
 
     //
     // Implements TrcMotor abstract methods.
@@ -523,39 +495,5 @@ public class FtcDcMotor extends TrcMotor
         maxMotorVelocity = 0.0;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }   //disableVelocityMode
-
-//    /**
-//     * This method sets the motor output value. The value can be power or velocity percentage depending on whether
-//     * the motor controller is in power mode or velocity mode.
-//     *
-//     * @param value specifies the percentage power or velocity (range -1.0 to 1.0) to be set.
-//     */
-//    @Override
-//    public synchronized void set(double value)
-//    {
-//        final String funcName = "set";
-//
-//        if (debugEnabled)
-//        {
-//            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "value=%f", value);
-//        }
-//
-//        calibrating = false;
-//        if (motorSetElapsedTimer != null) motorSetElapsedTimer.recordStartTime();
-//        if (maxMotorVelocity != 0.0)
-//        {
-//            setMotorVelocity(value);
-//        }
-//        else
-//        {
-//            setMotorPower(value);
-//        }
-//        if (motorSetElapsedTimer != null) motorSetElapsedTimer.recordEndTime();
-//
-//        if (debugEnabled)
-//        {
-//            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-//        }
-//    }   //set
 
 }   //class FtcDcMotor
