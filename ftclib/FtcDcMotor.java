@@ -31,6 +31,7 @@ import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcPidController;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the generic DC Motor Controller extending TrcMotor. It provides implementation of the
@@ -42,6 +43,7 @@ import TrcCommonLib.trclib.TrcPidController;
 public class FtcDcMotor extends TrcMotor
 {
     private static final String moduleName = "FtcDcMotor";
+    private static final double DEF_RESET_TIMEOUT = 0.01;
 
     private final String instanceName;
     private final TrcDigitalInput revLimitSwitch;
@@ -225,16 +227,16 @@ public class FtcDcMotor extends TrcMotor
 
     /**
      * This method resets the motor position sensor, typically an encoder.
+     *
+     * @param timeout specifies a timeout period in seconds.
      */
-    @Override
-    public synchronized void resetMotorPosition()
+    public synchronized void resetMotorPosition(double timeout)
     {
         final String funcName = "resetMotorPosition";
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "timeout=%.3f", timeout);
         }
         //
         // Modern Robotics motor controllers supports resetting encoders by setting the motor controller mode. This
@@ -243,12 +245,62 @@ public class FtcDcMotor extends TrcMotor
         // only be called at robotInit time. For other times, it should call resetPosition with hardware set to false
         // (software reset).
         //
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        while (motor.getCurrentPosition() != 0.0)
+        if (debugEnabled)
         {
-            Thread.yield();
+            dbgTrace.traceInfo(
+                funcName, "[%.3f] Before reset: enc=%d", TrcUtil.getModeElapsedTime(), motor.getCurrentPosition());
         }
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if (debugEnabled)
+        {
+            dbgTrace.traceInfo(
+                funcName, "[%.3f] After reset: enc=%d", TrcUtil.getModeElapsedTime(), motor.getCurrentPosition());
+        }
+
+        double expiredTime = TrcUtil.getCurrentTime() + timeout;
+        int motorPos = 0;
+        while (TrcUtil.getCurrentTime() < expiredTime)
+        {
+            motorPos = motor.getCurrentPosition();
+
+            if (motorPos != 0)
+            {
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(
+                        funcName, "[%.3f] Waiting for reset: enc=%d", TrcUtil.getCurrentTime(), motorPos);
+                }
+                Thread.yield();
+            }
+            else
+            {
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "[%.3f] Reset success!", TrcUtil.getCurrentTime());
+                }
+                break;
+            }
+        }
+
+        if (debugEnabled)
+        {
+            if (motorPos != 0)
+            {
+                dbgTrace.traceWarn(funcName, "motor encoder reset timed out (enc=%d).", motorPos);
+            }
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (pos=%d)", motorPos);
+        }
+
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }   //resetMotorPosition
+
+    /**
+     * This method resets the motor position sensor, typically an encoder.
+     */
+    @Override
+    public void resetMotorPosition()
+    {
+        resetMotorPosition(DEF_RESET_TIMEOUT);
     }   //resetMotorPosition
 
     /**
