@@ -43,7 +43,8 @@ import TrcCommonLib.trclib.TrcUtil;
 public class FtcDcMotor extends TrcMotor
 {
     private static final String moduleName = "FtcDcMotor";
-    private static final double DEF_RESET_TIMEOUT = 0.01;
+    private static final double DEF_RESET_TIMEOUT = 0.1;
+    private static final boolean localDebug = false;
 
     private final String instanceName;
     private final TrcDigitalInput revLimitSwitch;
@@ -233,6 +234,7 @@ public class FtcDcMotor extends TrcMotor
     public synchronized void resetMotorPosition(double timeout)
     {
         final String funcName = "resetMotorPosition";
+        final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
 
         if (debugEnabled)
         {
@@ -245,16 +247,19 @@ public class FtcDcMotor extends TrcMotor
         // only be called at robotInit time. For other times, it should call resetPosition with hardware set to false
         // (software reset).
         //
-        if (debugEnabled)
+        if (localDebug)
         {
-            dbgTrace.traceInfo(
-                funcName, "[%.3f] Before reset: enc=%d", TrcUtil.getModeElapsedTime(), motor.getCurrentPosition());
+            globalTracer.traceInfo(
+                funcName, "[%.3f] Before resetting %s: enc=%d",
+                TrcUtil.getModeElapsedTime(), instanceName, motor.getCurrentPosition());
         }
+        DcMotor.RunMode prevMotorMode = motor.getMode();
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        if (debugEnabled)
+        if (localDebug)
         {
-            dbgTrace.traceInfo(
-                funcName, "[%.3f] After reset: enc=%d", TrcUtil.getModeElapsedTime(), motor.getCurrentPosition());
+            globalTracer.traceInfo(
+                funcName, "[%.3f] After resetting %s: enc=%d",
+                TrcUtil.getModeElapsedTime(), instanceName, motor.getCurrentPosition());
         }
 
         double expiredTime = TrcUtil.getCurrentTime() + timeout;
@@ -265,33 +270,37 @@ public class FtcDcMotor extends TrcMotor
 
             if (motorPos != 0)
             {
-                if (debugEnabled)
+                if (localDebug)
                 {
-                    dbgTrace.traceInfo(
-                        funcName, "[%.3f] Waiting for reset: enc=%d", TrcUtil.getCurrentTime(), motorPos);
+                    globalTracer.traceInfo(
+                        funcName, "[%.3f] Waiting for %s to reset: enc=%d",
+                        TrcUtil.getCurrentTime(), instanceName, motorPos);
                 }
                 Thread.yield();
             }
             else
             {
-                if (debugEnabled)
+                if (localDebug)
                 {
-                    dbgTrace.traceInfo(funcName, "[%.3f] Reset success!", TrcUtil.getCurrentTime());
+                    globalTracer.traceInfo(
+                        funcName, "[%.3f] Reset %s success!", TrcUtil.getCurrentTime(), instanceName);
                 }
                 break;
             }
         }
 
-        if (debugEnabled)
+        if (motorPos != 0)
         {
-            if (motorPos != 0)
-            {
-                dbgTrace.traceWarn(funcName, "motor encoder reset timed out (enc=%d).", motorPos);
-            }
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (pos=%d)", motorPos);
+            globalTracer.traceWarn(funcName, "motor %s encoder reset timed out (enc=%d).", instanceName, motorPos);
         }
 
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Restore previous motor mode.
+        motor.setMode(prevMotorMode);
+
+        if (debugEnabled)
+        {
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (pos=%d)", motorPos);
+        }
     }   //resetMotorPosition
 
     /**
