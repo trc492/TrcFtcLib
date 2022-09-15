@@ -246,15 +246,14 @@ public class FtcServo extends TrcServo
     }   //isInverted
 
     /**
-     * This method sets the servo motor position.
+     * This method sets the logical position of the servo motor.
      *
-     * @param position specifies the physical position of the servo motor. This value may be in degrees if
-     *                 setPhysicalRange is called with the degree range.
+     * @param position specifies the logical position of the servo motor in the range of [0.0, 1.0].
      */
     @Override
-    public void setPosition(double position)
+    public void setLogicalPosition(double position)
     {
-        final String funcName = "setPosition";
+        final String funcName = "setLogicalPosition";
 
         if (debugEnabled)
         {
@@ -262,36 +261,35 @@ public class FtcServo extends TrcServo
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        double newLogicalPos = toLogicalPosition(position);
-        if (newLogicalPos != prevLogicalPos)
+        if (position != prevLogicalPos)
         {
             if (servoSetPosElapsedTimer != null) servoSetPosElapsedTimer.recordStartTime();
-            servo.setPosition(newLogicalPos);
+            servo.setPosition(position);
             if (servoSetPosElapsedTimer != null) servoSetPosElapsedTimer.recordEndTime();
-            prevLogicalPos = newLogicalPos;
+            prevLogicalPos = position;
         }
-    }   //setPosition
+    }   //setLogicalPosition
 
     /**
-     * This method returns the physical position value of the servo motor.
+     * This method returns the logical position value set by the last setLogicalPosition call. Note that servo motors
+     * do not provide real time position feedback. Therefore, getLogicalPosition doesn't actually return the current
+     * position.
      *
-     * @return physical position of the servo, could be in degrees if setPhysicalRangis called to set the range in
-     *         degrees.
+     * @return motor position value set by the last setLogicalPosition call in the range of [0.0, 1.0].
      */
     @Override
-    public double getPosition()
+    public double getLogicalPosition()
     {
-        final String funcName = "getPosition";
-        double position = toPhysicalPosition(prevLogicalPos);
+        final String funcName = "getLogicalPosition";
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", position);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", prevLogicalPos);
         }
 
-        return position;
-    }   //getPosition
+        return prevLogicalPos;
+    }   //getLogicalPosition
 
     /**
      * This method is called periodically to run a state machine that will enable the servo controller, set the servo
