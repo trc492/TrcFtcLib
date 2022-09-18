@@ -186,11 +186,11 @@ public class FtcAprilTagDetector extends OpenCvPipeline
      * @param showAprilTagView specifies true to show the annotated image on robot controller screen, false to hide it.
      * @param tracer specifies the tracer for trace info, null if none provided.
      * @param tagFamily specifies the tag family.
-     * @param tagSize size of the tag in meters
-     * @param fx lens intrinsics fx
-     * @param fy lens intrinsics fy
-     * @param cx lens intrinsics cx
-     * @param cy lens intrinsics cy
+     * @param tagSize size of the tag in meters.
+     * @param fx lens focal length x from camera calibration.
+     * @param fy lens focal length y from camera calibration.
+     * @param cx lens principal point x from camera calibration.
+     * @param cy lens principal point y from camera calibration.
      */
     public FtcAprilTagDetector(
         String instanceName, int imageWidth, int imageHeight,
