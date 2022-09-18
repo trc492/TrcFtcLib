@@ -22,14 +22,13 @@
 
 package TrcFtcLib.ftclib;
 
-import TrcCommonLib.trclib.TrcEnhancedServo;
 import TrcCommonLib.trclib.TrcEvent;
 
 /**
  * This class implements a platform dependent servo actuator. A servo actuator consists of one or two servos. Servo
  * actuator and supports speed control the servo actuator.
  */
-public class FtcServoActuator
+public class FtcServoActuator extends FtcServo
 {
     /**
      * This class contains all the parameters related to the servo actuator.
@@ -100,9 +99,7 @@ public class FtcServoActuator
 
     }   //class Parameters
 
-    private Parameters params;
-    protected FtcServo servo1, servo2 = null;
-    protected TrcEnhancedServo enhancedServo;
+    private final Parameters params;
 
     /**
      * Constructor: Create an instance of the object.
@@ -113,23 +110,20 @@ public class FtcServoActuator
      */
     public FtcServoActuator(String servo1Name, String servo2Name, Parameters params)
     {
-        if (servo1Name == null)
-        {
-            throw new IllegalArgumentException("Servo1 must not be null.");
-        }
-
+        super(servo1Name);
         this.params = params;
-        servo1 = new FtcServo(servo1Name);
-        servo1.setInverted(params.servo1Inverted);
+        setInverted(params.servo1Inverted);
+
         if (servo2Name != null)
         {
-            servo2 = new FtcServo(servo2Name);
+            FtcServo servo2 = new FtcServo(servo2Name);
             servo2.setInverted(params.servo2Inverted);
+            addFollower(servo2);
         }
-        enhancedServo = new TrcEnhancedServo("servoActuator." + servo1Name, servo1, servo2);
+
         if (params.maxStepRate != 0.0)
         {
-            enhancedServo.setStepMode(params.maxStepRate, params.minPos, params.maxPos);
+            setStepMode(params.maxStepRate, params.minPos, params.maxPos);
         }
     }   //FtcServoActuator
 
@@ -149,7 +143,7 @@ public class FtcServoActuator
      */
     public void retract()
     {
-        enhancedServo.setPosition(params.retractPos);
+        setPosition(params.retractPos);
     }   //retract
 
     /**
@@ -160,7 +154,7 @@ public class FtcServoActuator
      */
     public void retract(TrcEvent event)
     {
-        enhancedServo.setPosition(params.retractPos, params.retractTime, event);
+        setPosition(params.retractPos, params.retractTime, event);
     }   //retract
 
     /**
@@ -172,7 +166,7 @@ public class FtcServoActuator
      */
     public void retract(double time, TrcEvent event)
     {
-        enhancedServo.setPosition(params.retractPos, time, event);
+        setPosition(params.retractPos, time, event);
     }   //retract
 
     /**
@@ -180,7 +174,7 @@ public class FtcServoActuator
      */
     public void extend()
     {
-        enhancedServo.setPosition(params.extendPos);
+        setPosition(params.extendPos);
     }   //extend
 
     /**
@@ -191,7 +185,7 @@ public class FtcServoActuator
      */
     public void extend(TrcEvent event)
     {
-        enhancedServo.setPosition(params.extendPos, params.extendTime, event);
+        setPosition(params.extendPos, params.extendTime, event);
     }   //extend
 
     /**
@@ -203,51 +197,7 @@ public class FtcServoActuator
      */
     public void extend(double time, TrcEvent event)
     {
-        enhancedServo.setPosition(params.extendPos, time, event);
+        setPosition(params.extendPos, time, event);
     }   //extend
-
-    /**
-     * This method moves the servo actuator as if it is speed controlled. The speed of the actuator movement is
-     * proportional to the specified power.
-     *
-     * @param power specifies the power value from -1.0 to 1.0 where the magnitude proportional to its speed.
-     */
-    public void setPower(double power)
-    {
-        enhancedServo.setPower(power);
-    }   //setPower
-
-    /**
-     * This method returns the last set servo actuator physical position.
-     *
-     * @return last set position in physical unit.
-     */
-    public double getPosition()
-    {
-        return enhancedServo.getPosition();
-    }   //getPosition
-
-    /**
-     * This method sets the servo actuator position in physical unit.
-     *
-     * @param position specifies the position in physical unit.
-     */
-    public void setPosition(double position)
-    {
-        enhancedServo.setPosition(position);
-    }   //setPosition
-
-    /**
-     * This method sets the servo actuator position in physical unit and signal the given event after the given time
-     * has expired.
-     *
-     * @param position specifies the position in physical unit.
-     * @param time specifies the time to wait before the event is signaled.
-     * @param event specifies the event to be signaled after specified time has expired.
-     */
-    public void setPosition(double position, double time, TrcEvent event)
-    {
-        enhancedServo.setPosition(position, time, event);
-    }   //setPosition
 
 }   //class FtcServoActuator
