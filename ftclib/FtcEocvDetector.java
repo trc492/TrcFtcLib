@@ -74,7 +74,7 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
      * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
      * @param openCvCamera specifies the camera object.
      * @param cameraRotation specifies the camera orientation.
-     * @param showEocvView specifies true to show the annotated image on robot controller screen, false to hide the
+     * @param showEocvView specifies true to show the annotated image on robot controller screen, false to hide it.
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvDetector(
