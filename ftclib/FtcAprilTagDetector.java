@@ -148,22 +148,24 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     private long totalFrames = 0;
     private double taskStartTime = 0.0;
 
+    private static final float DEF_DECIMATION = 3.0f;
+    private static final int NUM_THREADS = 3;
     private static final Scalar blue = new Scalar(7, 197, 235, 255);
     private static final Scalar red = new Scalar(255,0,0,255);
     private static final Scalar green = new Scalar(0,255,0,255);
     private static final Scalar white = new Scalar(255,255,255,255);
 
     // UNITS ARE METERS
-    private final double tagsize;
-    private final double tagsizeX;
-    private final double tagsizeY;
+    private final double tagSize;
+    private final double tagSizeX;
+    private final double tagSizeY;
     private final double fx;
     private final double fy;
     private final double cx;
     private final double cy;
 
     private Mat cameraMatrix;
-    private final long nativeApriltagPtr;
+    private long nativeApriltagPtr;
     private final Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detectionsUpdate = null;
     private final Object detectionsUpdateSync = new Object();
@@ -183,17 +185,18 @@ public class FtcAprilTagDetector extends OpenCvPipeline
      * @param cameraRotation specifies the camera orientation.
      * @param showAprilTagView specifies true to show the annotated image on robot controller screen, false to hide it.
      * @param tracer specifies the tracer for trace info, null if none provided.
-     * @param tagsize specifies the tag size.
-     * @param fx specifies the camera lens intrinsics.
-     * @param fy specifies the camera lens intrinsics.
-     * @param cx specifies the camera lens intrinsics.
-     * @param cy specifies the camera lens intrinsics.
+     * @param tagFamily specifies the tag family.
+     * @param tagSize size of the tag in meters
+     * @param fx lens intrinsics fx
+     * @param fy lens intrinsics fy
+     * @param cx lens intrinsics cx
+     * @param cy lens intrinsics cy
      */
     public FtcAprilTagDetector(
         String instanceName, int imageWidth, int imageHeight,
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
         OpenCvCamera openCvCam, OpenCvCameraRotation cameraRotation, boolean showAprilTagView, TrcDbgTrace tracer,
-        double tagsize, double fx, double fy, double cx, double cy)
+        AprilTagDetectorJNI.TagFamily tagFamily, double tagSize, double fx, double fy, double cx, double cy)
     {
         if (debugEnabled)
         {
@@ -218,9 +221,9 @@ public class FtcAprilTagDetector extends OpenCvPipeline
            homographyMapper = null;
         }
 
-        this.tagsize = tagsize;
-        this.tagsizeX = tagsize;
-        this.tagsizeY = tagsize;
+        this.tagSize = tagSize;
+        this.tagSizeX = tagSize;
+        this.tagSizeY = tagSize;
         this.fx = fx;
         this.fy = fy;
         this.cx = cx;
@@ -229,8 +232,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         constructMatrix();
 
         // Allocate a native context object. See the corresponding deletion in the finalizer
-        nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(
-            AprilTagDetectorJNI.TagFamily.TAG_36h11.string, 3, 3);
+        nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(tagFamily.string, DEF_DECIMATION, NUM_THREADS);
 
         openCvCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -335,7 +337,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
                 }
             }
 
-            if (targetList.size() > 0 && comparator != null)
+            if (targetList.size() > 0)
             {
                 targets = targetList.toArray(new TrcVisionTargetInfo[0]);
                 if (comparator != null && targets.length > 1)
@@ -366,6 +368,28 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     //
 
     /**
+     * This method is called by the garbage collector before the deletion of this object so that we can clean up.
+     * This is useful to release resources that Java garbage collector does not deal with.
+     */
+    @Override
+    protected void finalize()
+    {
+        final String funcName = "finalize";
+
+        // Might be null if createApriltagDetector() threw an exception
+        if(nativeApriltagPtr != 0)
+        {
+            // Delete the native context we created in the constructor
+            AprilTagDetectorJNI.releaseApriltagDetector(nativeApriltagPtr);
+            nativeApriltagPtr = 0;
+        }
+        else
+        {
+            TrcDbgTrace.getGlobalTracer().traceWarn(funcName, "nativeApriltagPtr was NULL.");
+        }
+    }   //finalize
+
+    /**
      * This method is called by OpenCvPipeline to process a video frame.
      *
      * @param input specifies the video frame to be processed.
@@ -392,7 +416,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         // Run AprilTag
         double startTime = TrcUtil.getCurrentTime();
         ArrayList<AprilTagDetection> detections =
-            AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagsize, fx, fy, cx, cy);
+            AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagSize, fx, fy, cx, cy);
         double elapsedTime = TrcUtil.getCurrentTime() - startTime;
         totalTime += elapsedTime;
         totalFrames++;
@@ -412,9 +436,9 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
         for (AprilTagDetection detection : detections)
         {
-            SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
-            drawAxisMarker(input, tagsizeY/2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
-            draw3dCubeMarker(input, tagsizeX, tagsizeX, tagsizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
+            SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
+            drawAxisMarker(input, tagSizeY/2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
+            draw3dCubeMarker(input, tagSizeX, tagSizeX, tagSizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
         }
 
         return input;
