@@ -64,17 +64,18 @@ public class FtcServo extends TrcServo
     private TrcTaskMgr.TaskObject servoTaskObj;
     private double servoPos = 0.0;
     private double servoOnTime = 0.0;
-    private double prevLogicalPos = 0.0;
+    private double logicalPos = 0.0;
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
+     * @param continuous specifies true if it is a continuous servo, false otherwise.
      */
-    public FtcServo(HardwareMap hardwareMap, String instanceName)
+    public FtcServo(HardwareMap hardwareMap, String instanceName, boolean continuous)
     {
-        super(instanceName);
+        super(instanceName, continuous);
 
         if (debugEnabled)
         {
@@ -82,7 +83,7 @@ public class FtcServo extends TrcServo
         }
 
         servo = hardwareMap.servo.get(instanceName);
-        prevLogicalPos = servo.getPosition();
+        logicalPos = servo.getPosition();
         controller = servo.getController();
         holdTimer = new TrcTimer(instanceName);
         event = new TrcEvent(instanceName);
@@ -94,10 +95,21 @@ public class FtcServo extends TrcServo
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
+     * @param continuous specifies true if it is a continuous servo, false otherwise.
+     */
+    public FtcServo(String instanceName, boolean continuous)
+    {
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, continuous);
+    }   //FtcServo
+
+    /**
+     * Constructor: Creates an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
      */
     public FtcServo(String instanceName)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, false);
     }   //FtcServo
 
     /**
@@ -261,12 +273,12 @@ public class FtcServo extends TrcServo
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (position != prevLogicalPos)
+        if (position != logicalPos)
         {
             if (servoSetPosElapsedTimer != null) servoSetPosElapsedTimer.recordStartTime();
             servo.setPosition(position);
             if (servoSetPosElapsedTimer != null) servoSetPosElapsedTimer.recordEndTime();
-            prevLogicalPos = position;
+            logicalPos = position;
         }
     }   //setLogicalPosition
 
@@ -285,11 +297,22 @@ public class FtcServo extends TrcServo
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", prevLogicalPos);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", logicalPos);
         }
 
-        return prevLogicalPos;
+        return logicalPos;
     }   //getLogicalPosition
+
+    /**
+     * This method stops a continuous servo. It doesn't do anything if the servo is not continuous.
+     */
+    public void stopContinuous()
+    {
+        if (isContinuous())
+        {
+            setLogicalPosition(SERVO_CONTINUOUS_STOP);
+        }
+    }   //stopContinuous
 
     /**
      * This method is called periodically to run a state machine that will enable the servo controller, set the servo
