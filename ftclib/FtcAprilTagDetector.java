@@ -43,6 +43,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHomographyMapper;
@@ -89,10 +90,12 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         @Override
         public Rect getRect()
         {
-            return new Rect(
-                (int) aprilTagInfo.corners[0].x, (int) aprilTagInfo.corners[0].y,
-                (int) (aprilTagInfo.corners[1].x - aprilTagInfo.corners[0].x),
-                (int) (aprilTagInfo.corners[1].y - aprilTagInfo.corners[0].y));
+            double width = (Math.abs(aprilTagInfo.corners[1].x - aprilTagInfo.corners[0].x) +
+                            Math.abs(aprilTagInfo.corners[3].x - aprilTagInfo.corners[2].x))/2.0;
+            double height = (Math.abs(aprilTagInfo.corners[1].y - aprilTagInfo.corners[0].y) +
+                             Math.abs(aprilTagInfo.corners[3].y - aprilTagInfo.corners[2].y))/2.0;
+            return new Rect((int) (aprilTagInfo.center.x - width/2.0), (int) (aprilTagInfo.center.y - height/2.0),
+                            (int) width, (int) height);
         }   //getRect
 
         /**
@@ -103,7 +106,10 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         @Override
         public String toString()
         {
-            return "{" + aprilTagInfo.toString() + "}";
+            return String.format(
+                Locale.US, "{id=%d,hamming=%d,decisionMargin=%.1f,center=%.1f/%.1f,rect=%s}",
+                aprilTagInfo.id, aprilTagInfo.hamming, aprilTagInfo.decisionMargin,
+                aprilTagInfo.center.x, aprilTagInfo.center.y, getRect());
         }   //toString
 
     }   //class DetectedObject
