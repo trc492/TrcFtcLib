@@ -269,9 +269,12 @@ public class FtcTensorFlow
      * This method returns the target info of the given detected target.
      *
      * @param target specifies the detected target
+     * @param objHeightOffset specifies the object height offset above the floor.
+     * @param cameraHeight specifies the height of the camera above the floor.
      * @return information about the detected target.
      */
-    public TrcVisionTargetInfo<DetectedObject> getTargetInfo(Recognition target)
+    public TrcVisionTargetInfo<DetectedObject> getDetectedTargetInfo(
+        Recognition target, double objHeightOffset, double cameraHeight)
     {
         final String funcName = "getTargetInfo";
         TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
@@ -279,7 +282,7 @@ public class FtcTensorFlow
                 target.getLabel(),
                 new Rect((int)target.getLeft(), (int)target.getTop(), (int)target.getWidth(), (int)target.getHeight()),
                 target.estimateAngleToObject(AngleUnit.DEGREES), target.getConfidence()),
-            target.getImageWidth(), target.getImageHeight(), homographyMapper);
+            target.getImageWidth(), target.getImageHeight(), homographyMapper, objHeightOffset, cameraHeight);
 
         if (tracer != null)
         {
@@ -287,7 +290,7 @@ public class FtcTensorFlow
         }
 
         return targetInfo;
-    }   //getTargetInfo
+    }   //getDetectedTargetInfo
 
     /**
      * This method returns an array of target info on the filtered detected targets.
@@ -295,10 +298,13 @@ public class FtcTensorFlow
      * @param label specifies the target label to filter the target list, can be null if no filtering.
      * @param filter specifies the filter to call to filter out false positive targets.
      * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
+     * @param objHeightOffset specifies the object height offset above the floor.
+     * @param cameraHeight specifies the height of the camera above the floor.
      * @return filtered target info array.
      */
     public TrcVisionTargetInfo<DetectedObject>[] getDetectedTargetsInfo(
-        String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
+        String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
+        double objHeightOffset, double cameraHeight)
     {
         ArrayList<Recognition> targets = getDetectedTargets(label, filter);
         TrcVisionTargetInfo<DetectedObject>[] targetsInfo =
@@ -308,7 +314,7 @@ public class FtcTensorFlow
         {
             for (int i = 0; i < targets.size(); i++)
             {
-                targetsInfo[i] = getTargetInfo(targets.get(i));
+                targetsInfo[i] = getDetectedTargetInfo(targets.get(i), objHeightOffset, cameraHeight);
             }
 
             if (comparator != null)

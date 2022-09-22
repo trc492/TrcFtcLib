@@ -51,8 +51,7 @@ import TrcCommonLib.trclib.TrcUtil;
 import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
- * This class implements an EasyOpenCV April Tag detector. Typically, it is extended by a specific detector that
- * provides the parameters for the April Tag detector.
+ * This class implements an AprilTag detector using EasyOpenCV.
  */
 public class FtcAprilTagDetector extends OpenCvPipeline
 {
@@ -90,10 +89,10 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         @Override
         public Rect getRect()
         {
-            double width = (Math.abs(aprilTagInfo.corners[1].x - aprilTagInfo.corners[0].x) +
-                            Math.abs(aprilTagInfo.corners[3].x - aprilTagInfo.corners[2].x))/2.0;
-            double height = (Math.abs(aprilTagInfo.corners[1].y - aprilTagInfo.corners[0].y) +
-                             Math.abs(aprilTagInfo.corners[3].y - aprilTagInfo.corners[2].y))/2.0;
+            double width = (Math.abs(aprilTagInfo.corners[0].x - aprilTagInfo.corners[1].x) +
+                            Math.abs(aprilTagInfo.corners[2].x - aprilTagInfo.corners[3].x))/2.0;
+            double height = (Math.abs(aprilTagInfo.corners[1].y - aprilTagInfo.corners[2].y) +
+                             Math.abs(aprilTagInfo.corners[0].y - aprilTagInfo.corners[3].y))/2.0;
             return new Rect((int) (aprilTagInfo.center.x - width/2.0), (int) (aprilTagInfo.center.y - height/2.0),
                             (int) width, (int) height);
         }   //getRect
@@ -313,11 +312,14 @@ public class FtcAprilTagDetector extends OpenCvPipeline
      *
      * @param filter specifies the filter to call to filter out false positive targets.
      * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
+     * @param objHeightOffset specifies the object height offset above the floor.
+     * @param cameraHeight specifies the height of the camera above the floor.
      * @return array of detected target info.
      */
     @SuppressWarnings("unchecked")
     public TrcVisionTargetInfo<DetectedObject>[] getDetectedTargetsInfo(
-        FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
+        FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
+        double objHeightOffset, double cameraHeight)
     {
         final String funcName = "getDetectedTargetsInfo";
         TrcVisionTargetInfo<DetectedObject>[] targets = null;
@@ -326,7 +328,9 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         if (debugEnabled)
         {
             dbgTrace.traceEnter(
-                funcName, TrcDbgTrace.TraceLevel.API, "filter=%s,comparator=%s", filter != null, comparator != null);
+                funcName, TrcDbgTrace.TraceLevel.API,
+                "filter=%s,comparator=%s,objHeightOffset=%.1f,cameraHeight=%.1f",
+                filter != null, comparator != null, objHeightOffset, cameraHeight);
         }
 
         if (detectedObjs != null && detectedObjs.size() > 0)
@@ -338,7 +342,8 @@ public class FtcAprilTagDetector extends OpenCvPipeline
                 if (filter == null || filter.validateTarget(object))
                 {
                     TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
-                        new DetectedObject(object), imageWidth, imageHeight, homographyMapper);
+                        new DetectedObject(object), imageWidth, imageHeight, homographyMapper,
+                        objHeightOffset, cameraHeight);
                     targetList.add(targetInfo);
                 }
             }
@@ -450,6 +455,11 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         return input;
     }   //processFrame
 
+    /**
+     * This method sets the decimation parameter of the AprilTag detector.
+     *
+     * @param decimation specifies the new decimation value.
+     */
     public void setDecimation(float decimation)
     {
         synchronized (decimationSync)

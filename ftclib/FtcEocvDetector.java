@@ -171,12 +171,15 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
      *
      * @param filter specifies the filter to call to filter out false positive targets.
      * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
+     * @param objHeightOffset specifies the object height offset above the floor.
+     * @param cameraHeight specifies the height of the camera above the floor.
      * @return array of detected target info.
      */
     @SuppressWarnings("unchecked")
     public TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>[] getDetectedTargetsInfo(
         TrcOpenCVDetector.FilterTarget filter,
-        Comparator<? super TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>> comparator)
+        Comparator<? super TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>> comparator,
+        double objHeightOffset, double cameraHeight)
     {
         final String funcName = "getDetectedTargetsInfo";
         TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>[] targets = null;
@@ -185,7 +188,9 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
         if (debugEnabled)
         {
             dbgTrace.traceEnter(
-                funcName, TrcDbgTrace.TraceLevel.API, "filter=%s,comparator=%s", filter != null, comparator != null);
+                funcName, TrcDbgTrace.TraceLevel.API,
+                "filter=%s,comparator=%s,objHeightOffset=%.1f,cameraHeight=%.1f",
+                filter != null, comparator != null, objHeightOffset, cameraHeight);
         }
 
         if (detectedObjs != null)
@@ -197,7 +202,8 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
                 if (filter == null || filter.validateTarget(detectedObj))
                 {
                     TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject> targetInfo =
-                        new TrcVisionTargetInfo<>(detectedObj, imageWidth, imageHeight, homographyMapper);
+                        new TrcVisionTargetInfo<>(
+                            detectedObj, imageWidth, imageHeight, homographyMapper, objHeightOffset, cameraHeight);
                     targetList.add(targetInfo);
                 }
             }
