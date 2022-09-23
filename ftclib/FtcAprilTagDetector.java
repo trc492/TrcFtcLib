@@ -82,6 +82,23 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         }   //DetectedObject
 
         /**
+         * This method calculates the rectangle of the detected AprilTag.
+         *
+         * @param at specifies the AprilTag info.
+         * @return AprilTag rectangle.
+         */
+        public static Rect getDetectedRect(AprilTagDetection at)
+        {
+            double width =
+                (Math.abs(at.corners[0].x - at.corners[1].x) + Math.abs(at.corners[2].x - at.corners[3].x))/2.0;
+            double height =
+                (Math.abs(at.corners[1].y - at.corners[2].y) + Math.abs(at.corners[0].y - at.corners[3].y))/2.0;
+
+            return new Rect((int) (
+                at.center.x - width/2.0), (int) (at.center.y - height/2.0), (int) width, (int) height);
+        }   //getDetectedRect
+
+        /**
          * This method returns the rect of the detected object.
          *
          * @return rect of the detected object.
@@ -89,12 +106,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         @Override
         public Rect getRect()
         {
-            double width = (Math.abs(aprilTagInfo.corners[0].x - aprilTagInfo.corners[1].x) +
-                            Math.abs(aprilTagInfo.corners[2].x - aprilTagInfo.corners[3].x))/2.0;
-            double height = (Math.abs(aprilTagInfo.corners[1].y - aprilTagInfo.corners[2].y) +
-                             Math.abs(aprilTagInfo.corners[0].y - aprilTagInfo.corners[3].y))/2.0;
-            return new Rect((int) (aprilTagInfo.center.x - width/2.0), (int) (aprilTagInfo.center.y - height/2.0),
-                            (int) width, (int) height);
+            return getDetectedRect(aprilTagInfo);
         }   //getRect
 
         /**
@@ -159,6 +171,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     private static final Scalar red = new Scalar(255,0,0,255);
     private static final Scalar green = new Scalar(0,255,0,255);
     private static final Scalar white = new Scalar(255,255,255,255);
+    private static final Scalar magenta = new Scalar(255,0,255,255);
 
     // UNITS ARE METERS
     private final double tagSize;
@@ -450,6 +463,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
             SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
             drawAxisMarker(input, tagSizeY/2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
             draw3dCubeMarker(input, tagSizeX, tagSizeX, tagSizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
+            Imgproc.rectangle(input, DetectedObject.getDetectedRect(detection), magenta, 2);
         }
 
         return input;
