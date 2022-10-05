@@ -109,6 +109,7 @@ public class FtcTensorFlow
     private final TrcDbgTrace tracer;
     private final TFObjectDetector tfod;
     private final TrcHomographyMapper homographyMapper;
+    private boolean enabled = false;
 
     /**
      * Constructor: Create an instance of the object.
@@ -176,15 +177,26 @@ public class FtcTensorFlow
      */
     public void setEnabled(boolean enabled)
     {
-        if (enabled)
+        if (!this.enabled && enabled)
         {
             tfod.activate();
         }
-        else
+        else if (this.enabled && !enabled)
         {
             tfod.deactivate();
         }
+        this.enabled = enabled;
     }   //setEnabled
+
+    /**
+     * This method checks if TensorFlow is enabled.
+     *
+     * @return true if TensorFlow is enabled, false otherwise.
+     */
+    public boolean isEnabled()
+    {
+        return enabled;
+    }   //isEnabled
 
     /**
      * This method shuts down TensorFlow.

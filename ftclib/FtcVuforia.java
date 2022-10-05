@@ -98,6 +98,7 @@ public class FtcVuforia implements TrcVideoSource<Mat>
     private VuforiaLocalizer localizer;
     private ArrayList<VuforiaTrackables> targetLists = new ArrayList<>();
     private HashMap<String, TargetInfo> targetMap = new HashMap<>();
+    private boolean trackingEnabled = false;
     private int numImageTargets = 0;
     private int numObjectTargets = 0;
     private int imageWidth = 0;
@@ -197,18 +198,32 @@ public class FtcVuforia implements TrcVideoSource<Mat>
      */
     public void setTrackingEnabled(boolean enabled)
     {
-        for (VuforiaTrackables targetList: targetLists)
+        if (!trackingEnabled && enabled)
         {
-            if (enabled)
+            for (VuforiaTrackables targetList: targetLists)
             {
                 targetList.activate();
             }
-            else
+        }
+        else if (trackingEnabled && !enabled)
+        {
+            for (VuforiaTrackables targetList: targetLists)
             {
                 targetList.deactivate();
             }
         }
+        trackingEnabled = enabled;
     }   //setTrackingEnabled
+
+    /**
+     * This method checks if target tracking is enabled.
+     *
+     * @return true if target tracking is enabled, false otherwise.
+     */
+    public boolean isTrackingEnabled()
+    {
+        return trackingEnabled;
+    }   //isTrackingEnabled
 
     /**
      * This method creates a location matrix that can be used to relocate an object to its final location by rotating
