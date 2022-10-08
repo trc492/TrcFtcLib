@@ -51,7 +51,7 @@ public class FtcTensorFlow
      * This class encapsulates info of the detected object. It extends TrcVisionTargetInfo.ObjectInfo that requires
      * it to provide a method to return the detected object rect.
      */
-    public static class DetectedObject extends TrcVisionTargetInfo.ObjectInfo
+    public static class DetectedObject implements TrcVisionTargetInfo.ObjectInfo
     {
         public final String label;
         public final Rect rect;
@@ -84,6 +84,17 @@ public class FtcTensorFlow
         {
             return rect;
         }   //getRect
+
+        /**
+         * This method returns the area of the detected object.
+         *
+         * @return area of the detected object.
+         */
+        @Override
+        public double getArea()
+        {
+            return rect.area();
+        }   //getArea
 
         /**
          * This method returns the string form of the target info.

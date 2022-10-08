@@ -36,41 +36,28 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.apriltag.AprilTagDetectorJNI;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
-import TrcCommonLib.trclib.TrcHomographyMapper;
+import TrcCommonLib.trclib.TrcOpenCvDetector;
+import TrcCommonLib.trclib.TrcOpenCvPipeline;
 import TrcCommonLib.trclib.TrcUtil;
-import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
- * This class implements an AprilTag detector using EasyOpenCV.
+ * This class implements an AprilTag pipeline using EasyOpenCV.
  */
-public class FtcAprilTagDetector extends OpenCvPipeline
+public class FtcEocvAprilTagPipeline extends OpenCvPipeline
+                                     implements TrcOpenCvPipeline<FtcEocvAprilTagPipeline.DetectedObject>
 {
-    protected static final String moduleName = "FtcAprilTagDetector";
-    protected static final boolean debugEnabled = false;
-    protected static final boolean tracingEnabled = false;
-    protected static final boolean useGlobalTracer = false;
-    protected static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    protected static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    protected TrcDbgTrace dbgTrace = null;
-
     /**
-     * This class encapsulates info of the detected object. It extends TrcVisionTargetInfo.ObjectInfo that requires
-     * it to provide a method to return the detected object rect.
+     * This class encapsulates info of the detected object. It extends TrcOpenCvDetector.DetectedObject that requires
+     * it to provide a method to return the detected object rect and area.
      */
-    public static class DetectedObject extends TrcVisionTargetInfo.ObjectInfo
+    public static class DetectedObject extends TrcOpenCvDetector.DetectedObject<AprilTagDetection>
     {
-        public AprilTagDetection aprilTagInfo;
-
         /**
          * Constructor: Creates an instance of the object.
          *
@@ -78,7 +65,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
          */
         public DetectedObject(AprilTagDetection aprilTagInfo)
         {
-            this.aprilTagInfo = aprilTagInfo;
+            super(aprilTagInfo);
         }   //DetectedObject
 
         /**
@@ -106,8 +93,19 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         @Override
         public Rect getRect()
         {
-            return getDetectedRect(aprilTagInfo);
+            return getDetectedRect(object);
         }   //getRect
+
+        /**
+         * This method returns the area of the detected object.
+         *
+         * @return area of the detected object.
+         */
+        @Override
+        public double getArea()
+        {
+            return getDetectedRect(object).area();
+        }   //getArea
 
         /**
          * This method returns the string form of the target info.
@@ -119,19 +117,10 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         {
             return String.format(
                 Locale.US, "{id=%d,hamming=%d,decisionMargin=%.1f,center=%.1f/%.1f,rect=%s}",
-                aprilTagInfo.id, aprilTagInfo.hamming, aprilTagInfo.decisionMargin,
-                aprilTagInfo.center.x, aprilTagInfo.center.y, getRect());
+                object.id, object.hamming, object.decisionMargin, object.center.x, object.center.y, getRect());
         }   //toString
 
     }   //class DetectedObject
-
-    /**
-     * This interface provides a method for filtering false positive objects in the detected target list.
-     */
-    public interface FilterTarget
-    {
-        boolean validateTarget(AprilTagDetection object);
-    }   //interface FilterTarget
 
     /*
      * A simple container to hold both rotation and translation vectors, which together form a 6DOF pose.
@@ -154,24 +143,13 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         }
     }   //class SixDofPose
 
-    private final String instanceName;
-    private final int imageWidth, imageHeight;
-    private final OpenCvCamera openCvCamera;
-    private final boolean showAprilTagView;
-    private final TrcDbgTrace tracer;
-    private final TrcHomographyMapper homographyMapper;
-    private boolean aprilTagEnabled = false;
-    private double totalTime = 0.0;
-    private long totalFrames = 0;
-    private double taskStartTime = 0.0;
-
     private static final float DEF_DECIMATION = 3.0f;
     private static final int NUM_THREADS = 3;
-    private static final Scalar blue = new Scalar(7, 197, 235, 255);
-    private static final Scalar red = new Scalar(255,0,0,255);
-    private static final Scalar green = new Scalar(0,255,0,255);
-    private static final Scalar white = new Scalar(255,255,255,255);
-    private static final Scalar magenta = new Scalar(255,0,255,255);
+    private static final Scalar RED = new Scalar(255,0,0,255);
+    private static final Scalar GREEN = new Scalar(0,255,0,255);
+    private static final Scalar BLUE = new Scalar(7, 197, 235, 255);
+    private static final Scalar WHITE = new Scalar(255,255,255,255);
+    private static final Scalar MAGENTA = new Scalar(255,0,255,255);
 
     // UNITS ARE METERS
     private final double tagSize;
@@ -181,9 +159,10 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     private final double fy;
     private final double cx;
     private final double cy;
-
-    private Mat cameraMatrix;
+    private final TrcDbgTrace tracer;
+    private final Mat cameraMatrix;
     private long nativeApriltagPtr;
+
     private final Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detectionsUpdate = null;
     private final Object detectionsUpdateSync = new Object();
@@ -194,51 +173,18 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param instanceName specifies the instance name.
-     * @param imageWidth specifies the camera image width.
-     * @param imageHeight specifies the camera image height.
-     * @param cameraRect specifies the homography camera pixel rectangle, can be null if not provided.
-     * @param worldRect specifies the homography world coordinate rectangle, can be null if not provided.
-     * @param openCvCam specifies the OpenCV camera object.
-     * @param cameraRotation specifies the camera orientation.
-     * @param showAprilTagView specifies true to show the annotated image on robot controller screen, false to hide it.
-     * @param tracer specifies the tracer for trace info, null if none provided.
      * @param tagFamily specifies the tag family.
      * @param tagSize size of the tag in meters.
      * @param fx lens focal length x from camera calibration.
      * @param fy lens focal length y from camera calibration.
      * @param cx lens principal point x from camera calibration.
      * @param cy lens principal point y from camera calibration.
+     * @param tracer specifies the tracer for trace info, null if none provided.
      */
-    public FtcAprilTagDetector(
-        String instanceName, int imageWidth, int imageHeight,
-        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
-        OpenCvCamera openCvCam, OpenCvCameraRotation cameraRotation, boolean showAprilTagView, TrcDbgTrace tracer,
-        AprilTagDetectorJNI.TagFamily tagFamily, double tagSize, double fx, double fy, double cx, double cy)
+    public FtcEocvAprilTagPipeline(
+        AprilTagDetectorJNI.TagFamily tagFamily, double tagSize, double fx, double fy, double cx, double cy,
+        TrcDbgTrace tracer)
     {
-        if (debugEnabled)
-        {
-            dbgTrace = useGlobalTracer?
-                TrcDbgTrace.getGlobalTracer():
-                new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
-        this.instanceName = instanceName;
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
-        this.openCvCamera = openCvCam;
-        this.showAprilTagView = showAprilTagView;
-        this.tracer = tracer;
-
-        if (cameraRect != null && worldRect != null)
-        {
-           homographyMapper = new TrcHomographyMapper(cameraRect, worldRect);
-        }
-        else
-        {
-           homographyMapper = null;
-        }
-
         this.tagSize = tagSize;
         this.tagSizeX = tagSize;
         this.tagSizeY = tagSize;
@@ -246,146 +192,90 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         this.fy = fy;
         this.cx = cx;
         this.cy = cy;
+        this.tracer = tracer;
 
-        constructMatrix();
-
+        cameraMatrix = constructMatrix();
         // Allocate a native context object. See the corresponding deletion in the finalizer
         nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(tagFamily.string, DEF_DECIMATION, NUM_THREADS);
+    }   //FtcEocvAprilTagPipeline
 
-        openCvCamera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                openCvCamera.startStreaming(imageWidth, imageHeight, cameraRotation);
-            }
-
-            @Override
-            public void onError(int errorCode)
-            {
-            }
-        });
-
-        openCvCamera.pauseViewport();
-    }   //FtcAprilTagDetector
+    //
+    // Implements TrcOpenCvPipeline interface.
+    //
 
     /**
-     * This method returns the instance name.
+     * This method is called to process the input image through the pipeline.
      *
-     * @return instance name.
+     * @param input specifies the input image to be processed.
      */
     @Override
-    public String toString()
+    public void process(Mat input)
     {
-        return instanceName;
-    }   //toString
+        double startTime = TrcUtil.getCurrentTime();
+        // Convert to greyscale
+        Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
+
+        synchronized (decimationSync)
+        {
+            if (needToSetDecimation)
+            {
+                AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, decimation);
+                needToSetDecimation = false;
+            }
+        }
+
+        // Run AprilTag
+        ArrayList<AprilTagDetection> detections =
+            AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagSize, fx, fy, cx, cy);
+
+        performanceMetrics.logProcessingTime(startTime);
+        performanceMetrics.printMetrics(tracer);
+
+        synchronized (detectionsUpdateSync)
+        {
+            detectionsUpdate = detections;
+        }
+
+        // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
+        // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
+        for (AprilTagDetection detection : detections)
+        {
+            SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
+            drawAxisMarker(input, tagSizeY/2.0, 3, pose.rvec, pose.tvec, cameraMatrix);
+            draw3dCubeMarker(input, tagSizeX, tagSizeX, tagSizeY, 3, pose.rvec, pose.tvec, cameraMatrix);
+            Imgproc.rectangle(input, DetectedObject.getDetectedRect(detection), MAGENTA, 3);
+        }
+    }   //process
 
     /**
-     * This method pauses/resumes pipeline processing.
+     * This method returns the array of detected objects.
      *
-     * @param enabled specifies true to start pipeline processing, false to stop.
+     * @return array of detected objects.
      */
-    public void setEnabled(boolean enabled)
+    @Override
+    public DetectedObject[] getDetectedObjects()
     {
-        if (enabled && !aprilTagEnabled)
+        DetectedObject[] objects = null;
+        ArrayList<AprilTagDetection> detections;
+
+        synchronized (detectionsUpdateSync)
         {
+            detections = detectionsUpdate;
             detectionsUpdate = null;
-            totalTime = 0.0;
-            totalFrames = 0;
-            taskStartTime = TrcUtil.getCurrentTime();
-
-            openCvCamera.setPipeline(this);
-            if (showAprilTagView)
-            {
-                openCvCamera.resumeViewport();
-            }
-        }
-        else if (!enabled && aprilTagEnabled)
-        {
-            openCvCamera.pauseViewport();
-            openCvCamera.setPipeline(null);
-            detectionsUpdate = null;
         }
 
-        aprilTagEnabled = enabled;
-    }   //setEnabled
-
-    /**
-     * This method returns the state of AprilTagVision.
-     *
-     * @return true if the AprilTagVision is enabled, false otherwise.
-     */
-    public boolean isEnabled()
-    {
-        return aprilTagEnabled;
-    }   //isTaskEnabled
-
-    /**
-     * This method returns an array of detected targets from EasyOpenCV vision.
-     *
-     * @param filter specifies the filter to call to filter out false positive targets.
-     * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
-     * @param objHeightOffset specifies the object height offset above the floor.
-     * @param cameraHeight specifies the height of the camera above the floor.
-     * @return array of detected target info.
-     */
-    @SuppressWarnings("unchecked")
-    public TrcVisionTargetInfo<DetectedObject>[] getDetectedTargetsInfo(
-        FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
-        double objHeightOffset, double cameraHeight)
-    {
-        final String funcName = "getDetectedTargetsInfo";
-        TrcVisionTargetInfo<DetectedObject>[] targets = null;
-        ArrayList<AprilTagDetection> detectedObjs = getDetectionsUpdate();
-
-        if (debugEnabled)
+        if (detections != null)
         {
-            dbgTrace.traceEnter(
-                funcName, TrcDbgTrace.TraceLevel.API,
-                "filter=%s,comparator=%s,objHeightOffset=%.1f,cameraHeight=%.1f",
-                filter != null, comparator != null, objHeightOffset, cameraHeight);
-        }
-
-        if (detectedObjs != null && detectedObjs.size() > 0)
-        {
-            ArrayList<TrcVisionTargetInfo<DetectedObject>> targetList = new ArrayList<>();
-
-            for (AprilTagDetection object : detectedObjs)
+            objects = new DetectedObject[detections.size()];
+            for (int i = 0; i < objects.length; i++)
             {
-                if (filter == null || filter.validateTarget(object))
-                {
-                    TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
-                        new DetectedObject(object), imageWidth, imageHeight, homographyMapper,
-                        objHeightOffset, cameraHeight);
-                    targetList.add(targetInfo);
-                }
-            }
-
-            if (targetList.size() > 0)
-            {
-                targets = targetList.toArray(new TrcVisionTargetInfo[0]);
-                if (comparator != null && targets.length > 1)
-                {
-                    Arrays.sort(targets, comparator);
-                }
-            }
-
-            if (targets != null && tracer != null)
-            {
-                for (int i = 0; i < targets.length; i++)
-                {
-                    tracer.traceInfo(funcName, "[%d] Target=%s", i, targets[i]);
-                }
+                AprilTagDetection detection = detections.get(i);
+                objects[i] = new DetectedObject(detection);
             }
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", targets == null? 0: targets.length);
-        }
-
-        return targets;
-    }   //getDetectedTargetsInfo
+        return objects;
+    }   //getDetectedObjects
 
     //
     // Implements OpenCvPipeline abstract method.
@@ -401,7 +291,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         final String funcName = "finalize";
 
         // Might be null if createApriltagDetector() threw an exception
-        if(nativeApriltagPtr != 0)
+        if (nativeApriltagPtr != 0)
         {
             // Delete the native context we created in the constructor
             AprilTagDetectorJNI.releaseApriltagDetector(nativeApriltagPtr);
@@ -414,58 +304,16 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     }   //finalize
 
     /**
-     * This method is called by OpenCvPipeline to process a video frame.
+     * This method is called by OpenCvPipeline to process an image frame.
      *
-     * @param input specifies the video frame to be processed.
+     * @param input specifies the image frame to be processed.
      *
-     * @return the video frame to be displayed.
+     * @return the image frame to be displayed.
      */
     @Override
     public Mat processFrame(Mat input)
     {
-        final String funcName = "processFrame";
-
-        // Convert to greyscale
-        Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
-
-        synchronized (decimationSync)
-        {
-            if (needToSetDecimation)
-            {
-                AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, decimation);
-                needToSetDecimation = false;
-            }
-        }
-
-        // Run AprilTag
-        double startTime = TrcUtil.getCurrentTime();
-        ArrayList<AprilTagDetection> detections =
-            AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagSize, fx, fy, cx, cy);
-        double elapsedTime = TrcUtil.getCurrentTime() - startTime;
-        totalTime += elapsedTime;
-        totalFrames++;
-        if (tracer != null)
-        {
-            tracer.traceInfo(
-                funcName, "AvgProcessTime=%.3f sec, FrameRate=%.1f",
-                totalTime/totalFrames, totalFrames/(TrcUtil.getCurrentTime() - taskStartTime));
-        }
-
-        synchronized (detectionsUpdateSync)
-        {
-            detectionsUpdate = detections;
-        }
-
-        // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
-        // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
-        for (AprilTagDetection detection : detections)
-        {
-            SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
-            drawAxisMarker(input, tagSizeY/2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
-            draw3dCubeMarker(input, tagSizeX, tagSizeX, tagSizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
-            Imgproc.rectangle(input, DetectedObject.getDetectedRect(detection), magenta, 2);
-        }
-
+        process(input);
         return input;
     }   //processFrame
 
@@ -484,24 +332,9 @@ public class FtcAprilTagDetector extends OpenCvPipeline
     }   //setDecimation
 
     /**
-     * This method returns the detected object array in a thread safe manner.
-     *
-     * @return an array list of the detected object.
-     */
-    public ArrayList<AprilTagDetection> getDetectionsUpdate()
-    {
-        synchronized (detectionsUpdateSync)
-        {
-            ArrayList<AprilTagDetection> ret = detectionsUpdate;
-            detectionsUpdate = null;
-            return ret;
-        }
-    }   //getDetectionUpdate
-
-    /**
      * This method constructs the camera matrix.
      */
-    private void constructMatrix()
+    private Mat constructMatrix()
     {
         //     Construct the camera matrix.
         //
@@ -511,19 +344,21 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         //     | 0    0   1  |
         //      --         --
         //
-        cameraMatrix = new Mat(3, 3, CvType.CV_32FC1);
+        Mat camMatrix = new Mat(3, 3, CvType.CV_32FC1);
 
-        cameraMatrix.put(0,0, fx);
-        cameraMatrix.put(0,1,0);
-        cameraMatrix.put(0,2, cx);
+        camMatrix.put(0, 0, fx);
+        camMatrix.put(0, 1, 0);
+        camMatrix.put(0, 2, cx);
 
-        cameraMatrix.put(1,0,0);
-        cameraMatrix.put(1,1,fy);
-        cameraMatrix.put(1,2,cy);
+        camMatrix.put(1, 0, 0);
+        camMatrix.put(1, 1, fy);
+        camMatrix.put(1, 2, cy);
 
-        cameraMatrix.put(2, 0, 0);
-        cameraMatrix.put(2,1,0);
-        cameraMatrix.put(2,2,1);
+        camMatrix.put(2, 0, 0);
+        camMatrix.put(2, 1, 0);
+        camMatrix.put(2, 2, 1);
+
+        return camMatrix;
     }   //constructMatrix
 
     /**
@@ -553,11 +388,11 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         Point[] projectedPoints = matProjectedPoints.toArray();
 
         // Draw the marker!
-        Imgproc.line(buf, projectedPoints[0], projectedPoints[1], red, thickness);
-        Imgproc.line(buf, projectedPoints[0], projectedPoints[2], green, thickness);
-        Imgproc.line(buf, projectedPoints[0], projectedPoints[3], blue, thickness);
+        Imgproc.line(buf, projectedPoints[0], projectedPoints[1], RED, thickness);
+        Imgproc.line(buf, projectedPoints[0], projectedPoints[2], GREEN, thickness);
+        Imgproc.line(buf, projectedPoints[0], projectedPoints[3], BLUE, thickness);
 
-        Imgproc.circle(buf, projectedPoints[0], thickness, white, -1);
+        Imgproc.circle(buf, projectedPoints[0], thickness, WHITE, -1);
     }   //drawAxisMarker
 
     /**
@@ -598,7 +433,7 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         // Pillars
         for (int i = 0; i < 4; i++)
         {
-            Imgproc.line(buf, projectedPoints[i], projectedPoints[i+4], blue, thickness);
+            Imgproc.line(buf, projectedPoints[i], projectedPoints[i+4], BLUE, thickness);
         }
 
         // Base lines
@@ -608,10 +443,10 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         //Imgproc.line(buf, projectedPoints[3], projectedPoints[0], blue, thickness);
 
         // Top lines
-        Imgproc.line(buf, projectedPoints[4], projectedPoints[5], green, thickness);
-        Imgproc.line(buf, projectedPoints[5], projectedPoints[6], green, thickness);
-        Imgproc.line(buf, projectedPoints[6], projectedPoints[7], green, thickness);
-        Imgproc.line(buf, projectedPoints[4], projectedPoints[7], green, thickness);
+        Imgproc.line(buf, projectedPoints[4], projectedPoints[5], GREEN, thickness);
+        Imgproc.line(buf, projectedPoints[5], projectedPoints[6], GREEN, thickness);
+        Imgproc.line(buf, projectedPoints[6], projectedPoints[7], GREEN, thickness);
+        Imgproc.line(buf, projectedPoints[4], projectedPoints[7], GREEN, thickness);
     }   //draw3dCubeMarker
 
     /**
@@ -644,4 +479,4 @@ public class FtcAprilTagDetector extends OpenCvPipeline
         return pose;
     }   //poseFromTrapezoid
 
-}  //class FtcAprilTagDetector
+}  //class FtcEocvAprilTagPipeline

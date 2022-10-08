@@ -32,67 +32,48 @@ import java.util.Comparator;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHomographyMapper;
-import TrcCommonLib.trclib.TrcOpenCVDetector;
+import TrcCommonLib.trclib.TrcOpenCvDetector;
+import TrcCommonLib.trclib.TrcOpenCvPipeline;
 import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
- * This class implements an EasyOpenCV detector. Typically, it is extended by a specific detector that provides
- * the algorithm to process an image for detecting objects using OpenCV APIs.
+ * This class implements an EasyOpenCV detector. Typically, it is extended by a specific detector that provides the
+ * pipeline to process an image for detecting objects using OpenCV APIs.
  */
-public abstract class FtcEocvDetector extends OpenCvPipeline
+public class FtcEocvDetector
 {
-    protected static final String moduleName = "FtcEocvDetector";
-    protected static final boolean debugEnabled = false;
-    protected static final boolean tracingEnabled = false;
-    protected static final boolean useGlobalTracer = false;
-    protected static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    protected static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    protected TrcDbgTrace dbgTrace = null;
-
-    /**
-     * This method is provided by the subclass to return an array of detected objects.
-     *
-     * @return array of detected objects.
-     */
-    public abstract TrcOpenCVDetector.DetectedObject[] getDetectedObjects();
-
     private final String instanceName;
-    private final int imageWidth, imageHeight;
     private final OpenCvCamera openCvCamera;
+    private final int imageWidth, imageHeight;
     private final boolean showEocvView;
     private final TrcDbgTrace tracer;
     private final TrcHomographyMapper homographyMapper;
+
     private boolean eocvEnabled = false;
+    private volatile TrcOpenCvPipeline<?> openCvPipeline = null;
 
     /**
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
+     * @param openCvCamera specifies the camera object.
      * @param imageWidth specifies the width of the camera image.
      * @param imageHeight specifies the height of the camera image.
-     * @param cameraRect specifies the camera rectangle for Homography Mapper, can be null if not provided.
-     * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
-     * @param openCvCamera specifies the camera object.
      * @param cameraRotation specifies the camera orientation.
      * @param showEocvView specifies true to show the annotated image on robot controller screen, false to hide it.
+     * @param cameraRect specifies the camera rectangle for Homography Mapper, can be null if not provided.
+     * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvDetector(
-        String instanceName, int imageWidth, int imageHeight,
-        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
-        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation, boolean showEocvView, TrcDbgTrace tracer)
+        String instanceName, OpenCvCamera openCvCamera, int imageWidth, int imageHeight,
+        OpenCvCameraRotation cameraRotation, boolean showEocvView, TrcHomographyMapper.Rectangle cameraRect,
+        TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
     {
-        if (debugEnabled)
-        {
-            dbgTrace = useGlobalTracer?
-                TrcDbgTrace.getGlobalTracer():
-                new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         this.instanceName = instanceName;
+        this.openCvCamera = openCvCamera;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
-        this.openCvCamera = openCvCamera;
         this.showEocvView = showEocvView;
         this.tracer = tracer;
 
@@ -118,19 +99,30 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
             {
             }
         });
+
+        openCvCamera.showFpsMeterOnViewport(false);
         openCvCamera.pauseViewport();
     }   //FtcEocvDetector
 
     /**
-     * This method returns the instance name.
+     * This method sets the EOCV pipeline to be used for the detection.
      *
-     * @return instance name.
+     * @param pipeline specifies the pipeline to be used for detection.
      */
-    @Override
-    public String toString()
+    public void setPipeline(TrcOpenCvPipeline<?> pipeline)
     {
-        return instanceName;
-    }   //toString
+        openCvPipeline = pipeline;
+    }   //setPipeline
+
+    /**
+     * This method returns the current active pipeline.
+     *
+     * @return current active pipeline, null if no active pipeline.
+     */
+    public TrcOpenCvPipeline<?> getPipeline()
+    {
+        return openCvPipeline;
+    }   //getPipeline
 
     /**
      * This method pauses/resumes pipeline processing.
@@ -141,7 +133,12 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
     {
         if (enabled && !eocvEnabled)
         {
-            openCvCamera.setPipeline(this);
+            if (openCvPipeline != null)
+            {
+                openCvPipeline.performanceMetrics.reset();
+            }
+
+            openCvCamera.setPipeline((OpenCvPipeline) openCvPipeline);
             if (showEocvView)
             {
                 openCvCamera.resumeViewport();
@@ -149,7 +146,10 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
         }
         else if (!enabled && eocvEnabled)
         {
-            openCvCamera.pauseViewport();
+            if (showEocvView)
+            {
+                openCvCamera.pauseViewport();
+            }
             openCvCamera.setPipeline(null);
         }
 
@@ -164,7 +164,7 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
     public boolean isEnabled()
     {
         return eocvEnabled;
-    }   //isTaskEnabled
+    }   //isEnabled
 
     /**
      * This method returns an array of detected targets from EasyOpenCV vision.
@@ -176,62 +176,51 @@ public abstract class FtcEocvDetector extends OpenCvPipeline
      * @return array of detected target info.
      */
     @SuppressWarnings("unchecked")
-    public TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>[] getDetectedTargetsInfo(
-        TrcOpenCVDetector.FilterTarget filter,
-        Comparator<? super TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>> comparator,
+    public TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] getDetectedTargetsInfo(
+        TrcOpenCvDetector.FilterTarget filter,
+        Comparator<? super TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> comparator,
         double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getDetectedTargetsInfo";
-        TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>[] targets = null;
-        TrcOpenCVDetector.DetectedObject[] detectedObjs = getDetectedObjects();
+        final String funcName = instanceName + ".getDetectedTargetsInfo";
+        TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] detectedTargets = null;
 
-        if (debugEnabled)
+        TrcOpenCvDetector.DetectedObject<?>[] objects =
+            (TrcOpenCvDetector.DetectedObject<?>[]) openCvPipeline.getDetectedObjects();
+
+        if (objects != null)
         {
-            dbgTrace.traceEnter(
-                funcName, TrcDbgTrace.TraceLevel.API,
-                "filter=%s,comparator=%s,objHeightOffset=%.1f,cameraHeight=%.1f",
-                filter != null, comparator != null, objHeightOffset, cameraHeight);
-        }
+            ArrayList<TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> targetList = new ArrayList<>();
 
-        if (detectedObjs != null)
-        {
-            ArrayList<TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject>> targetList = new ArrayList<>();
-
-            for (TrcOpenCVDetector.DetectedObject detectedObj : detectedObjs)
+            for (TrcOpenCvDetector.DetectedObject<?> obj : objects)
             {
-                if (filter == null || filter.validateTarget(detectedObj))
+                if (filter == null || filter.validateTarget(obj))
                 {
-                    TrcVisionTargetInfo<TrcOpenCVDetector.DetectedObject> targetInfo =
+                    TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>> targetInfo =
                         new TrcVisionTargetInfo<>(
-                            detectedObj, imageWidth, imageHeight, homographyMapper, objHeightOffset, cameraHeight);
+                            obj, imageWidth, imageHeight, homographyMapper, objHeightOffset, cameraHeight);
                     targetList.add(targetInfo);
                 }
             }
 
             if (targetList.size() > 0)
             {
-                targets = targetList.toArray(new TrcVisionTargetInfo[0]);
-                if (comparator != null && targets.length > 1)
+                detectedTargets = targetList.toArray(new TrcVisionTargetInfo[0]);
+                if (comparator != null && detectedTargets.length > 1)
                 {
-                    Arrays.sort(targets, comparator);
+                    Arrays.sort(detectedTargets, comparator);
                 }
             }
 
-            if (targets != null && tracer != null)
+            if (detectedTargets != null && tracer != null)
             {
-                for (int i = 0; i < targets.length; i++)
+                for (int i = 0; i < detectedTargets.length; i++)
                 {
-                    tracer.traceInfo(funcName, "[%d] Target=%s", i, targets[i]);
+                    tracer.traceInfo(funcName, "[%d] Target=%s", i, detectedTargets[i]);
                 }
             }
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", targets == null? 0: targets.length);
-        }
-
-        return targets;
+        return detectedTargets;
     }   //getDetectedTargetsInfo
 
 }   //class FtcEocvDetector
