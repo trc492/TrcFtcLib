@@ -37,6 +37,7 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
                                       implements TrcOpenCvPipeline<TrcOpenCvColorBlobPipeline.DetectedObject>
 {
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
+    private boolean showColorFilterOutput = false;
 
     /**
      * Constructor: Create an instance of the object.
@@ -94,6 +95,17 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
         return colorBlobPipeline.getDetectedObjects();
     }   //getDetectedObjects
 
+    /**
+     * This method toggles between annotated input or color filter output on the display.
+     *
+     * @return the updated state.
+     */
+    public boolean toggleColorFilterOutput()
+    {
+        showColorFilterOutput = !showColorFilterOutput;
+        return showColorFilterOutput;
+    }   //toggleColorFilterOutput
+
     //
     // Implements OpenCvPipeline abstract methods.
     //
@@ -109,7 +121,7 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
         process(input);
-        return input;
+        return showColorFilterOutput? colorBlobPipeline.getColorThresholdOutput(): input;
     }   //processFrame
 
 }  //class FtcEocvColorBlobPipeline

@@ -111,7 +111,13 @@ public class FtcEocvDetector
      */
     public void setPipeline(TrcOpenCvPipeline<?> pipeline)
     {
-        openCvPipeline = pipeline;
+        if (pipeline != openCvPipeline)
+        {
+            // Pipeline has changed. Disable the old pipeline and enable the new one.
+            setEnabled(false);
+            openCvPipeline = pipeline;
+            setEnabled(true);
+        }
     }   //setPipeline
 
     /**
