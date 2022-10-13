@@ -74,6 +74,16 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     //
 
     /**
+     * This method is called to reset the state of the pipeline if any.
+     */
+    @Override
+    public void reset()
+    {
+        colorBlobPipeline.reset();
+        showColorFilterOutput = false;
+    }   //reset
+
+    /**
      * This method is called to process the input image through the pipeline.
      *
      * @param input specifies the input image to be processed.

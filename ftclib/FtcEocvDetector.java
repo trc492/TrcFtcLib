@@ -141,7 +141,7 @@ public class FtcEocvDetector
         {
             if (openCvPipeline != null)
             {
-                openCvPipeline.performanceMetrics.reset();
+                openCvPipeline.reset();
             }
 
             openCvCamera.setPipeline((OpenCvPipeline) openCvPipeline);
