@@ -22,6 +22,8 @@
 
 package TrcFtcLib.ftclib;
 
+import java.util.Locale;
+
 import TrcCommonLib.trclib.TrcPidActuator;
 
 /**
@@ -61,6 +63,20 @@ public class FtcMotorActuator
             this.hasUpperLimitSwitch = hasUpperLimitSwitch;
             this.upperLimitInverted = upperLimitInverted;
         }   //MotorParams
+
+        /**
+         * This method returns the string format of the motorParams info.
+         *
+         * @return string format of the motor param info.
+         */
+        @Override
+        public String toString()
+        {
+            return String.format(
+                Locale.US,
+                "motorInverted=%s,hasLowerLimitSW=%s,lowerLimitInverted=%s,hasUpperLimitSW=%s,upperLimitInverted=%s",
+                motorInverted, hasLowerLimitSwitch, lowerLimitInverted, hasUpperLimitSwitch, upperLimitInverted);
+        }   //toString
 
     }   //class MotorParams
 
