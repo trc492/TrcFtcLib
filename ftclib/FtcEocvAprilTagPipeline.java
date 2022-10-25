@@ -149,7 +149,6 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     private static final Scalar GREEN = new Scalar(0,255,0,255);
     private static final Scalar BLUE = new Scalar(7, 197, 235, 255);
     private static final Scalar WHITE = new Scalar(255,255,255,255);
-    private static final Scalar MAGENTA = new Scalar(255,0,255,255);
 
     // UNITS ARE METERS
     private final double tagSize;
