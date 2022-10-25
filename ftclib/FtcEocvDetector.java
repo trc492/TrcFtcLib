@@ -42,12 +42,14 @@ import TrcCommonLib.trclib.TrcVisionTargetInfo;
  */
 public class FtcEocvDetector
 {
+    private static final String moduleName = "FtcEocvDetector";
     private final String instanceName;
     private final OpenCvCamera openCvCamera;
     private final int imageWidth, imageHeight;
     private final TrcDbgTrace tracer;
     private final TrcHomographyMapper homographyMapper;
 
+    private boolean cameraStarted = false;
     private boolean eocvEnabled = false;
     private volatile TrcOpenCvPipeline<?> openCvPipeline = null;
 
@@ -89,14 +91,28 @@ public class FtcEocvDetector
             public void onOpened()
             {
                 openCvCamera.startStreaming(imageWidth, imageHeight, cameraRotation);
+                cameraStarted = true;
             }
 
             @Override
             public void onError(int errorCode)
             {
+                TrcDbgTrace.getGlobalTracer().traceWarn(
+                    moduleName, "Failed to open camera %s (code=%d).", instanceName, errorCode);
             }
         });
     }   //FtcEocvDetector
+
+    /**
+     * This method checks if the camera is started successfully. It is important to make sure the camera is started
+     * successfully before calling any camera APIs.
+     *
+     * @return true if camera is started successfully, false otherwise.
+     */
+    public boolean isCameraStarted()
+    {
+        return cameraStarted;
+    }   //isCameraStarted
 
     /**
      * This method sets the EOCV pipeline to be used for the detection.
