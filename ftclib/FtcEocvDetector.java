@@ -45,7 +45,6 @@ public class FtcEocvDetector
     private final String instanceName;
     private final OpenCvCamera openCvCamera;
     private final int imageWidth, imageHeight;
-    private final boolean showEocvView;
     private final TrcDbgTrace tracer;
     private final TrcHomographyMapper homographyMapper;
 
@@ -60,21 +59,19 @@ public class FtcEocvDetector
      * @param imageWidth specifies the width of the camera image.
      * @param imageHeight specifies the height of the camera image.
      * @param cameraRotation specifies the camera orientation.
-     * @param showEocvView specifies true to show the annotated image on robot controller screen, false to hide it.
      * @param cameraRect specifies the camera rectangle for Homography Mapper, can be null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvDetector(
         String instanceName, OpenCvCamera openCvCamera, int imageWidth, int imageHeight,
-        OpenCvCameraRotation cameraRotation, boolean showEocvView, TrcHomographyMapper.Rectangle cameraRect,
+        OpenCvCameraRotation cameraRotation, TrcHomographyMapper.Rectangle cameraRect,
         TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
     {
         this.instanceName = instanceName;
         this.openCvCamera = openCvCamera;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
-        this.showEocvView = showEocvView;
         this.tracer = tracer;
 
         if (cameraRect != null && worldRect != null)
@@ -99,9 +96,6 @@ public class FtcEocvDetector
             {
             }
         });
-
-        openCvCamera.showFpsMeterOnViewport(false);
-        openCvCamera.pauseViewport();
     }   //FtcEocvDetector
 
     /**
@@ -145,17 +139,9 @@ public class FtcEocvDetector
             }
 
             openCvCamera.setPipeline((OpenCvPipeline) openCvPipeline);
-            if (showEocvView)
-            {
-                openCvCamera.resumeViewport();
-            }
         }
         else if (!enabled && eocvEnabled)
         {
-            if (showEocvView)
-            {
-                openCvCamera.pauseViewport();
-            }
             openCvCamera.setPipeline(null);
         }
 
