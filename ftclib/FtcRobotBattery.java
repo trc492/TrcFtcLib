@@ -33,7 +33,7 @@ import TrcCommonLib.trclib.TrcRobotBattery;
  */
 public class FtcRobotBattery extends TrcRobotBattery
 {
-    private VoltageSensor sensor;
+    private final VoltageSensor sensor;
 
     /**
      * Constructor: create an instance of the object.

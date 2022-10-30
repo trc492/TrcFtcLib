@@ -43,8 +43,8 @@ public class FtcAnalogInput extends TrcAnalogInput
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private AnalogInput sensor;
-    private double maxVoltage;
+    private final AnalogInput sensor;
+    private final double maxVoltage;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -63,7 +63,7 @@ public class FtcAnalogInput extends TrcAnalogInput
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        sensor = hardwareMap.analogInput.get(instanceName);
+        sensor = hardwareMap.get(AnalogInput.class, instanceName);
         maxVoltage = sensor.getMaxVoltage();
     }   //FtcAnalogInput
 

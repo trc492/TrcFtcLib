@@ -89,10 +89,10 @@ public class FtcChoiceMenu<T> extends FtcMenu
 
     }   //class ChoiceItem
 
-    private ArrayList<ChoiceItem> choiceItems = new ArrayList<>();
+    private final ArrayList<ChoiceItem> choiceItems = new ArrayList<>();
     private int currChoice = -1;
     private int firstDisplayedChoice = 0;
-    private int numDashboardLines;
+    private final int numDashboardLines;
 
     /**
      * Constructor: Creates an instance of the object.

@@ -61,9 +61,9 @@ public class FtcMRI2cDevice extends FtcI2cDevice
     private static final byte I2CADDR_TRIGGER_BYTE_1    = 0x55;
     private static final byte I2CADDR_TRIGGER_BYTE_2    = ((byte)0xaa);
 
-    private int firmwareRev = 0;
-    private int manufacturerCode = 0;
-    private int idCode = 0;
+    private final int firmwareRev;
+    private final int manufacturerCode;
+    private final int idCode;
 
     /**
      * Constructor: Creates an instance of the object.

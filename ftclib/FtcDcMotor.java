@@ -22,7 +22,6 @@
 
 package TrcFtcLib.ftclib;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -50,7 +49,7 @@ public class FtcDcMotor extends TrcMotor
     private final TrcDigitalInput revLimitSwitch;
     private final TrcDigitalInput fwdLimitSwitch;
     private final TrcAnalogInput analogSensor;
-    public final DcMotor motor;
+    public final DcMotorEx motor;
     private int prevEncPos;
     private double prevMotorValue = 0.0;
 
@@ -78,7 +77,7 @@ public class FtcDcMotor extends TrcMotor
         this.revLimitSwitch = revLimitSwitch;
         this.fwdLimitSwitch = fwdLimitSwitch;
         this.analogSensor = analogSensor;
-        motor = hardwareMap.dcMotor.get(instanceName);
+        motor = hardwareMap.get(DcMotorEx.class, instanceName);
         prevEncPos = motor.getCurrentPosition();
     }   //FtcDcMotor
 
@@ -162,7 +161,7 @@ public class FtcDcMotor extends TrcMotor
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        motor.setZeroPowerBehavior(enabled? DcMotor.ZeroPowerBehavior.BRAKE: DcMotor.ZeroPowerBehavior.FLOAT);
+        motor.setZeroPowerBehavior(enabled? DcMotorEx.ZeroPowerBehavior.BRAKE: DcMotorEx.ZeroPowerBehavior.FLOAT);
     }   //setBrakeModeEnabled
 
     /**
@@ -253,8 +252,8 @@ public class FtcDcMotor extends TrcMotor
                 funcName, "[%.3f] Before resetting %s: enc=%d",
                 TrcUtil.getModeElapsedTime(), instanceName, motor.getCurrentPosition());
         }
-        DcMotor.RunMode prevMotorMode = motor.getMode();
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        DcMotorEx.RunMode prevMotorMode = motor.getMode();
+        motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         if (localDebug)
         {
             globalTracer.traceInfo(
@@ -474,7 +473,7 @@ public class FtcDcMotor extends TrcMotor
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        motor.setDirection(inverted? DcMotor.Direction.REVERSE: DcMotor.Direction.FORWARD);
+        motor.setDirection(inverted? DcMotorEx.Direction.REVERSE: DcMotorEx.Direction.FORWARD);
     }   //setInverted
 
     /**
@@ -486,7 +485,7 @@ public class FtcDcMotor extends TrcMotor
     public boolean isInverted()
     {
         final String funcName = "isInverted";
-        boolean inverted = motor.getDirection() == DcMotor.Direction.REVERSE;
+        boolean inverted = motor.getDirection() == DcMotorEx.Direction.REVERSE;
 
         if (debugEnabled)
         {
@@ -521,7 +520,7 @@ public class FtcDcMotor extends TrcMotor
             ((DcMotorEx)motor).setVelocityPIDFCoefficients(
                 pidCoefficients.kP, pidCoefficients.kI, pidCoefficients.kD, pidCoefficients.kF);
         }
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         if (debugEnabled)
         {
@@ -554,7 +553,7 @@ public class FtcDcMotor extends TrcMotor
         }
 
         maxMotorVelocity = 0.0;
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }   //disableVelocityMode
 
 }   //class FtcDcMotor

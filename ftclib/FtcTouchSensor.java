@@ -41,7 +41,7 @@ public class FtcTouchSensor extends TrcDigitalInput
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private TouchSensor touchSensor;
+    private final TouchSensor touchSensor;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -58,7 +58,7 @@ public class FtcTouchSensor extends TrcDigitalInput
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        this.touchSensor = hardwareMap.touchSensor.get(instanceName);
+        this.touchSensor = hardwareMap.get(TouchSensor.class, instanceName);
     }   //FtcTouchSensor
 
     /**

@@ -56,15 +56,15 @@ public class FtcServo extends TrcServo
 
     private static final double CONTROLLER_ONOFF_DELAY = 0.1;
 
-    private Servo servo;
-    private ServoController controller;
-    private TrcTimer holdTimer;
-    private TrcEvent event;
-    private TrcStateMachine<State> sm;
-    private TrcTaskMgr.TaskObject servoTaskObj;
+    private final Servo servo;
+    private final ServoController controller;
+    private final TrcTimer holdTimer;
+    private final TrcEvent event;
+    private final TrcStateMachine<State> sm;
+    private final TrcTaskMgr.TaskObject servoTaskObj;
     private double servoPos = 0.0;
     private double servoOnTime = 0.0;
-    private double logicalPos = 0.0;
+    private double logicalPos;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -82,7 +82,7 @@ public class FtcServo extends TrcServo
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        servo = hardwareMap.servo.get(instanceName);
+        servo = hardwareMap.get(Servo.class, instanceName);
         logicalPos = servo.getPosition();
         controller = servo.getController();
         holdTimer = new TrcTimer(instanceName);
@@ -246,7 +246,7 @@ public class FtcServo extends TrcServo
     public boolean isInverted()
     {
         final String funcName = "isInverted";
-        boolean inverted = servo.getDirection() == Servo.Direction.REVERSE;;
+        boolean inverted = servo.getDirection() == Servo.Direction.REVERSE;
 
         if (debugEnabled)
         {

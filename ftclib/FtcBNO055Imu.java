@@ -71,7 +71,7 @@ public class FtcBNO055Imu
             double xRotationRate = 0.0, yRotationRate = 0.0, zRotationRate = 0.0;
         }   //class GyroData
 
-        private GyroData gyroData = new GyroData();
+        private final GyroData gyroData = new GyroData();
         private final TrcTaskMgr.TaskObject gyroTaskObj;
         private boolean taskEnabled = false;
 
@@ -323,8 +323,8 @@ public class FtcBNO055Imu
             private double xPos = 0.0, yPos = 0.0, zPos = 0.0;
         }   //class AccelData
 
-        private AccelData accelData = new AccelData();
-        private TrcTaskMgr.TaskObject accelTaskObj;
+        private final AccelData accelData = new AccelData();
+        private final TrcTaskMgr.TaskObject accelTaskObj;
         private boolean taskEnabled = false;
 
         /**
@@ -547,9 +547,9 @@ public class FtcBNO055Imu
 
     }   //class Accelerometer
 
-    public BNO055IMU imu = null;
-    public TrcGyro gyro = null;
-    public TrcAccelerometer accel = null;
+    public BNO055IMU imu;
+    public TrcGyro gyro;
+    public TrcAccelerometer accel;
 
     /**
      * Constructor: Creates an instance of the object.

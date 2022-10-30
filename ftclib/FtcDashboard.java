@@ -44,9 +44,9 @@ import TrcCommonLib.trclib.TrcDbgTrace;
  */
 public class FtcDashboard extends TrcDashboard
 {
-    private Telemetry telemetry = null;
+    private final Telemetry telemetry;
     private Paint paint = null;
-    private Telemetry.Item[] display;
+    private final Telemetry.Item[] display;
     private Telemetry.DisplayFormat displayFormat;
 
     /**

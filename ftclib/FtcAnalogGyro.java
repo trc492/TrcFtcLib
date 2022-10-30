@@ -44,8 +44,8 @@ public class FtcAnalogGyro extends TrcGyro
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private double voltPerDegPerSec;
-    private AnalogInput gyro;
+    private final double voltPerDegPerSec;
+    private final AnalogInput gyro;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -66,7 +66,7 @@ public class FtcAnalogGyro extends TrcGyro
         }
 
         this.voltPerDegPerSec = voltPerDegPerSec;
-        gyro = hardwareMap.analogInput.get(instanceName);
+        gyro = hardwareMap.get(AnalogInput.class, instanceName);
     }   //FtcAnalogGyro
 
     /**

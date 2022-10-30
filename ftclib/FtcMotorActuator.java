@@ -38,11 +38,11 @@ public class FtcMotorActuator
      */
     public static class MotorParams
     {
-        public boolean motorInverted = false;
-        public boolean hasLowerLimitSwitch = false;
-        public boolean lowerLimitInverted = false;
-        public boolean hasUpperLimitSwitch = false;
-        public boolean upperLimitInverted = false;
+        public boolean motorInverted;
+        public boolean hasLowerLimitSwitch;
+        public boolean lowerLimitInverted;
+        public boolean hasUpperLimitSwitch;
+        public boolean upperLimitInverted;
 
         /**
          * Constructor: Create an instance of the object.

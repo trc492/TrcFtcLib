@@ -29,8 +29,8 @@ import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcDigitalOutput;
 
 /**
- * This class implements a platform dependent digital input sensor extending TrcDigitalInput. It provides
- * implementation of the abstract methods in TrcDigitalInput.
+ * This class implements a platform dependent digital output extending TrcDigitalOutput. It provides
+ * implementation of the abstract methods in TrcDigitalOutput.
  */
 public class FtcDigitalOutput extends TrcDigitalOutput
 {
@@ -41,7 +41,7 @@ public class FtcDigitalOutput extends TrcDigitalOutput
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private DigitalChannel digitalOutput;
+    private final DigitalChannel digitalOutput;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -77,9 +77,7 @@ public class FtcDigitalOutput extends TrcDigitalOutput
     //
 
     /**
-     * This method returns the state of the digital input sensor.
-     *
-     * @return true if the digital input sensor is active, false otherwise.
+     * This method sets the state of the digital output port.
      */
     @Override
     public void setState(boolean state)

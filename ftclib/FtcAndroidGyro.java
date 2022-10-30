@@ -43,7 +43,7 @@ public class FtcAndroidGyro extends TrcGyro
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private FtcAndroidSensor sensor = null;
+    private final FtcAndroidSensor sensor;
 
     /**
      * Constructor: Creates an instance of the object.

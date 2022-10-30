@@ -68,7 +68,7 @@ public class FtcOpticalDistanceSensor extends TrcSensor<FtcOpticalDistanceSensor
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        sensor = hardwareMap.opticalDistanceSensor.get(instanceName);
+        sensor = hardwareMap.get(OpticalDistanceSensor.class, instanceName);
     }   //FtcOpticalDistanceSensor
 
     /**

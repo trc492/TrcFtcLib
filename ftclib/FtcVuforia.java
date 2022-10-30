@@ -95,9 +95,9 @@ public class FtcVuforia implements TrcVideoSource<Mat>
 
     private CameraName cameraName;
     private VuforiaLocalizer.CameraDirection cameraDir;
-    private VuforiaLocalizer localizer;
-    private ArrayList<VuforiaTrackables> targetLists = new ArrayList<>();
-    private HashMap<String, TargetInfo> targetMap = new HashMap<>();
+    private final VuforiaLocalizer localizer;
+    private final ArrayList<VuforiaTrackables> targetLists = new ArrayList<>();
+    private final HashMap<String, TargetInfo> targetMap = new HashMap<>();
     private boolean trackingEnabled = false;
     private int numImageTargets = 0;
     private int numObjectTargets = 0;

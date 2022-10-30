@@ -195,7 +195,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
          *
          * @param value specifies the enum ordinal value.
          */
-        private Gesture(int value)
+        Gesture(int value)
         {
             this.value = value;
         }   //Gesture
@@ -268,14 +268,14 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
     //
     public static final int MODEL_VERSION           = 0x01;
 
-    private int regMapVersion = 0;
-    private int modelVersion = 0;
-    private TrcSensor.SensorData<Gesture> gesture = new TrcSensor.SensorData<>(0.0, null);
-    private TrcSensor.SensorData<Double> gestureSpeed = new TrcSensor.SensorData<>(0.0, null);
-    private TrcSensor.SensorData<Double> xPos = new TrcSensor.SensorData<>(0.0, null);
-    private TrcSensor.SensorData<Double> zPos = new TrcSensor.SensorData<>(0.0, null);
-    private TrcSensor.SensorData<Double> leftRangingData = new TrcSensor.SensorData<>(0.0, null);
-    private TrcSensor.SensorData<Double> rightRangingData = new TrcSensor.SensorData<>(0.0, null);
+    private final int regMapVersion;
+    private final int modelVersion;
+    private final TrcSensor.SensorData<Gesture> gesture = new TrcSensor.SensorData<>(0.0, null);
+    private final TrcSensor.SensorData<Double> gestureSpeed = new TrcSensor.SensorData<>(0.0, null);
+    private final TrcSensor.SensorData<Double> xPos = new TrcSensor.SensorData<>(0.0, null);
+    private final TrcSensor.SensorData<Double> zPos = new TrcSensor.SensorData<>(0.0, null);
+    private final TrcSensor.SensorData<Double> leftRangingData = new TrcSensor.SensorData<>(0.0, null);
+    private final TrcSensor.SensorData<Double> rightRangingData = new TrcSensor.SensorData<>(0.0, null);
 
     /**
      * Constructor: Creates an instance of the object.

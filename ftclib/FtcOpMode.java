@@ -509,7 +509,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      * one may monitor the gyro heading in this method to make sure there is no major gyro drift before competition
      * starts. By default, this method is doing exactly what waitForStart() does.
      */
-    public synchronized void initPeriodic()
+    public void initPeriodic()
     {
         synchronized (startNotifier)
         {

@@ -44,7 +44,7 @@ public class FtcHiTechnicGyro extends TrcGyro
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private GyroSensor gyro;
+    private final GyroSensor gyro;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -64,7 +64,7 @@ public class FtcHiTechnicGyro extends TrcGyro
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        gyro = hardwareMap.gyroSensor.get(instanceName);
+        gyro = hardwareMap.get(GyroSensor.class, instanceName);
     }   //FtcHiTechnicGyro
 
     /**

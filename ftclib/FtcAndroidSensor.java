@@ -47,10 +47,10 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private SensorManager sensorManager;
-    private Sensor sensor;
-    private int numAxes;
-    private SensorData<Double>[] sensorData;
+    private final SensorManager sensorManager;
+    private final Sensor sensor;
+    private final int numAxes;
+    private final SensorData<Double>[] sensorData;
     private boolean enabled = false;
 
     /**

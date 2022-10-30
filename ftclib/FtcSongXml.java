@@ -47,9 +47,9 @@ public class FtcSongXml
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private String instanceName;
-    private XmlPullParser parser = null;
-    private ArrayList<TrcSong> collection = new ArrayList<>();
+    private final String instanceName;
+    private final XmlPullParser parser;
+    private final ArrayList<TrcSong> collection = new ArrayList<>();
 
     /**
      * Constructor: Create an instance of this object.
@@ -192,7 +192,7 @@ public class FtcSongXml
     public TrcSong[] getCollection()
     {
         final String funcName = "getCollection";
-        TrcSong[] songs = collection.toArray(new TrcSong[collection.size()]);
+        TrcSong[] songs = collection.toArray(new TrcSong[0]);
 
         if (debugEnabled)
         {
@@ -207,8 +207,8 @@ public class FtcSongXml
      * This method parses the song collection in the XML file. The collection starts with a collection tag and
      * contains multiple song tags.
      *
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException if there is a parse error.
+     * @throws IOException if there is file access error.
      */
     private void parseCollection() throws XmlPullParserException, IOException
     {
@@ -255,8 +255,8 @@ public class FtcSongXml
      * This method parses the song in the XML file. The song starts with a song tag and contains one sequence tag
      * and multiple section tags.
      *
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException if there is a parse error.
+     * @throws IOException if there is file access error.
      */
     private TrcSong parseSong() throws XmlPullParserException, IOException
     {
@@ -312,8 +312,8 @@ public class FtcSongXml
      * contains a sequence of section names separated by commas.
      *
      * @param song specifies the song object that the sequence belongs to.
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException if there is a parse error.
+     * @throws IOException if there is file access error.
      */
     private void parseSequence(TrcSong song) throws XmlPullParserException, IOException
     {
@@ -325,17 +325,17 @@ public class FtcSongXml
         }
 
         parser.require(XmlPullParser.START_TAG, null, "sequence");
-        String sequence = "";
+        StringBuilder sequence = new StringBuilder();
         while (parser.next() == XmlPullParser.TEXT)
         {
-            sequence += parser.getText();
+            sequence.append(parser.getText());
         }
-        song.setSequence(sequence);
+        song.setSequence(sequence.toString());
         parser.require(XmlPullParser.END_TAG, null, "sequence");
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "! (seq=%s)", sequence);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "! (seq=%s)", sequence.toString());
         }
     }   //parseSequence
 
@@ -344,8 +344,8 @@ public class FtcSongXml
      * contains a sequence of notated notes separated by commas.
      *
      * @param song specifies the song object that the section belongs to.
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException if there is a parse error.
+     * @throws IOException if there is file access error.
      */
     private void parseSection(TrcSong song) throws XmlPullParserException, IOException
     {
@@ -358,17 +358,17 @@ public class FtcSongXml
 
         parser.require(XmlPullParser.START_TAG, null, "section");
         String name = parser.getAttributeValue(null, "name");
-        String notation = "";
+        StringBuilder notation = new StringBuilder();
         while (parser.next() == XmlPullParser.TEXT)
         {
-            notation += parser.getText();
+            notation.append(parser.getText());
         }
-        song.addSection(name, notation);
+        song.addSection(name, notation.toString());
         parser.require(XmlPullParser.END_TAG, null, "section");
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "! (%s=%s)", name, notation);
+            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "! (%s=%s)", name, notation.toString());
         }
     }   //parseSection
 
@@ -376,8 +376,8 @@ public class FtcSongXml
      * This method parses and skips  section in the XML file. The song section starts with a section tag and
      * contains a sequence of notated notes separated by commas.
      *
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException if there is a parse error.
+     * @throws IOException if there is file access error.
      */
     private void skipTag() throws XmlPullParserException, IOException
     {

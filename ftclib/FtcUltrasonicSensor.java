@@ -48,7 +48,7 @@ public class FtcUltrasonicSensor extends TrcSensor<FtcUltrasonicSensor.DataType>
         ULTRASONIC
     }   //enum DataType
 
-    private UltrasonicSensor sensor;
+    private final UltrasonicSensor sensor;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -67,7 +67,7 @@ public class FtcUltrasonicSensor extends TrcSensor<FtcUltrasonicSensor.DataType>
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        sensor = hardwareMap.ultrasonicSensor.get(instanceName);
+        sensor = hardwareMap.get(UltrasonicSensor.class, instanceName);
     }   //FtcUltrasonicSensor
 
     /**

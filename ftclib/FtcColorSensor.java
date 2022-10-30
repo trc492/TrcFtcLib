@@ -137,7 +137,7 @@ public class FtcColorSensor extends TrcSensor<FtcColorSensor.DataType>
                 }
             }
 
-            float hsvValues[] = {0.0f, 0.0f, 0.0f};
+            float[] hsvValues = {0.0f, 0.0f, 0.0f};
             Color.RGBToHSV(rgbaData[0], rgbaData[1], rgbaData[2], hsvValues);
 
             switch (dataType)

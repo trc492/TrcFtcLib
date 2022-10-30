@@ -41,8 +41,8 @@ public class FtcDigitalInput extends TrcDigitalInput
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private DigitalChannel digitalInput;
-    private boolean inverted = false;
+    private final DigitalChannel digitalInput;
+    private boolean inverted;
 
     /**
      * Constructor: Creates an instance of the object.

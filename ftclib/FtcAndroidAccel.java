@@ -44,7 +44,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private FtcAndroidSensor sensor = null;
+    private final FtcAndroidSensor sensor;
     private int samplingPeriod = SensorManager.SENSOR_DELAY_GAME;
 
     /**

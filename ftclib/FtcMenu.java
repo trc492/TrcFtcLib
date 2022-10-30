@@ -22,8 +22,6 @@
 
 package TrcFtcLib.ftclib;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcUtil;
 
@@ -152,10 +150,10 @@ public abstract class FtcMenu
     private static final int MENUBUTTON_ALT_DOWN        = (1 << 5);
 
     protected FtcDashboard dashboard;
-    private FtcOpMode opMode;
-    private String menuTitle;
-    private FtcMenu parent;
-    private MenuButtons menuButtons;
+    private final FtcOpMode opMode;
+    private final String menuTitle;
+    private final FtcMenu parent;
+    private final MenuButtons menuButtons;
 
     private static int prevButtonStates = 0;
     private static FtcMenu currMenu = null;

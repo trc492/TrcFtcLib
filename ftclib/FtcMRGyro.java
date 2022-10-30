@@ -23,6 +23,7 @@
 package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
@@ -44,7 +45,7 @@ public class FtcMRGyro extends TrcGyro
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private ModernRoboticsI2cGyro gyro;
+    private final ModernRoboticsI2cGyro gyro;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -63,7 +64,7 @@ public class FtcMRGyro extends TrcGyro
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        gyro = (ModernRoboticsI2cGyro)hardwareMap.gyroSensor.get(instanceName);
+        gyro = (ModernRoboticsI2cGyro)hardwareMap.get(GyroSensor.class, instanceName);
     }   //FtcMRGyro
 
     /**

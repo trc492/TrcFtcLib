@@ -46,7 +46,7 @@ public class FtcAccelerometer extends TrcAccelerometer
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private AccelerationSensor accel;
+    private final AccelerationSensor accel;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -67,7 +67,7 @@ public class FtcAccelerometer extends TrcAccelerometer
             dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
         }
 
-        accel = hardwareMap.accelerationSensor.get(instanceName);
+        accel = hardwareMap.get(AccelerationSensor.class, instanceName);
     }   //FtcAccelerometer
 
     /**
