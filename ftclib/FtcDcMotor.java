@@ -50,7 +50,7 @@ public class FtcDcMotor extends TrcMotor
     private final TrcDigitalInput fwdLimitSwitch;
     private final TrcAnalogInput analogSensor;
     public final DcMotorEx motor;
-    private int prevEncPos;
+//    private int prevEncPos;
     private double prevMotorValue = 0.0;
 
     /**
@@ -78,7 +78,7 @@ public class FtcDcMotor extends TrcMotor
         this.fwdLimitSwitch = fwdLimitSwitch;
         this.analogSensor = analogSensor;
         motor = hardwareMap.get(DcMotorEx.class, instanceName);
-        prevEncPos = motor.getCurrentPosition();
+//        prevEncPos = motor.getCurrentPosition();
     }   //FtcDcMotor
 
     /**
@@ -329,24 +329,24 @@ public class FtcDcMotor extends TrcMotor
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (analogSensor == null)
-        {
-            //
-            // Somebody said if motor controller got disconnected, we may get a zero. Let's detect this and see if this
-            // really happened.
-            //
-            if (currPos == 0.0 && Math.abs(prevEncPos) > 1000)
-            {
-                globalTracer.traceWarn(
-                        funcName, "Detected possible motor controller disconnect for %s (prevEncPos=%d).",
-                        instanceName, prevEncPos);
-                currPos = prevEncPos;
-            }
-            else
-            {
-                prevEncPos = (int)currPos;
-            }
-        }
+//        if (analogSensor == null)
+//        {
+//            //
+//            // Somebody said if motor controller got disconnected, we may get a zero. Let's detect this and see if this
+//            // really happened.
+//            //
+//            if (currPos == 0.0 && Math.abs(prevEncPos) > 1000)
+//            {
+//                globalTracer.traceWarn(
+//                        funcName, "Detected possible motor controller disconnect for %s (prevEncPos=%d).",
+//                        instanceName, prevEncPos);
+//                currPos = prevEncPos;
+//            }
+//            else
+//            {
+//                prevEncPos = (int)currPos;
+//            }
+//        }
 
         if (debugEnabled)
         {
@@ -366,7 +366,7 @@ public class FtcDcMotor extends TrcMotor
     public double getMotorVelocity()
     {
         final String funcName = "getMotorVelocity";
-        double currVel = ((DcMotorEx)motor).getVelocity();
+        double currVel = motor.getVelocity();
 
         if (debugEnabled)
         {
@@ -443,7 +443,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (value != prevMotorValue)
         {
-            ((DcMotorEx)motor).setVelocity(value*maxMotorVelocity);
+            motor.setVelocity(value*maxMotorVelocity);
             prevMotorValue = value;
         }
 
@@ -517,7 +517,7 @@ public class FtcDcMotor extends TrcMotor
         this.maxMotorVelocity = maxVelocity;
         if (pidCoefficients != null)
         {
-            ((DcMotorEx)motor).setVelocityPIDFCoefficients(
+            motor.setVelocityPIDFCoefficients(
                 pidCoefficients.kP, pidCoefficients.kI, pidCoefficients.kD, pidCoefficients.kF);
         }
         motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
