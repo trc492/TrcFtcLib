@@ -233,7 +233,6 @@ public class FtcDcMotor extends TrcMotor
     public synchronized void resetMotorPosition(double timeout)
     {
         final String funcName = "resetMotorPosition";
-        final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
 
         if (debugEnabled)
         {
@@ -246,6 +245,7 @@ public class FtcDcMotor extends TrcMotor
         // only be called at robotInit time. For other times, it should call resetPosition with hardware set to false
         // (software reset).
         //
+
         if (localDebug)
         {
             globalTracer.traceInfo(
@@ -254,27 +254,22 @@ public class FtcDcMotor extends TrcMotor
         }
         DcMotorEx.RunMode prevMotorMode = motor.getMode();
         motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        if (localDebug)
-        {
-            globalTracer.traceInfo(
-                funcName, "[%.3f] After resetting %s: enc=%d",
-                TrcUtil.getModeElapsedTime(), instanceName, motor.getCurrentPosition());
-        }
 
         double expiredTime = TrcUtil.getCurrentTime() + timeout;
         int motorPos = 0;
         while (TrcUtil.getCurrentTime() < expiredTime)
         {
+            FtcOpMode.getInstance().clearBulkCacheInManualMode();
             motorPos = motor.getCurrentPosition();
+            if (localDebug)
+            {
+                globalTracer.traceInfo(
+                    funcName, "[%.3f] Waiting for %s to reset: enc=%d",
+                    TrcUtil.getModeElapsedTime(), instanceName, motorPos);
+            }
 
             if (motorPos != 0)
             {
-                if (localDebug)
-                {
-                    globalTracer.traceInfo(
-                        funcName, "[%.3f] Waiting for %s to reset: enc=%d",
-                        TrcUtil.getCurrentTime(), instanceName, motorPos);
-                }
                 Thread.yield();
             }
             else
@@ -282,7 +277,7 @@ public class FtcDcMotor extends TrcMotor
                 if (localDebug)
                 {
                     globalTracer.traceInfo(
-                        funcName, "[%.3f] Reset %s success!", TrcUtil.getCurrentTime(), instanceName);
+                        funcName, "[%.3f] Reset %s success!", TrcUtil.getModeElapsedTime(), instanceName);
                 }
                 break;
             }

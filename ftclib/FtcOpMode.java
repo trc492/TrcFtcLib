@@ -52,7 +52,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
     private TrcDbgTrace dbgTrace = null;
 
-    private static final LynxModule.BulkCachingMode bulkCachingMode = LynxModule.BulkCachingMode.MANUAL;
     private static String opModeName = null;
     private TextToSpeech textToSpeech = null;
 
@@ -249,6 +248,39 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         return opmodeTypeGroup;
     }   //getOpmodeTypeGroup
 
+    /**
+     * This method enables/disables Bulk Caching Mode. It is useful in situations such as resetting encoders and
+     * reading encoder values in a loop waiting for it to be cleared. With caching mode ON, the encoder value may
+     * never get cleared.
+     *
+     * @param enabled specifies true to enable caching mode, false to disable.
+     */
+    public void setBulkCachingModeEnabled(boolean enabled)
+    {
+        LynxModule.BulkCachingMode cachingMode = enabled? LynxModule.BulkCachingMode.MANUAL: LynxModule.BulkCachingMode.OFF;
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule module: allHubs)
+        {
+            module.setBulkCachingMode(cachingMode);
+        }
+    }   //setBulkCachingModeEnabled
+
+    /**
+     * This method clears the bulk cache if the module is in Manual mode.
+     */
+    public void clearBulkCacheInManualMode()
+    {
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule module: allHubs)
+        {
+            if (module.getBulkCachingMode() == LynxModule.BulkCachingMode.MANUAL)
+            {
+                module.clearBulkCache();
+            }
+        }
+    }   //clearBulkCacheInManualMode
+
     //
     // Implements LinearOpMode
     //
@@ -316,11 +348,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             TrcMotor.clearOdometryMotorsList(true);
         }
 
-        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-        for (LynxModule module: allHubs)
-        {
-            module.setBulkCachingMode(bulkCachingMode);
-        }
+        setBulkCachingModeEnabled(true);
 
         //
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
@@ -362,13 +390,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                             loopCounter, loopStartNanoTime/1000000000.0);
                 }
 
-                if (bulkCachingMode == LynxModule.BulkCachingMode.MANUAL)
-                {
-                    for (LynxModule module: allHubs)
-                    {
-                        module.clearBulkCache();
-                    }
-                }
+                clearBulkCacheInManualMode();
 
                 initPeriodic();
             }
@@ -401,13 +423,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 sdkTotalElapsedTime += loopStartNanoTime - startNanoTime;
                 double opModeElapsedTime = TrcUtil.getModeElapsedTime();
 
-                if (bulkCachingMode == LynxModule.BulkCachingMode.MANUAL)
-                {
-                    for (LynxModule module: allHubs)
-                    {
-                        module.clearBulkCache();
-                    }
-                }
+                clearBulkCacheInManualMode();
 
                 if (debugEnabled)
                 {
