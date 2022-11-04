@@ -47,6 +47,7 @@ public class FtcEocvDetector
     private final OpenCvCamera openCvCamera;
     private final int imageWidth, imageHeight;
     private final TrcDbgTrace tracer;
+    private final int frameWidth, frameHeight;
     private final TrcHomographyMapper homographyMapper;
 
     private boolean cameraStarted = false;
@@ -75,6 +76,18 @@ public class FtcEocvDetector
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.tracer = tracer;
+
+        if (cameraRotation == OpenCvCameraRotation.UPRIGHT ||
+            cameraRotation == OpenCvCameraRotation.UPSIDE_DOWN)
+        {
+            frameWidth = imageWidth;
+            frameHeight = imageHeight;
+        }
+        else
+        {
+            frameWidth = imageHeight;
+            frameHeight = imageWidth;
+        }
 
         if (cameraRect != null && worldRect != null)
         {
@@ -205,7 +218,7 @@ public class FtcEocvDetector
                 {
                     TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>> targetInfo =
                         new TrcVisionTargetInfo<>(
-                            obj, imageWidth, imageHeight, homographyMapper, objHeightOffset, cameraHeight);
+                            obj, frameWidth, frameHeight, homographyMapper, objHeightOffset, cameraHeight);
                     targetList.add(targetInfo);
                 }
             }
