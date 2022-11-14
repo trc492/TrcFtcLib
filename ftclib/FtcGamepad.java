@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGameController;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the platform dependent gamepad. It provides monitoring of the gamepad buttons. If the caller
@@ -70,6 +71,13 @@ public class FtcGamepad extends TrcGameController
         }   //toString
 
     }   //enum GamepadButtons
+
+    public enum DriveMode
+    {
+        TANK_MODE,
+        HOLONOMIC_MODE,
+        ARCADE_MODE
+    }   //enum DriveMode
 
     public static final int GAMEPAD_A           = ((int)1 << 0);
     public static final int GAMEPAD_B           = ((int)1 << 1);
@@ -484,6 +492,18 @@ public class FtcGamepad extends TrcGameController
     }   //getRightTrigger
 
     /**
+     * This method combines the left trigger and right trigger values to a value with a range of -1.0 to 1.0.
+     *
+     * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
+     *              raised exponentially, it gives you more precise control on the low end values.
+     * @return combined left and right trigger value.
+     */
+    public double getTrigger(boolean doExp)
+    {
+        return getRightTrigger(doExp) - getLeftTrigger(doExp);
+    }   //getTrigger
+
+    /**
      * This method returns the left stick magnitude combining the x and y axes and applying the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
@@ -696,6 +716,82 @@ public class FtcGamepad extends TrcGameController
     {
         return getRightStickDirectionDegrees(false);
     }   //getRightStickDirectionDegrees
+
+    /**
+     * This method reads various joystick/gamepad control values and returns the drive powers for all three degrees
+     * of robot movement.
+     *
+     * @param driveMode specifies the drive mode which determines the control mappings.
+     * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
+     *              raised exponentially, it gives you more precise control on the low end values.
+     * @param drivePowerScale specifies the scaling factor for drive power.
+     * @return an array of 3 values for x, y and rotation power.
+     */
+    public double[] getDriveInputs(DriveMode driveMode, boolean doExp, double drivePowerScale)
+    {
+        double x = 0.0, y = 0.0, rot = 0.0;
+        double mag;
+        double newMag;
+
+        switch (driveMode)
+        {
+            case HOLONOMIC_MODE:
+                x = getLeftStickX(doExp);
+                y = getRightStickY(doExp);
+                rot = getTrigger(doExp);
+//                robot.dashboard.displayPrintf(1, "Holonomic:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                break;
+
+            case ARCADE_MODE:
+                x = getRightStickX(doExp);
+                y = getRightStickY(doExp);
+                rot = getLeftStickX(doExp);
+//                robot.dashboard.displayPrintf(1, "Arcade:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                break;
+
+            case TANK_MODE:
+                double leftPower = getLeftStickY(doExp);
+                double rightPower = getRightStickY(doExp);
+                x = 0.0;
+                y = (leftPower + rightPower)/2.0;
+                rot = (leftPower - rightPower)/2.0;
+//                robot.dashboard.displayPrintf(1, "Tank:left=%.1f,right=%.1f", leftPower, rightPower);
+                break;
+        }
+        mag = TrcUtil.magnitude(x, y);
+        if (mag > 1.0)
+        {
+            x /= mag;
+            y /= mag;
+            mag = 1.0;
+        }
+        newMag = Math.pow(mag, 3);
+
+        newMag *= drivePowerScale;
+        rot *= drivePowerScale;
+
+        if (mag != 0.0)
+        {
+            x *= newMag / mag;
+            y *= newMag / mag;
+        }
+
+        return new double[] { x, y, rot };
+    }   //getDriveInput
+
+    /**
+     * This method reads various joystick/gamepad control values and returns the drive powers for all three degrees
+     * of robot movement.
+     *
+     * @param driveMode specifies the drive mode which determines the control mappings.
+     * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
+     *              raised exponentially, it gives you more precise control on the low end values.
+     * @return an array of 3 values for x, y and rotation power.
+     */
+    public double[] getDriveInputs(DriveMode driveMode, boolean doExp)
+    {
+        return getDriveInputs(driveMode, doExp, 1.0);
+    }   //getDriveInputs
 
     //
     // Implements TrcGameController abstract methods.
