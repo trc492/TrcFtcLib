@@ -67,10 +67,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private static long loopStartNanoTime = 0;
     private static long loopCounter = 0;
 
-    private long periodicTotalElapsedTime = 0;
-    private int periodicTimeSlotCount = 0;
-    private long continuousTotalElapsedTime = 0;
-    private int continuousTimeSlotCount = 0;
+    private long slowPeriodicTotalElapsedTime = 0;
+    private int slowPeriodicTimeSlotCount = 0;
+    private long fastPeriodicTotalElapsedTime = 0;
+    private int fastPeriodicTimeSlotCount = 0;
     private long sdkTotalElapsedTime = 0;
     private final Object startNotifier;
 
@@ -422,52 +422,71 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 loopCounter++;
                 sdkTotalElapsedTime += loopStartNanoTime - startNanoTime;
                 double opModeElapsedTime = TrcUtil.getModeElapsedTime();
+                boolean slowLoop = loopStartNanoTime >= nextPeriodNanoTime;
 
                 clearBulkCacheInManualMode();
-
+                //
+                // Fast Pre-Periodic Task
+                //
                 if (debugEnabled)
                 {
-                    dbgTrace.traceInfo(funcName, "[%d:%.3f]: OpMode loop",
-                            loopCounter, loopStartNanoTime/1000000000.0);
+                    dbgTrace.traceInfo(
+                        funcName, "[%d:%.3f]: OpMode loop", loopCounter, loopStartNanoTime/1000000000.0);
                     dbgTrace.traceInfo(funcName, "Running FastPrePeriodic Tasks");
                 }
                 TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.FAST_PREPERIODIC_TASK, runMode);
-
-                if (debugEnabled)
+                //
+                // Slow Pre-Periodic Task
+                //
+                if (slowLoop)
                 {
-                    dbgTrace.traceInfo(funcName, "Running fastPeriodic");
-                }
-                startNanoTime = TrcUtil.getNanoTime();
-                fastPeriodic(opModeElapsedTime);
-                continuousTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
-                continuousTimeSlotCount++;
-
-                if (debugEnabled)
-                {
-                    dbgTrace.traceInfo(funcName, "Running FastPostPeriodic Tasks");
-                }
-                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.FAST_POSTPERIODIC_TASK, runMode);
-
-                if (TrcUtil.getNanoTime() >= nextPeriodNanoTime)
-                {
-                    dashboard.displayPrintf(0, "%s: %.3f", opModeName, opModeElapsedTime);
                     nextPeriodNanoTime += LOOP_PERIOD_NANO;
+                    dashboard.displayPrintf(0, "%s: %.3f", opModeName, opModeElapsedTime);
 
                     if (debugEnabled)
                     {
                         dbgTrace.traceInfo(funcName, "Running SlowPrePeriodic Tasks");
                     }
                     TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_PREPERIODIC_TASK, runMode);
-
+                }
+                //
+                // Fast Periodic
+                //
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "Running fastPeriodic");
+                }
+                startNanoTime = TrcUtil.getNanoTime();
+                fastPeriodic(opModeElapsedTime);
+                fastPeriodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
+                fastPeriodicTimeSlotCount++;
+                //
+                // Slow Periodic
+                //
+                if (slowLoop)
+                {
                     if (debugEnabled)
                     {
                         dbgTrace.traceInfo(funcName, "Running slowPeriodic");
                     }
                     startNanoTime = TrcUtil.getNanoTime();
                     slowPeriodic(opModeElapsedTime);
-                    periodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
-                    periodicTimeSlotCount++;
-
+                    slowPeriodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
+                    slowPeriodicTimeSlotCount++;
+                }
+                //
+                // Fast Post-Periodic Task
+                //
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "Running FastPostPeriodic Tasks");
+                }
+                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.FAST_POSTPERIODIC_TASK, runMode);
+                //
+                // Slow Post-Periodic Task
+                //
+                if (slowLoop)
+                {
                     if (debugEnabled)
                     {
                         dbgTrace.traceInfo(funcName, "Running SlowPostPeriodic Tasks");
@@ -475,7 +494,18 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
                     TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_POSTPERIODIC_TASK, runMode);
                 }
+                //
+                // System Task
+                //
+                if (debugEnabled)
+                {
+                    dbgTrace.traceInfo(funcName, "Running System Tasks");
+                }
 
+                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SYSTEM_TASK, runMode);
+                //
+                // Letting FTC SDK do its things.
+                //
                 startNanoTime = TrcUtil.getNanoTime();
             }
 
@@ -511,10 +541,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         tracer.traceInfo(
                 moduleName,
-                "%16s: Periodic=%.6f, Continuous=%.6f, SDK=%.6f",
+                "%16s: SlowPeriodic=%.6f, FastPeriodic=%.6f, SDK=%.6f",
                 opModeName,
-                (double)periodicTotalElapsedTime/periodicTimeSlotCount/1000000000,
-                (double)continuousTotalElapsedTime/continuousTimeSlotCount/1000000000,
+                (double)slowPeriodicTotalElapsedTime/slowPeriodicTimeSlotCount/1000000000,
+                (double)fastPeriodicTotalElapsedTime/fastPeriodicTimeSlotCount/1000000000,
                 (double)sdkTotalElapsedTime/loopCounter/1000000000);
         TrcTaskMgr.printTaskPerformanceMetrics(tracer);
     }   //printPerformanceMetrics
