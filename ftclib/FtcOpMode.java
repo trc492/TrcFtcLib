@@ -39,6 +39,7 @@ import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
 import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcWatchdogMgr;
 
 /**
  * This class implements a cooperative multi-tasking scheduler extending LinearOpMode.
@@ -356,6 +357,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         //
         TrcUtil.recordModeStartTime();
 
+        TrcWatchdogMgr.Watchdog robotThreadWatchdog = null;
         try
         {
             //
@@ -370,6 +372,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             initRobot();
             dashboard.displayPrintf(0, "initRobot completed!");
 
+            robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog("MainRobotThread");
             //
             // Run initPeriodic while waiting for competition to start.
             //
@@ -390,8 +393,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                             loopCounter, loopStartNanoTime/1000000000.0);
                 }
 
+                robotThreadWatchdog.sendHeartBeat();
                 clearBulkCacheInManualMode();
-
                 initPeriodic();
             }
             dashboard.displayPrintf(0, "initPeriodic completed!");
@@ -424,6 +427,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 double opModeElapsedTime = TrcUtil.getModeElapsedTime();
                 boolean slowLoop = loopStartNanoTime >= nextPeriodNanoTime;
 
+                robotThreadWatchdog.sendHeartBeat();
                 clearBulkCacheInManualMode();
                 //
                 // Fast Pre-Periodic Task
@@ -527,6 +531,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             // Make sure we properly clean up and shut down even if the code throws an exception but we are not
             // catching the exception and let it propagate up.
             //
+            if (robotThreadWatchdog != null)
+            {
+                robotThreadWatchdog.unregister();
+            }
             TrcMotor.clearOdometryMotorsList(true);
             TrcTaskMgr.shutdown();
         }
