@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcEvent;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
@@ -417,7 +418,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
             long nextPeriodNanoTime = TrcUtil.getNanoTime();
             long startNanoTime = TrcUtil.getNanoTime();
+            Thread robotThread = Thread.currentThread();
 
+            TrcEvent.registerEventCallback(robotThread);
             loopCounter = 0;
             while (opModeIsActive())
             {
@@ -498,15 +501,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
                     TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_POSTPERIODIC_TASK, runMode);
                 }
-                //
-                // System Task
-                //
-                if (debugEnabled)
-                {
-                    dbgTrace.traceInfo(funcName, "Running System Tasks");
-                }
 
-                TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SYSTEM_TASK, runMode);
+                TrcEvent.performEventCallback(robotThread);
                 //
                 // Letting FTC SDK do its things.
                 //
@@ -524,6 +520,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 dbgTrace.traceInfo(funcName, "Running Stop Mode Tasks");
             }
             TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
+
+            TrcEvent.unregisterEventCallback(robotThread);
         }
         finally
         {
