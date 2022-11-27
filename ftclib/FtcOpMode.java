@@ -350,6 +350,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             TrcMotor.clearOdometryMotorsList(true);
         }
 
+        Thread robotThread = Thread.currentThread();
+        TrcEvent.registerEventCallback(robotThread);
         setBulkCachingModeEnabled(true);
 
         //
@@ -418,9 +420,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
             long nextPeriodNanoTime = TrcUtil.getNanoTime();
             long startNanoTime = TrcUtil.getNanoTime();
-            Thread robotThread = Thread.currentThread();
 
-            TrcEvent.registerEventCallback(robotThread);
             loopCounter = 0;
             while (opModeIsActive())
             {
