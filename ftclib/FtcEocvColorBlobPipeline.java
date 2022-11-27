@@ -43,7 +43,7 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param useHsv specifies true for HSV color space, false for RGB.
+     * @param colorConversion specifies color space conversion (Imgproc.COLOR_*).
      * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
      *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
      *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
@@ -51,11 +51,11 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvColorBlobPipeline(
-        String instanceName, boolean useHsv, double[] colorThresholds,
+        String instanceName, int colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-            instanceName, useHsv, colorThresholds, filterContourParams, tracer);
+            instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
     }   //FtcEocvColorBlobPipeline
 
     /**
