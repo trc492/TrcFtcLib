@@ -350,8 +350,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             TrcMotor.clearOdometryMotorsList(true);
         }
 
-        Thread robotThread = Thread.currentThread();
-        TrcEvent.registerEventCallback(robotThread);
+        TrcEvent.registerEventCallback();
         setBulkCachingModeEnabled(true);
 
         //
@@ -502,7 +501,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_POSTPERIODIC_TASK, runMode);
                 }
 
-                TrcEvent.performEventCallback(robotThread);
+                TrcEvent.performEventCallback();
                 //
                 // Letting FTC SDK do its things.
                 //
@@ -521,7 +520,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
             TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
 
-            TrcEvent.unregisterEventCallback(robotThread);
+            TrcEvent.unregisterEventCallback();
         }
         finally
         {
