@@ -250,6 +250,7 @@ public abstract class FtcMenu
         rootMenu.displayMenu();
         while (!runMenus() && !opmode.isStopRequested())
         {
+            opmode.sendWatchdogHeartBeat();
             TrcUtil.sleep(LOOP_INTERVAL);
         }
     }   //walkMenuTree

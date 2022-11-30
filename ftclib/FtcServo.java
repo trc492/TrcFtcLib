@@ -64,7 +64,7 @@ public class FtcServo extends TrcServo
     private final TrcTaskMgr.TaskObject servoTaskObj;
     private double servoPos = 0.0;
     private double servoOnTime = 0.0;
-    private double logicalPos;
+    private Double logicalPos;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -83,7 +83,7 @@ public class FtcServo extends TrcServo
         }
 
         servo = hardwareMap.get(Servo.class, instanceName);
-        logicalPos = servo.getPosition();
+        logicalPos = null;
         controller = servo.getController();
         holdTimer = new TrcTimer(instanceName);
         event = new TrcEvent(instanceName);
@@ -273,7 +273,7 @@ public class FtcServo extends TrcServo
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
 
-        if (position != logicalPos)
+        if (logicalPos == null || position != logicalPos)
         {
             if (servoSetPosElapsedTimer != null) servoSetPosElapsedTimer.recordStartTime();
             servo.setPosition(position);
@@ -300,7 +300,7 @@ public class FtcServo extends TrcServo
             dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", logicalPos);
         }
 
-        return logicalPos;
+        return logicalPos != null? logicalPos: 0.0;
     }   //getLogicalPosition
 
     /**

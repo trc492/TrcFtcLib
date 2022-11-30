@@ -55,6 +55,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private TrcDbgTrace dbgTrace = null;
 
     private static String opModeName = null;
+    private TrcWatchdogMgr.Watchdog robotThreadWatchdog;
     private TextToSpeech textToSpeech = null;
 
     /**
@@ -283,6 +284,26 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         }
     }   //clearBulkCacheInManualMode
 
+    /**
+     * This method sends a heart beat to the main robot thread watchdog. This is important if during robot init time
+     * that the user code decided to synchronously busy wait for something, it must periodically call this method to
+     * prevent the watchdog from complaining.
+     */
+    public void sendWatchdogHeartBeat()
+    {
+        final String funcName = "sendWatchdogHeartBeat";
+
+        if (robotThreadWatchdog != null)
+        {
+            robotThreadWatchdog.sendHeartBeat();
+        }
+        else
+        {
+            TrcDbgTrace.globalTraceWarn(funcName, "Robot thread watchdog has not been created yet.");
+            TrcDbgTrace.printThreadStack();
+        }
+    }   //sendWatchdogHeartBeat
+
     //
     // Implements LinearOpMode
     //
@@ -352,14 +373,13 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
         TrcEvent.registerEventCallback();
         setBulkCachingModeEnabled(true);
-
+        robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog("MainRobotThread");
         //
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
         // competition starts (e.g. in initRobot) so it will report elapsed time from the "Init" button being pressed.
         //
         TrcUtil.recordModeStartTime();
 
-        TrcWatchdogMgr.Watchdog robotThreadWatchdog = null;
         try
         {
             //
@@ -374,7 +394,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             initRobot();
             dashboard.displayPrintf(0, "initRobot completed!");
 
-            robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog("MainRobotThread");
             //
             // Run initPeriodic while waiting for competition to start.
             //
@@ -531,6 +550,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             if (robotThreadWatchdog != null)
             {
                 robotThreadWatchdog.unregister();
+                robotThreadWatchdog = null;
             }
             TrcMotor.clearOdometryMotorsList(true);
             TrcTaskMgr.shutdown();
