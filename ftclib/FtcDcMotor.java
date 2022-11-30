@@ -27,7 +27,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import TrcCommonLib.trclib.TrcAnalogInput;
 import TrcCommonLib.trclib.TrcDigitalInput;
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcPidController;
 import TrcCommonLib.trclib.TrcUtil;
@@ -41,7 +40,6 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcDcMotor extends TrcMotor
 {
-    private static final String moduleName = "FtcDcMotor";
     private static final double DEF_RESET_TIMEOUT = 0.1;
     private static final boolean localDebug = false;
 
@@ -66,13 +64,6 @@ public class FtcDcMotor extends TrcMotor
                       TrcDigitalInput revLimitSwitch, TrcDigitalInput fwdLimitSwitch, TrcAnalogInput analogSensor)
     {
         super(instanceName);
-
-        if (debugEnabled)
-        {
-            dbgTrace = useGlobalTracer? globalTracer:
-                    new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         this.instanceName = instanceName;
         this.revLimitSwitch = revLimitSwitch;
         this.fwdLimitSwitch = fwdLimitSwitch;
@@ -157,8 +148,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "enabled=%s", Boolean.toString(enabled));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            globalTracer.traceInfo(funcName, "enabled=%s", enabled);
         }
 
         motor.setZeroPowerBehavior(enabled? DcMotorEx.ZeroPowerBehavior.BRAKE: DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -173,11 +163,7 @@ public class FtcDcMotor extends TrcMotor
     public synchronized void setMotorPower(double value)
     {
         final String funcName = "setMotorPower";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "value=%f", value);
-        }
+        double origValue = value;
 
         if (value > 0.0 && fwdLimitSwitch != null && fwdLimitSwitch.isActive() ||
             value < 0.0 && revLimitSwitch != null && revLimitSwitch.isActive())
@@ -193,7 +179,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (value=%f)", value);
+            globalTracer.traceInfo(funcName, "origValue=%f,value=%f", origValue, value);
         }
     }   //setMotorPower
 
@@ -218,8 +204,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%.3f", power);
+            globalTracer.traceInfo(funcName, "power=%.3f", power);
         }
 
         return power;
@@ -233,11 +218,6 @@ public class FtcDcMotor extends TrcMotor
     public synchronized void resetMotorPosition(double timeout)
     {
         final String funcName = "resetMotorPosition";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "timeout=%.3f", timeout);
-        }
         //
         // Modern Robotics motor controllers supports resetting encoders by setting the motor controller mode. This
         // is a long operation and has side effect of disabling the motor controller unless you do another setMode
@@ -245,7 +225,6 @@ public class FtcDcMotor extends TrcMotor
         // only be called at robotInit time. For other times, it should call resetPosition with hardware set to false
         // (software reset).
         //
-
         if (localDebug)
         {
             globalTracer.traceInfo(
@@ -293,7 +272,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (pos=%d)", motorPos);
+            globalTracer.traceInfo(funcName, "timeout=%.3f,pos=%d", timeout, motorPos);
         }
     }   //resetMotorPosition
 
@@ -319,11 +298,6 @@ public class FtcDcMotor extends TrcMotor
         double currPos = analogSensor == null?
                 motor.getCurrentPosition(): analogSensor.getRawData(0, TrcAnalogInput.DataType.INPUT_DATA).value;
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
 //        if (analogSensor == null)
 //        {
 //            //
@@ -345,7 +319,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", currPos);
+            globalTracer.traceInfo(funcName, "pos=%d", currPos);
         }
 
         return currPos;
@@ -365,12 +339,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", currVel);
+            globalTracer.traceInfo(funcName, "vel=%d", currVel);
         }
 
         return currVel;
@@ -389,8 +358,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(isActive));
+            globalTracer.traceInfo(funcName, "revLimitActive=%s", isActive);
         }
 
         return isActive;
@@ -409,8 +377,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(isActive));
+            globalTracer.traceInfo(funcName, "fwdLimitActive=%s", isActive);
         }
 
         return isActive;
@@ -424,11 +391,7 @@ public class FtcDcMotor extends TrcMotor
     private synchronized void setMotorVelocity(double value)
     {
         final String funcName = "setMotorVelocity";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "value=%f", value);
-        }
+        double origValue = value;
 
         if (value > 0.0 && fwdLimitSwitch != null && fwdLimitSwitch.isActive() ||
             value < 0.0 && revLimitSwitch != null && revLimitSwitch.isActive())
@@ -444,7 +407,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (value=%f)", value);
+            globalTracer.traceInfo(funcName, "origValue=%f,value=%f", origValue, value);
         }
     }   //setMotorVelocity
 
@@ -464,8 +427,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            globalTracer.traceInfo(funcName, "inverted=%s", inverted);
         }
 
         motor.setDirection(inverted? DcMotorEx.Direction.REVERSE: DcMotorEx.Direction.FORWARD);
@@ -484,8 +446,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", inverted);
+            globalTracer.traceInfo(funcName, "inverted=%s", inverted);
         }
 
         return inverted;
@@ -505,8 +466,7 @@ public class FtcDcMotor extends TrcMotor
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "maxVel=%f,pidCoef=%s",
-                                maxVelocity, pidCoefficients);
+            globalTracer.traceInfo(funcName, "maxVel=%f,pidCoef=%s", maxVelocity, pidCoefficients);
         }
 
         this.maxMotorVelocity = maxVelocity;
@@ -516,11 +476,6 @@ public class FtcDcMotor extends TrcMotor
                 pidCoefficients.kP, pidCoefficients.kI, pidCoefficients.kD, pidCoefficients.kF);
         }
         motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //enableVelocityMode
 
     /**
@@ -539,14 +494,6 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public synchronized void disableVelocityMode()
     {
-        final String funcName = "disableVelocityMode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         maxMotorVelocity = 0.0;
         motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }   //disableVelocityMode
