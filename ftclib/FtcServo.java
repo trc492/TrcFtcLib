@@ -325,7 +325,7 @@ public class FtcServo extends TrcServo
     {
         if (sm.isReady())
         {
-            State state = (State)sm.getState();
+            State state = sm.getState();
             switch (state)
             {
                 case SET_POSITION:
