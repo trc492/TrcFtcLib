@@ -566,6 +566,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 robotThreadWatchdog = null;
             }
             TrcMotor.clearOdometryMotorsList(true);
+            TrcWatchdogMgr.shutdown();
             TrcTaskMgr.shutdown();
         }
     }   //runOpMode
