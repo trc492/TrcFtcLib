@@ -55,6 +55,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private TrcDbgTrace dbgTrace = null;
 
     private static String opModeName = null;
+    private Thread robotThread;
     private TrcWatchdogMgr.Watchdog robotThreadWatchdog;
     private TextToSpeech textToSpeech = null;
 
@@ -293,13 +294,22 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         final String funcName = "sendWatchdogHeartBeat";
 
-        if (robotThreadWatchdog != null)
+        if (Thread.currentThread() == robotThread)
         {
-            robotThreadWatchdog.sendHeartBeat();
+            if (robotThreadWatchdog != null)
+            {
+                robotThreadWatchdog.sendHeartBeat();
+                TrcEvent.performEventCallback();
+            }
+            else
+            {
+                TrcDbgTrace.globalTraceWarn(funcName, "Robot thread watchdog has not been created yet.");
+                TrcDbgTrace.printThreadStack();
+            }
         }
         else
         {
-            TrcDbgTrace.globalTraceWarn(funcName, "Robot thread watchdog has not been created yet.");
+            TrcDbgTrace.globalTraceWarn(funcName, "Caller must be on the OpMode thread to call this.");
             TrcDbgTrace.printThreadStack();
         }
     }   //sendWatchdogHeartBeat
@@ -360,6 +370,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
         }
         TrcRobot.setRunMode(runMode);
+        robotThread = Thread.currentThread();
 
         if (TrcMotor.getNumOdometryMotors() > 0)
         {
@@ -373,7 +384,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
         TrcEvent.registerEventCallback();
         setBulkCachingModeEnabled(true);
-        robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog("MainRobotThread");
+        robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog(Thread.currentThread().getName() + ".watchdog");
         //
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
         // competition starts (e.g. in initRobot) so it will report elapsed time from the "Init" button being pressed.
@@ -391,6 +402,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 dbgTrace.traceInfo(funcName, "Running initRobot");
             }
             dashboard.displayPrintf(0, "initRobot starting...");
+            // Note: initRobot is synchronous, nothing periodic will be processed until it comes back.
             initRobot();
             dashboard.displayPrintf(0, "initRobot completed!");
 
@@ -414,9 +426,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                             loopCounter, loopStartNanoTime/1000000000.0);
                 }
 
-                robotThreadWatchdog.sendHeartBeat();
                 clearBulkCacheInManualMode();
                 initPeriodic();
+                robotThreadWatchdog.sendHeartBeat();
+                TrcEvent.performEventCallback();
             }
             dashboard.displayPrintf(0, "initPeriodic completed!");
             TrcUtil.recordModeStartTime();
@@ -448,7 +461,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 double opModeElapsedTime = TrcUtil.getModeElapsedTime();
                 boolean slowLoop = loopStartNanoTime >= nextPeriodNanoTime;
 
-                robotThreadWatchdog.sendHeartBeat();
                 clearBulkCacheInManualMode();
                 //
                 // Fast Pre-Periodic Task
@@ -520,6 +532,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_POSTPERIODIC_TASK, runMode);
                 }
 
+                robotThreadWatchdog.sendHeartBeat();
                 TrcEvent.performEventCallback();
                 //
                 // Letting FTC SDK do its things.
