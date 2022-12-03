@@ -25,6 +25,8 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import TrcCommonLib.trclib.TrcAnalogInput;
 import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcMotor;
@@ -209,6 +211,16 @@ public class FtcDcMotor extends TrcMotor
 
         return power;
     }   //getMotorPower
+
+    /**
+     * This method returns the motor current.
+     *
+     * @return motor current.
+     */
+    public double getMotorCurrent()
+    {
+        return motor.getCurrent(CurrentUnit.AMPS);
+    }   //getMotorCurrent
 
     /**
      * This method resets the motor position sensor, typically an encoder.
