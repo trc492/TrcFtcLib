@@ -298,8 +298,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         {
             if (robotThreadWatchdog != null)
             {
-                robotThreadWatchdog.sendHeartBeat();
                 TrcEvent.performEventCallback();
+                robotThreadWatchdog.sendHeartBeat();
             }
             else
             {
@@ -370,7 +370,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
         }
         TrcRobot.setRunMode(runMode);
+
         robotThread = Thread.currentThread();
+        robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog(Thread.currentThread().getName() + ".watchdog");
+        TrcEvent.registerEventCallback();
 
         if (TrcMotor.getNumOdometryMotors() > 0)
         {
@@ -382,9 +385,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             TrcMotor.clearOdometryMotorsList(true);
         }
 
-        TrcEvent.registerEventCallback();
         setBulkCachingModeEnabled(true);
-        robotThreadWatchdog = TrcWatchdogMgr.registerWatchdog(Thread.currentThread().getName() + ".watchdog");
         //
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
         // competition starts (e.g. in initRobot) so it will report elapsed time from the "Init" button being pressed.
@@ -428,8 +429,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
                 clearBulkCacheInManualMode();
                 initPeriodic();
-                robotThreadWatchdog.sendHeartBeat();
                 TrcEvent.performEventCallback();
+                robotThreadWatchdog.sendHeartBeat();
             }
             dashboard.displayPrintf(0, "initPeriodic completed!");
             TrcUtil.recordModeStartTime();
@@ -532,8 +533,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.SLOW_POSTPERIODIC_TASK, runMode);
                 }
 
-                robotThreadWatchdog.sendHeartBeat();
                 TrcEvent.performEventCallback();
+                robotThreadWatchdog.sendHeartBeat();
                 //
                 // Letting FTC SDK do its things.
                 //
@@ -551,8 +552,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 dbgTrace.traceInfo(funcName, "Running Stop Mode Tasks");
             }
             TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode);
-
-            TrcEvent.unregisterEventCallback();
         }
         finally
         {
@@ -560,11 +559,12 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             // Make sure we properly clean up and shut down even if the code throws an exception but we are not
             // catching the exception and let it propagate up.
             //
+            TrcEvent.unregisterEventCallback();
             if (robotThreadWatchdog != null)
             {
                 robotThreadWatchdog.unregister();
-                robotThreadWatchdog = null;
             }
+            robotThreadWatchdog = null;
             TrcMotor.clearOdometryMotorsList(true);
             TrcTaskMgr.shutdown();
         }
