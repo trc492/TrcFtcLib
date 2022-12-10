@@ -43,6 +43,29 @@ public class FtcMotorActuator
         public boolean lowerLimitInverted;
         public boolean hasUpperLimitSwitch;
         public boolean upperLimitInverted;
+        public boolean lowerLimitZeroCalibrateOnly;
+
+        /**
+         * Constructor: Create an instance of the object.
+         *
+         * @param motorInverted specifies true if actuator motor direction is inverted, false otherwise.
+         * @param hasLowerLimitSwitch specifies true if actuator has a lower limit switch, false otherwise.
+         * @param lowerLimitInverted specifies true if lower limit switch is inverted, false otherwise.
+         * @param hasUpperLimitSwitch specifies true if actuator has an upper limit switch, false otherwise.
+         * @param upperLimitInverted specifies true if upper limit switch is inverted, false otherwise.
+         * @param lowerLimitZeroCalibrateOnly specifies true if lower limit switch is for zero calibration only.
+         */
+        public MotorParams(
+            boolean motorInverted, boolean hasLowerLimitSwitch, boolean lowerLimitInverted,
+            boolean hasUpperLimitSwitch, boolean upperLimitInverted, boolean lowerLimitZeroCalibrateOnly)
+        {
+            this.motorInverted = motorInverted;
+            this.hasLowerLimitSwitch = hasLowerLimitSwitch;
+            this.lowerLimitInverted = lowerLimitInverted;
+            this.hasUpperLimitSwitch = hasUpperLimitSwitch;
+            this.upperLimitInverted = upperLimitInverted;
+            this.lowerLimitZeroCalibrateOnly = lowerLimitZeroCalibrateOnly;
+        }   //MotorParams
 
         /**
          * Constructor: Create an instance of the object.
@@ -57,11 +80,8 @@ public class FtcMotorActuator
             boolean motorInverted, boolean hasLowerLimitSwitch, boolean lowerLimitInverted,
             boolean hasUpperLimitSwitch, boolean upperLimitInverted)
         {
-            this.motorInverted = motorInverted;
-            this.hasLowerLimitSwitch = hasLowerLimitSwitch;
-            this.lowerLimitInverted = lowerLimitInverted;
-            this.hasUpperLimitSwitch = hasUpperLimitSwitch;
-            this.upperLimitInverted = upperLimitInverted;
+            this(motorInverted, hasLowerLimitSwitch, lowerLimitInverted, hasUpperLimitSwitch, upperLimitInverted,
+                 false);
         }   //MotorParams
 
         /**
@@ -74,8 +94,10 @@ public class FtcMotorActuator
         {
             return String.format(
                 Locale.US,
-                "motorInverted=%s,hasLowerLimitSW=%s,lowerLimitInverted=%s,hasUpperLimitSW=%s,upperLimitInverted=%s",
-                motorInverted, hasLowerLimitSwitch, lowerLimitInverted, hasUpperLimitSwitch, upperLimitInverted);
+                "motorInverted=%s,hasLowerLimitSW=%s,lowerLimitInverted=%s,hasUpperLimitSW=%s,upperLimitInverted=%s," +
+                "lowerLimitZeroCalOnly=%s",
+                motorInverted, hasLowerLimitSwitch, lowerLimitInverted, hasUpperLimitSwitch, upperLimitInverted,
+                lowerLimitZeroCalibrateOnly);
         }   //toString
 
     }   //class MotorParams
@@ -98,7 +120,9 @@ public class FtcMotorActuator
             motorParams.hasUpperLimitSwitch?
                 new FtcDigitalInput(instanceName + ".upperLimit", motorParams.upperLimitInverted): null;
 
-        FtcDcMotor actuatorMotor = new FtcDcMotor(instanceName + ".motor", lowerLimitSwitch, upperLimitSwitch);
+        FtcDcMotor actuatorMotor = new FtcDcMotor(
+            instanceName + ".motor",
+            !motorParams.lowerLimitZeroCalibrateOnly? lowerLimitSwitch: null, upperLimitSwitch);
         actuatorMotor.setBrakeModeEnabled(true);
         actuatorMotor.setOdometryEnabled(true, true, true);
         actuatorMotor.setInverted(motorParams.motorInverted);
