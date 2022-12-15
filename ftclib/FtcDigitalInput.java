@@ -25,7 +25,6 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcDigitalInput;
 
 /**
@@ -34,15 +33,8 @@ import TrcCommonLib.trclib.TrcDigitalInput;
  */
 public class FtcDigitalInput extends TrcDigitalInput
 {
-    private static final String moduleName = "FtcDigitalInput";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final DigitalChannel digitalInput;
-    private boolean inverted;
+    private volatile boolean inverted;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -54,12 +46,6 @@ public class FtcDigitalInput extends TrcDigitalInput
     public FtcDigitalInput(HardwareMap hardwareMap, String instanceName, boolean inverted)
     {
         super(instanceName);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         digitalInput = hardwareMap.get(DigitalChannel.class, instanceName);
         digitalInput.setMode(DigitalChannel.Mode.INPUT);
         this.inverted = inverted;
@@ -116,8 +102,7 @@ public class FtcDigitalInput extends TrcDigitalInput
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", state);
+            globalTracer.traceInfo(funcName, "%s: active=%s", instanceName, state);
         }
 
         return state;
