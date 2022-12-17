@@ -102,6 +102,7 @@ public class FtcMotorActuator
 
     }   //class MotorParams
 
+    private final FtcDcMotor actuatorMotor;
     private final TrcPidActuator pidActuator;
 
     /**
@@ -120,7 +121,7 @@ public class FtcMotorActuator
             motorParams.hasUpperLimitSwitch?
                 new FtcDigitalInput(instanceName + ".upperLimit", motorParams.upperLimitInverted): null;
 
-        FtcDcMotor actuatorMotor = new FtcDcMotor(
+        actuatorMotor = new FtcDcMotor(
             instanceName + ".motor",
             !motorParams.lowerLimitZeroCalibrateOnly? lowerLimitSwitch: null, upperLimitSwitch);
         actuatorMotor.setBrakeModeEnabled(true);
@@ -151,6 +152,16 @@ public class FtcMotorActuator
     {
         return pidActuator;
     }   //getPidActuator
+
+    /**
+     * This method returns the FtcDcMotor object.
+     *
+     * @return FtcDcMotor object.
+     */
+    public FtcDcMotor getMotor()
+    {
+        return actuatorMotor;
+    }   //getMotor
 
 }   //class FtcMotorActuator
 
