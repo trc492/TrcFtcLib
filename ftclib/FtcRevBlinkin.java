@@ -197,8 +197,7 @@ public class FtcRevBlinkin extends TrcRevBlinkin
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", currPattern);
+            globalTracer.traceInfo(funcName, "currPattern=%s", currPattern);
         }
 
         return currPattern;
@@ -216,16 +215,11 @@ public class FtcRevBlinkin extends TrcRevBlinkin
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "pattern=%s", pattern);
+            globalTracer.traceInfo(funcName, "pattern=%s", pattern);
         }
 
         currPattern = pattern == null ? offPattern : pattern;
         blinkinLedDriver.setPattern(patternMap.get(currPattern.ledPattern));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //setPattern
 
 }   //class FtcRevBlinkin
