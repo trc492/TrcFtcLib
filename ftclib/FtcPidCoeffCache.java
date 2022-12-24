@@ -44,45 +44,23 @@ import TrcCommonLib.trclib.TrcPidController;
 public class FtcPidCoeffCache
 {
     private static final String moduleName = "FtcPidCoeffCache";
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
     private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
 
-    private final String instanceName;
     private final String cacheFilePrefix;
     private final HashMap<TrcPidController, TrcPidController.PidCoefficients> pidCoeffCache = new HashMap<>();
 
     /**
      * Constructor: Creates an instance of the object.
      *
-     * @param instanceName specifies the instance name.
      * @param cacheFolderPath specifies the cache file folder path.
      */
-    public FtcPidCoeffCache(String instanceName, String cacheFolderPath)
+    public FtcPidCoeffCache(String cacheFolderPath)
     {
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
-        this.instanceName = instanceName;
         this.cacheFilePrefix = cacheFolderPath + "/PIDCoeffCache_";
         File folder = new File(cacheFolderPath);
         folder.mkdir();
     }   //FtcPidCoeffCache
-
-    /**
-     * This method returns the instance name.
-     *
-     * @return instance name.
-     */
-    @Override
-    public String toString()
-    {
-        return instanceName;
-    }   //toString
 
     /**
      * This method returns the cached PID coefficients for the given PID controller. If the given PID controller
@@ -97,11 +75,6 @@ public class FtcPidCoeffCache
     {
         final String funcName = "getCachedPidCoeff";
         TrcPidController.PidCoefficients pidCoeff;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "pidCtrl=%s", pidCtrl);
-        }
 
         if (pidCoeffCache.containsKey(pidCtrl))
         {
@@ -135,7 +108,7 @@ public class FtcPidCoeffCache
 
         if (debugEnabled)
         {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", pidCoeff);
+            globalTracer.traceInfo(funcName, "pidCtrl=%s, pidCoeff=%s", pidCtrl, pidCoeff);
         }
 
         return pidCoeff;
@@ -154,7 +127,7 @@ public class FtcPidCoeffCache
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "pidCtrl=%s,pidCoeff=%s", pidCtrl, pidCoeff);
+            globalTracer.traceInfo(funcName, "pidCtrl=%s,pidCoeff=%s", pidCtrl, pidCoeff);
         }
 
         pidCoeffCache.put(pidCtrl, pidCoeff);
@@ -169,11 +142,6 @@ public class FtcPidCoeffCache
         catch (IOException e)
         {
             throw new RuntimeException("Failed to open cache file " + pidCtrl);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //writeCachedPidCoeff
 
