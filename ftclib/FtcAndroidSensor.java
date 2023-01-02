@@ -33,7 +33,7 @@ import java.util.Locale;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcSensor;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements an Android sensor that may have multiple axes.
@@ -89,7 +89,7 @@ public class FtcAndroidSensor extends TrcSensor implements SensorEventListener
         sensorData = new SensorData[numAxes];
         for (int i = 0; i < numAxes; i++)
         {
-            sensorData[i] = new SensorData<>(TrcUtil.getCurrentTime(), 0.0);
+            sensorData[i] = new SensorData<>(TrcTimer.getCurrentTime(), 0.0);
         }
     }   //FtcAndroidSensor
 

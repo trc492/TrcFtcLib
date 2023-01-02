@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
 
 /**
@@ -114,7 +115,7 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getUltrasonicDistance";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_ULTRSONIC_DISTANCE - READ_START]));
+            TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_ULTRSONIC_DISTANCE - READ_START]));
 
         if (debugEnabled)
         {
@@ -136,7 +137,7 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getOpticalDistance";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_OPTICAL_DISTANCE - READ_START]));
+                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_OPTICAL_DISTANCE - READ_START]));
 
         if (debugEnabled)
         {

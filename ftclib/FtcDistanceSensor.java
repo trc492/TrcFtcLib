@@ -29,7 +29,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements a generic Distance sensor extending TrcAnalogInput. It provides implementation of the abstract
@@ -102,19 +102,19 @@ public class FtcDistanceSensor extends TrcSensor<FtcDistanceSensor.DataType>
         switch (dataType)
         {
             case DISTANCE_MM:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getDistance(DistanceUnit.MM));
+                data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getDistance(DistanceUnit.MM));
                 break;
 
             case DISTANCE_CM:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getDistance(DistanceUnit.CM));
+                data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getDistance(DistanceUnit.CM));
                 break;
 
             case DISTANCE_METER:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getDistance(DistanceUnit.METER));
+                data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getDistance(DistanceUnit.METER));
                 break;
 
             case DISTANCE_INCH:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getDistance(DistanceUnit.INCH));
+                data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getDistance(DistanceUnit.INCH));
                 break;
         }
 

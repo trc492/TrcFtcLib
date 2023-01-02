@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcSensor;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements a platform dependent ultrasonic sensor extending TrcAnalogInput. It provides implementation
@@ -109,18 +109,23 @@ public class FtcUltrasonicSensor extends TrcSensor<FtcUltrasonicSensor.DataType>
         final String funcName = "getRawData";
         SensorData<Double> data = null;
 
-        switch (dataType)
+        if (dataType == DataType.ULTRASONIC)
         {
-            case ULTRASONIC:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getUltrasonicLevel());
-                break;
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getUltrasonicLevel());
         }
 
         if (debugEnabled)
         {
             dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value=%f)", data.timestamp, data.value);
+            if (data != null)
+            {
+                dbgTrace.traceExit(
+                    funcName, TrcDbgTrace.TraceLevel.API, "=(timestamp:%.3f,value=%f)", data.timestamp, data.value);
+            }
+            else
+            {
+                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
+            }
         }
 
         return data;

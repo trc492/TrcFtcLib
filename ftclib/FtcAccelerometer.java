@@ -30,7 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import TrcCommonLib.trclib.TrcAccelerometer;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the platform dependent accelerometer extending TrcAccelerometer. It provides implementation
@@ -119,7 +119,7 @@ public class FtcAccelerometer extends TrcAccelerometer
         if (dataType == DataType.ACCELERATION)
         {
             Acceleration accelData = accel.getAcceleration();
-            data = new SensorData<>(TrcUtil.getCurrentTime(), accelData.xAccel);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), accelData.xAccel);
         }
         else
         {
@@ -151,7 +151,7 @@ public class FtcAccelerometer extends TrcAccelerometer
         if (dataType == DataType.ACCELERATION)
         {
             Acceleration accelData = accel.getAcceleration();
-            data = new SensorData<>(TrcUtil.getCurrentTime(), accelData.yAccel);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), accelData.yAccel);
         }
         else
         {
@@ -183,7 +183,7 @@ public class FtcAccelerometer extends TrcAccelerometer
         if (dataType == DataType.ACCELERATION)
         {
             Acceleration accelData = accel.getAcceleration();
-            data = new SensorData<>(TrcUtil.getCurrentTime(), accelData.zAccel);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), accelData.zAccel);
         }
         else
         {

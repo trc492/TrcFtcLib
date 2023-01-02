@@ -39,7 +39,7 @@ import TrcCommonLib.trclib.TrcEvent;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcWatchdogMgr;
 
 /**
@@ -390,7 +390,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
         // competition starts (e.g. in initRobot) so it will report elapsed time from the "Init" button being pressed.
         //
-        TrcUtil.recordModeStartTime();
+        TrcTimer.recordModeStartTime();
 
         try
         {
@@ -419,7 +419,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             while (!isStarted())
             {
                 loopCounter++;
-                loopStartNanoTime = TrcUtil.getNanoTime();
+                loopStartNanoTime = TrcTimer.getNanoTime();
 
                 if (debugEnabled)
                 {
@@ -433,7 +433,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 robotThreadWatchdog.sendHeartBeat();
             }
             dashboard.displayPrintf(0, "initPeriodic completed!");
-            TrcUtil.recordModeStartTime();
+            TrcTimer.recordModeStartTime();
 
             //
             // Prepare for starting the run mode.
@@ -450,16 +450,16 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
             startMode(null, runMode);
 
-            long nextPeriodNanoTime = TrcUtil.getNanoTime();
-            long startNanoTime = TrcUtil.getNanoTime();
+            long nextPeriodNanoTime = TrcTimer.getNanoTime();
+            long startNanoTime = TrcTimer.getNanoTime();
 
             loopCounter = 0;
             while (opModeIsActive())
             {
-                loopStartNanoTime = TrcUtil.getNanoTime();
+                loopStartNanoTime = TrcTimer.getNanoTime();
                 loopCounter++;
                 sdkTotalElapsedTime += loopStartNanoTime - startNanoTime;
-                double opModeElapsedTime = TrcUtil.getModeElapsedTime();
+                double opModeElapsedTime = TrcTimer.getModeElapsedTime();
                 boolean slowLoop = loopStartNanoTime >= nextPeriodNanoTime;
 
                 clearBulkCacheInManualMode();
@@ -494,9 +494,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 {
                     dbgTrace.traceInfo(funcName, "Running fastPeriodic");
                 }
-                startNanoTime = TrcUtil.getNanoTime();
+                startNanoTime = TrcTimer.getNanoTime();
                 fastPeriodic(opModeElapsedTime);
-                fastPeriodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
+                fastPeriodicTotalElapsedTime += TrcTimer.getNanoTime() - startNanoTime;
                 fastPeriodicTimeSlotCount++;
                 //
                 // Slow Periodic
@@ -507,9 +507,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     {
                         dbgTrace.traceInfo(funcName, "Running slowPeriodic");
                     }
-                    startNanoTime = TrcUtil.getNanoTime();
+                    startNanoTime = TrcTimer.getNanoTime();
                     slowPeriodic(opModeElapsedTime);
-                    slowPeriodicTotalElapsedTime += TrcUtil.getNanoTime() - startNanoTime;
+                    slowPeriodicTotalElapsedTime += TrcTimer.getNanoTime() - startNanoTime;
                     slowPeriodicTimeSlotCount++;
                 }
                 //
@@ -538,7 +538,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 //
                 // Letting FTC SDK do its things.
                 //
-                startNanoTime = TrcUtil.getNanoTime();
+                startNanoTime = TrcTimer.getNanoTime();
             }
 
             if (debugEnabled)

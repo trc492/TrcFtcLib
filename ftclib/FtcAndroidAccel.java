@@ -28,7 +28,7 @@ import android.hardware.SensorManager;
 import TrcCommonLib.trclib.TrcAccelerometer;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the Android accelerometer extending TrcAccelerometer. It provides implementation of the
@@ -147,7 +147,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
 
         if (dataType == DataType.ACCELERATION)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawData(0, dataType).value);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getRawData(0, dataType).value);
         }
         else
         {
@@ -178,7 +178,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
 
         if (dataType == DataType.ACCELERATION)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawData(1, dataType).value);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getRawData(1, dataType).value);
         }
         else
         {
@@ -209,7 +209,7 @@ public class FtcAndroidAccel extends TrcAccelerometer
 
         if (dataType == DataType.ACCELERATION)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawData(2, dataType).value);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getRawData(2, dataType).value);
         }
         else
         {

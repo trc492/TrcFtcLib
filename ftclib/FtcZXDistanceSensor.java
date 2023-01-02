@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
 
 /**
@@ -338,7 +339,7 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
         final String funcName = "getStatus";
         byte[] data = readData(REG_STATUS, 1);
         int deviceStatus = TrcUtil.bytesToInt(data[0]);
-        double timestamp = TrcUtil.getCurrentTime();
+        double timestamp = TrcTimer.getCurrentTime();
 
         if ((deviceStatus & STATUS_GESTURES) != 0)
         {

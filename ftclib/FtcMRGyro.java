@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcGyro;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the Modern Robotics gyro extending TrcGyro. It provides implementation of the abstract
@@ -104,7 +104,7 @@ public class FtcMRGyro extends TrcGyro
         gyro.calibrate();
         while (gyro.isCalibrating())
         {
-            TrcUtil.sleep(10);
+            TrcTimer.sleep(10);
         }
 
         if (debugEnabled)
@@ -172,7 +172,7 @@ public class FtcMRGyro extends TrcGyro
         //
         if (dataType == DataType.ROTATION_RATE)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), (double)gyro.rawX());
+            data = new SensorData<>(TrcTimer.getCurrentTime(), (double)gyro.rawX());
         }
         else
         {
@@ -205,7 +205,7 @@ public class FtcMRGyro extends TrcGyro
         //
         if (dataType == DataType.ROTATION_RATE)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), (double)gyro.rawY());
+            data = new SensorData<>(TrcTimer.getCurrentTime(), (double)gyro.rawY());
         }
         else
         {
@@ -242,7 +242,7 @@ public class FtcMRGyro extends TrcGyro
         {
             value = -gyro.getIntegratedZValue();
         }
-        SensorData<Double> data = new SensorData<>(TrcUtil.getCurrentTime(), value);
+        SensorData<Double> data = new SensorData<>(TrcTimer.getCurrentTime(), value);
 
         if (debugEnabled)
         {

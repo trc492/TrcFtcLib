@@ -41,7 +41,7 @@ import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGyro;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the BNO055 IMU which is actually an Adafruit BNO055. It encapsulates two sub-classes:
@@ -49,13 +49,7 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcBNO055Imu
 {
-    private static final String moduleName = "FtcBNO055Imu";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
     private static final boolean USE_QUATERNION = false;
 
     /**
@@ -133,7 +127,7 @@ public class FtcBNO055Imu
             Quaternion q = null;
             Orientation orientation = null;
             AngularVelocity angularVelocity;
-            double currTime = TrcUtil.getCurrentTime();
+            double currTime = TrcTimer.getCurrentTime();
 
             if (USE_QUATERNION)
             {
@@ -147,8 +141,9 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceInfo(instanceName + ".gyroTask", "[%.3f]: elapsedTime=%.3f",
-                        currTime, TrcUtil.getCurrentTime() - currTime);
+                globalTracer.traceInfo(
+                    instanceName + ".gyroTask", "[%.3f]: elapsedTime=%.3f",
+                    currTime, TrcTimer.getCurrentTime() - currTime);
             }
 
             synchronized (gyroData)
@@ -182,11 +177,11 @@ public class FtcBNO055Imu
 
                 if (debugEnabled)
                 {
-                    dbgTrace.traceInfo(
-                            instanceName + ".gyroTask",
-                            "[%.3f]: %s xAngle=%.1f, yAngle=%.1f, zAngle=%.1f, xRate=%.1f, yRate=%.1f, zRate=%.1f",
-                            gyroData.timestamp, instanceName + ".gyro", gyroData.xAngle, gyroData.yAngle, gyroData.zAngle,
-                            gyroData.xRotationRate, gyroData.yRotationRate, gyroData.zRotationRate);
+                    globalTracer.traceInfo(
+                        instanceName + ".gyroTask",
+                        "[%.3f]: %s xAngle=%.1f, yAngle=%.1f, zAngle=%.1f, xRate=%.1f, yRate=%.1f, zRate=%.1f",
+                        gyroData.timestamp, instanceName + ".gyro", gyroData.xAngle, gyroData.yAngle, gyroData.zAngle,
+                        gyroData.xRotationRate, gyroData.yRotationRate, gyroData.zRotationRate);
                 }
             }
         }   //gyroTask
@@ -225,9 +220,7 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                        "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
+                globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
             }
 
             return data;
@@ -262,9 +255,7 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                        "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
+                globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
             }
 
             return data;
@@ -299,9 +290,7 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                        "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
+                globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
             }
 
             return data;
@@ -381,15 +370,16 @@ public class FtcBNO055Imu
          */
         private void accelTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode)
         {
-            double currTime = TrcUtil.getCurrentTime();
+            double currTime = TrcTimer.getCurrentTime();
             Acceleration acceleration = imu.getAcceleration();
             Velocity velocity = imu.getVelocity();
             Position position = imu.getPosition();
 
             if (debugEnabled)
             {
-                dbgTrace.traceInfo(instanceName + ".accelTask", "[%.3f]: elapsedTime=%.3f",
-                        currTime, TrcUtil.getCurrentTime() - currTime);
+                globalTracer.traceInfo(
+                    instanceName + ".accelTask", "[%.3f]: elapsedTime=%.3f",
+                    currTime, TrcTimer.getCurrentTime() - currTime);
             }
 
             synchronized (accelData)
@@ -407,13 +397,13 @@ public class FtcBNO055Imu
 
                 if (debugEnabled)
                 {
-                    dbgTrace.traceInfo(
-                            instanceName + ".accelTask",
-                            "[%.3f]: %s accel=%.1f/%.1f/%.1f, vel=%.1f/%.1f/%.1f, pos=%.1f/%.1f/%.1f",
-                            accelData.timestamp, instanceName + ".accel",
-                            accelData.xAccel, accelData.yAccel, accelData.zAccel,
-                            accelData.xVel, accelData.yVel, accelData.zVel,
-                            accelData.xPos, accelData.yPos, accelData.zPos);
+                    globalTracer.traceInfo(
+                        instanceName + ".accelTask",
+                        "[%.3f]: %s accel=%.1f/%.1f/%.1f, vel=%.1f/%.1f/%.1f, pos=%.1f/%.1f/%.1f",
+                        accelData.timestamp, instanceName + ".accel",
+                        accelData.xAccel, accelData.yAccel, accelData.zAccel,
+                        accelData.xVel, accelData.yVel, accelData.zVel,
+                        accelData.xPos, accelData.yPos, accelData.zPos);
                 }
             }
         }   //accelTask
@@ -455,9 +445,7 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                        "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
+                globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
             }
 
             return data;
@@ -496,9 +484,7 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                        "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
+                globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
             }
 
             return data;
@@ -537,9 +523,7 @@ public class FtcBNO055Imu
 
             if (debugEnabled)
             {
-                dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                        "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
+                globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
             }
 
             return data;
@@ -559,10 +543,6 @@ public class FtcBNO055Imu
      */
     public FtcBNO055Imu(HardwareMap hardwareMap, String instanceName)
     {
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
         //
         // Initialize the BNO055 IMU.
         //
@@ -610,7 +590,6 @@ public class FtcBNO055Imu
         {
             imuParams.mode = BNO055IMU.SensorMode.IMU;
             imuParams.useExternalCrystal = true;
-            imuParams.pitchMode = BNO055IMU.PitchMode.WINDOWS;
         }
         else
         {

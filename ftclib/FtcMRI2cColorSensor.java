@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
 
 /**
@@ -211,7 +212,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getColorNumber";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_COLOR_NUMBER - READ_START]));
+            TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_COLOR_NUMBER - READ_START]));
 
         if (debugEnabled)
         {
@@ -233,7 +234,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getRedValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_RED - READ_START]));
+                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_RED - READ_START]));
 
         if (debugEnabled)
         {
@@ -255,7 +256,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getGreenValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_GREEN - READ_START]));
+                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_GREEN - READ_START]));
 
         if (debugEnabled)
         {
@@ -277,7 +278,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getBlueValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_BLUE - READ_START]));
+                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_BLUE - READ_START]));
 
         if (debugEnabled)
         {
@@ -299,7 +300,7 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
         final String funcName = "getWhiteValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_WHITE - READ_START]));
+                TrcTimer.getCurrentTime(), (double) TrcUtil.bytesToInt(regData[REG_WHITE - READ_START]));
 
         if (debugEnabled)
         {

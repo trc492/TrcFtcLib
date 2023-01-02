@@ -31,7 +31,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements a generic Color sensor extending TrcAnalogInput. It provides implementation of the abstract
@@ -172,7 +172,7 @@ public class FtcColorSensor extends TrcSensor<FtcColorSensor.DataType>
             }
         }
 
-        data = new SensorData<>(TrcUtil.getCurrentTime(), value);
+        data = new SensorData<>(TrcTimer.getCurrentTime(), value);
 
         if (debugEnabled)
         {

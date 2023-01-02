@@ -27,7 +27,7 @@ import android.hardware.Sensor;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcGyro;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the Android gyro extending TrcGyro. It provides implementation of the abstract methods in
@@ -125,7 +125,7 @@ public class FtcAndroidGyro extends TrcGyro
 
         if (dataType == DataType.ROTATION_RATE)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawData(0, dataType).value);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getRawData(0, dataType).value);
         }
         else
         {
@@ -156,7 +156,7 @@ public class FtcAndroidGyro extends TrcGyro
 
         if (dataType == DataType.ROTATION_RATE)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawData(1, dataType).value);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getRawData(1, dataType).value);
         }
         else
         {
@@ -187,7 +187,7 @@ public class FtcAndroidGyro extends TrcGyro
 
         if (dataType == DataType.ROTATION_RATE)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawData(2, dataType).value);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getRawData(2, dataType).value);
         }
         else
         {

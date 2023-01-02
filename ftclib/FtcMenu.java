@@ -23,7 +23,7 @@
 package TrcFtcLib.ftclib;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class is intended to be inherited by a specific menu class such as FtcChoiceMenu or FtcValueMenu. Therefore,
@@ -251,7 +251,7 @@ public abstract class FtcMenu
         while (!runMenus() && !opmode.isStopRequested())
         {
             opmode.sendWatchdogHeartBeat();
-            TrcUtil.sleep(LOOP_INTERVAL);
+            TrcTimer.sleep(LOOP_INTERVAL);
         }
     }   //walkMenuTree
 

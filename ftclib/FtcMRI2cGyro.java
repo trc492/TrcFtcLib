@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGyro;
 import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
 
 /**
@@ -186,7 +187,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         // So we are reversing it.
         //
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(), (double)((360 - value)%360));
+            TrcTimer.getCurrentTime(), (double)((360 - value)%360));
 
         if (debugEnabled)
         {
@@ -222,7 +223,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         {
             int value = zSign * TrcUtil.bytesToInt(
                     regData[REG_INTEGRATED_Z_LSB - READ_START], regData[REG_INTEGRATED_Z_MSB - READ_START]);
-            data = new TrcSensor.SensorData<>(TrcUtil.getCurrentTime(), (double)-value);
+            data = new TrcSensor.SensorData<>(TrcTimer.getCurrentTime(), (double)-value);
         }
         else
         {
@@ -248,7 +249,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         final String funcName = "getRawX";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(),
+                TrcTimer.getCurrentTime(),
                 -xSign*(double)TrcUtil.bytesToInt(
                         regData[REG_RAW_X_LSB - READ_START], regData[REG_RAW_X_MSB - READ_START]));
 
@@ -272,7 +273,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         final String funcName = "getRawY";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(),
+                TrcTimer.getCurrentTime(),
                 -ySign*(double)TrcUtil.bytesToInt(
                         regData[REG_RAW_Y_LSB - READ_START], regData[REG_RAW_Y_MSB - READ_START]));
 
@@ -296,8 +297,8 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         final String funcName = "getRawZ";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(),
-                -zSign*(double)TrcUtil.bytesToInt(
+                TrcTimer.getCurrentTime(),
+                -zSign*(double) TrcUtil.bytesToInt(
                         regData[REG_RAW_Z_LSB - READ_START], regData[REG_RAW_Z_MSB - READ_START]));
 
         if (debugEnabled)
@@ -320,7 +321,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         final String funcName = "getZOffset";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(),
+                TrcTimer.getCurrentTime(),
                 (double)TrcUtil.bytesToInt(
                         regData[REG_Z_OFFSET_LSB - READ_START], regData[REG_Z_OFFSET_MSB - READ_START]));
 
@@ -344,7 +345,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         final String funcName = "getZScaling";
         byte[] regData = readData(READ_START, READ_LENGTH);
         TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcUtil.getCurrentTime(),
+                TrcTimer.getCurrentTime(),
                 (double)TrcUtil.bytesToInt(
                         regData[REG_Z_SCALING_LSB - READ_START], regData[REG_Z_SCALING_MSB - READ_START]));
 

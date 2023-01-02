@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcGyro;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements an Analog gyro extending TrcGyro. It provides implementation of the abstract methods in
@@ -162,7 +162,7 @@ public class FtcAnalogGyro extends TrcGyro
         //
         if (dataType == DataType.ROTATION_RATE)
         {
-            data = new SensorData<>(TrcUtil.getCurrentTime(), gyro.getVoltage()/voltPerDegPerSec);
+            data = new SensorData<>(TrcTimer.getCurrentTime(), gyro.getVoltage()/voltPerDegPerSec);
         }
         else
         {

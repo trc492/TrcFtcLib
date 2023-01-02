@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
+import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
 
 /**
@@ -245,7 +246,7 @@ public class FtcI2cAdaFruitColorSensor extends FtcI2cDevice
         int deviceStatus = TrcUtil.bytesToInt(regData[REG_STATUS - READ_START]);
         if ((deviceStatus & STATUS_AVALID) != 0)
         {
-            double timestamp = TrcUtil.getCurrentTime();
+            double timestamp = TrcTimer.getCurrentTime();
 
             clearValue.timestamp = timestamp;
             clearValue.value = TrcUtil.bytesToInt(

@@ -31,7 +31,7 @@ import TrcCommonLib.trclib.TrcAnalogInput;
 import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcPidController;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the generic DC Motor Controller extending TrcMotor. It provides implementation of the
@@ -241,14 +241,14 @@ public class FtcDcMotor extends TrcMotor
         {
             globalTracer.traceInfo(
                 funcName, "[%.3f] Before resetting %s: enc=%d",
-                TrcUtil.getModeElapsedTime(), instanceName, motor.getCurrentPosition());
+                TrcTimer.getModeElapsedTime(), instanceName, motor.getCurrentPosition());
         }
         DcMotorEx.RunMode prevMotorMode = motor.getMode();
         motor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        double expiredTime = TrcUtil.getCurrentTime() + timeout;
+        double expiredTime = TrcTimer.getCurrentTime() + timeout;
         int motorPos = 0;
-        while (TrcUtil.getCurrentTime() < expiredTime)
+        while (TrcTimer.getCurrentTime() < expiredTime)
         {
             FtcOpMode.getInstance().clearBulkCacheInManualMode();
             motorPos = motor.getCurrentPosition();
@@ -256,7 +256,7 @@ public class FtcDcMotor extends TrcMotor
             {
                 globalTracer.traceInfo(
                     funcName, "[%.3f] Waiting for %s to reset: enc=%d",
-                    TrcUtil.getModeElapsedTime(), instanceName, motorPos);
+                    TrcTimer.getModeElapsedTime(), instanceName, motorPos);
             }
 
             if (motorPos != 0)
@@ -268,7 +268,7 @@ public class FtcDcMotor extends TrcMotor
                 if (localDebug)
                 {
                     globalTracer.traceInfo(
-                        funcName, "[%.3f] Reset %s success!", TrcUtil.getModeElapsedTime(), instanceName);
+                        funcName, "[%.3f] Reset %s success!", TrcTimer.getModeElapsedTime(), instanceName);
                 }
                 break;
             }

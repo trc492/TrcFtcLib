@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import TrcCommonLib.trclib.TrcAnalogInput;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements a platform dependent AnalogInput sensor extending TrcAnalogInput. It provides implementation
@@ -123,7 +123,7 @@ public class FtcAnalogInput extends TrcAnalogInput
             double sensorData = sensor.getVoltage();
             if (getInputElapsedTimer != null) getInputElapsedTimer.recordEndTime();
             data = new SensorData<>(
-                    TrcUtil.getCurrentTime(), dataType == DataType.INPUT_DATA? sensorData: sensorData/maxVoltage);
+                TrcTimer.getCurrentTime(), dataType == DataType.INPUT_DATA? sensorData: sensorData/maxVoltage);
         }
         else
         {

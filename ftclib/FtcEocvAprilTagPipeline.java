@@ -44,7 +44,7 @@ import java.util.Locale;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcOpenCvDetector;
 import TrcCommonLib.trclib.TrcOpenCvPipeline;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements an AprilTag pipeline using EasyOpenCV.
@@ -210,7 +210,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     @Override
     public void process(Mat input)
     {
-        double startTime = TrcUtil.getCurrentTime();
+        double startTime = TrcTimer.getCurrentTime();
         // Convert to greyscale
         Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
 

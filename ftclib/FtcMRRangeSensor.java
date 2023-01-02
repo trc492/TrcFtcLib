@@ -30,7 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcSensor;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the Modern Range sensor extending TrcAnalogInput. It provides implementation of the abstract
@@ -124,35 +124,36 @@ public class FtcMRRangeSensor extends TrcSensor<FtcMRRangeSensor.DataType>
     {
         final String funcName = "getRawData";
         SensorData<Double> data = null;
+        double timestamp = TrcTimer.getCurrentTime();
 
         switch (dataType)
         {
             case DISTANCE_INCH:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getDistance(DistanceUnit.INCH));
+                data = new SensorData<>(timestamp, sensor.getDistance(DistanceUnit.INCH));
                 break;
 
             case ULTRASONIC_CM:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.cmUltrasonic());
+                data = new SensorData<>(timestamp, sensor.cmUltrasonic());
                 break;
 
             case OPTICAL_CM:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.cmOptical());
+                data = new SensorData<>(timestamp, sensor.cmOptical());
                 break;
 
             case ULTRASONIC_RAW:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.rawUltrasonic());
+                data = new SensorData<>(timestamp, (double)sensor.rawUltrasonic());
                 break;
 
             case OPTICAL_RAW:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.rawOptical());
+                data = new SensorData<>(timestamp, (double)sensor.rawOptical());
                 break;
 
             case RAW_LIGHT_DETECTED:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getRawLightDetected());
+                data = new SensorData<>(timestamp, sensor.getRawLightDetected());
                 break;
 
             case LIGHT_DETECTED:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), sensor.getLightDetected());
+                data = new SensorData<>(timestamp, sensor.getLightDetected());
                 break;
         }
 

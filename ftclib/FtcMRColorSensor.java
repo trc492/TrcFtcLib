@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
-import TrcCommonLib.trclib.TrcUtil;
+import TrcCommonLib.trclib.TrcTimer;
 
 /**
  * This class implements the Modern Color sensor extending TrcAnalogInput. It provides implementation of the abstract
@@ -101,23 +101,23 @@ public class FtcMRColorSensor extends TrcSensor<FtcMRColorSensor.DataType>
         switch (dataType)
         {
             case COLOR_NUMBER:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.argb());
+                data = new SensorData<>(TrcTimer.getCurrentTime(), (double)sensor.argb());
                 break;
 
             case RED:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.red());
+                data = new SensorData<>(TrcTimer.getCurrentTime(), (double)sensor.red());
                 break;
 
             case GREEN:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.green());
+                data = new SensorData<>(TrcTimer.getCurrentTime(), (double)sensor.green());
                 break;
 
             case BLUE:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.blue());
+                data = new SensorData<>(TrcTimer.getCurrentTime(), (double)sensor.blue());
                 break;
 
             case WHITE:
-                data = new SensorData<>(TrcUtil.getCurrentTime(), (double)sensor.alpha());
+                data = new SensorData<>(TrcTimer.getCurrentTime(), (double)sensor.alpha());
                 break;
         }
 
