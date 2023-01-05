@@ -28,6 +28,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import TrcCommonLib.trclib.TrcAnalogInput;
+import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcPidController;
@@ -43,7 +44,8 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcDcMotor extends TrcMotor
 {
     private static final double DEF_RESET_TIMEOUT = 0.1;
-    private static final boolean localDebug = false;
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
+    private static final boolean debugEnabled = false;
 
     private final String instanceName;
     private final TrcDigitalInput revLimitSwitch;
@@ -237,7 +239,7 @@ public class FtcDcMotor extends TrcMotor
         // only be called at robotInit time. For other times, it should call resetPosition with hardware set to false
         // (software reset).
         //
-        if (localDebug)
+        if (debugEnabled)
         {
             globalTracer.traceInfo(
                 funcName, "[%.3f] Before resetting %s: enc=%d",
@@ -252,7 +254,7 @@ public class FtcDcMotor extends TrcMotor
         {
             FtcOpMode.getInstance().clearBulkCacheInManualMode();
             motorPos = motor.getCurrentPosition();
-            if (localDebug)
+            if (debugEnabled)
             {
                 globalTracer.traceInfo(
                     funcName, "[%.3f] Waiting for %s to reset: enc=%d",
@@ -265,7 +267,7 @@ public class FtcDcMotor extends TrcMotor
             }
             else
             {
-                if (localDebug)
+                if (debugEnabled)
                 {
                     globalTracer.traceInfo(
                         funcName, "[%.3f] Reset %s success!", TrcTimer.getModeElapsedTime(), instanceName);

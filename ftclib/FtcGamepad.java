@@ -22,8 +22,6 @@
 
 package TrcFtcLib.ftclib;
 
-import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
@@ -36,41 +34,44 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcGamepad extends TrcGameController
 {
-    public enum GamepadButton
-    {
-        a("ButtonA", (int)1 << 0),
-        b("ButtonB", (int)1 << 1),
-        x("ButtonX", (int)1 << 2),
-        y("ButtonY", (int)1 << 3),
-        back("ButtonBack", (int)1 << 4),
-        start("ButtonStart", (int)1 << 5),
-        leftBumper("LeftBumper", (int)1 << 6),
-        rightBumper("RightBumper", (int)1 << 7),
-        leftStickButton("LeftStickButton", (int)1 << 8),
-        rightStickButton("RightStickButton", (int)1 << 9),
-        dpadLeft("DPadLeft", (int)1 << 10),
-        dpadRight("DPadRight", (int)1 << 11),
-        dpadUp("DPadUp", (int)1 << 12),
-        dpadDown("DPadDown", (int)1 << 13),
-        guide("Guide", (int)1 << 14);
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
+    private static final boolean debugEnabled = false;
 
-        private final String name;
-        private final int value;
-
-        GamepadButton(String name, int value)
-        {
-            this.name = name;
-            this.value = value;
-        }   //GamepadButton
-
-        @NonNull
-        @Override
-        public String toString()
-        {
-            return name;
-        }   //toString
-
-    }   //enum GamepadButtons
+//    private enum GamepadButton
+//    {
+//        a("ButtonA", (int)1 << 0),
+//        b("ButtonB", (int)1 << 1),
+//        x("ButtonX", (int)1 << 2),
+//        y("ButtonY", (int)1 << 3),
+//        back("ButtonBack", (int)1 << 4),
+//        start("ButtonStart", (int)1 << 5),
+//        leftBumper("LeftBumper", (int)1 << 6),
+//        rightBumper("RightBumper", (int)1 << 7),
+//        leftStickButton("LeftStickButton", (int)1 << 8),
+//        rightStickButton("RightStickButton", (int)1 << 9),
+//        dpadLeft("DPadLeft", (int)1 << 10),
+//        dpadRight("DPadRight", (int)1 << 11),
+//        dpadUp("DPadUp", (int)1 << 12),
+//        dpadDown("DPadDown", (int)1 << 13),
+//        guide("Guide", (int)1 << 14);
+//
+//        private final String name;
+//        private final int value;
+//
+//        GamepadButton(String name, int value)
+//        {
+//            this.name = name;
+//            this.value = value;
+//        }   //GamepadButton
+//
+//        @NonNull
+//        @Override
+//        public String toString()
+//        {
+//            return name;
+//        }   //toString
+//
+//    }   //enum GamepadButtons
 
     public enum DriveMode
     {
@@ -95,7 +96,7 @@ public class FtcGamepad extends TrcGameController
     public static final int GAMEPAD_DPAD_DOWN   = ((int)1 << 13);
     public static final int GAMEPAD_GUIDE       = ((int)1 << 14);
 
-    private Gamepad gamepad;
+    private final Gamepad gamepad;
     private int ySign;
 
     /**
@@ -162,15 +163,7 @@ public class FtcGamepad extends TrcGameController
      */
     public void setYInverted(boolean inverted)
     {
-        final String funcName = "setYInverted";
-
         ySign = inverted? -1: 1;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //setYInverted
 
     /**
@@ -182,16 +175,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getLeftStickX(double cubicCoefficient)
     {
-        final String funcName = "getLeftStickX";
-        double value = adjustAnalogControl(gamepad.left_stick_x, cubicCoefficient);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "cubicCoeff=%f", cubicCoefficient);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.left_stick_x, cubicCoefficient);
     }   //getLeftStickX
 
     /**
@@ -204,16 +188,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getLeftStickX(boolean doExp)
     {
-        final String funcName = "getLeftStickX";
-        double value = adjustAnalogControl(gamepad.left_stick_x, doExp);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "exp=%s", Boolean.toString(doExp));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.left_stick_x, doExp);
     }   //getLeftStickX
 
     /**
@@ -235,16 +210,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getLeftStickY(double cubicCoefficient)
     {
-        final String funcName = "getLeftStickY";
-        double value = adjustAnalogControl(gamepad.left_stick_y, cubicCoefficient);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "cubicCoeff=%f", cubicCoefficient);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.left_stick_y, cubicCoefficient);
     }   //getLeftStickY
 
     /**
@@ -257,16 +223,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getLeftStickY(boolean doExp)
     {
-        final String funcName = "getLeftStickY";
-        double value = ySign*adjustAnalogControl(gamepad.left_stick_y, doExp);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "exp=%s", Boolean.toString(doExp));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return ySign*adjustAnalogControl(gamepad.left_stick_y, doExp);
     }   //getLeftStickY
 
     /**
@@ -288,16 +245,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getRightStickX(double cubicCoefficient)
     {
-        final String funcName = "getRightStickX";
-        double value = adjustAnalogControl(gamepad.right_stick_x, cubicCoefficient);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "cubicCoeff=%f", cubicCoefficient);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.right_stick_x, cubicCoefficient);
     }   //getRightStickX
 
     /**
@@ -310,16 +258,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getRightStickX(boolean doExp)
     {
-        final String funcName = "getRightStickX";
-        double value = adjustAnalogControl(gamepad.right_stick_x, doExp);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "exp=%s", Boolean.toString(doExp));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.right_stick_x, doExp);
     }   //getRightStickX
 
     /**
@@ -341,16 +280,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getRightStickY(double cubicCoefficient)
     {
-        final String funcName = "getRightStickY";
-        double value = adjustAnalogControl(gamepad.right_stick_y, cubicCoefficient);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "cubicCoeff=%f", cubicCoefficient);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.right_stick_y, cubicCoefficient);
     }   //getRightStickY
 
     /**
@@ -363,16 +293,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getRightStickY(boolean doExp)
     {
-        final String funcName = "getRightStickY";
-        double value = ySign*adjustAnalogControl(gamepad.right_stick_y, doExp);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "exp=%s", Boolean.toString(doExp));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return ySign*adjustAnalogControl(gamepad.right_stick_y, doExp);
     }   //getRightStickY
 
     /**
@@ -394,16 +315,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getLeftTrigger(double cubicCoefficient)
     {
-        final String funcName = "getLeftTrigger";
-        double value = adjustAnalogControl(gamepad.left_trigger, cubicCoefficient);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "cubicCoeff=%f", cubicCoefficient);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.left_trigger, cubicCoefficient);
     }   //getLeftTrigger
 
     /**
@@ -416,16 +328,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getLeftTrigger(boolean doExp)
     {
-        final String funcName = "getLeftTrigger";
-        double value = adjustAnalogControl(gamepad.left_trigger, doExp);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "exp=%s", Boolean.toString(doExp));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.left_trigger, doExp);
     }   //getLeftTrigger
 
     /**
@@ -447,16 +350,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getRightTrigger(double cubicCoefficient)
     {
-        final String funcName = "getRightTrigger";
-        double value = adjustAnalogControl(gamepad.right_trigger, cubicCoefficient);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "cubicCoeff=%f", cubicCoefficient);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.right_trigger, cubicCoefficient);
     }   //getRightTrigger
 
     /**
@@ -469,16 +363,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double getRightTrigger(boolean doExp)
     {
-        final String funcName = "getRightTrigger";
-        double value = adjustAnalogControl(gamepad.right_trigger, doExp);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "exp=%s", Boolean.toString(doExp));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
-        }
-
-        return value;
+        return adjustAnalogControl(gamepad.right_trigger, doExp);
     }   //getRightTrigger
 
     /**
@@ -729,6 +614,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double[] getDriveInputs(DriveMode driveMode, boolean doExp, double drivePowerScale)
     {
+        final String funcName = "getDriveInputs";
         double x = 0.0, y = 0.0, rot = 0.0;
         double mag;
         double newMag;
@@ -739,14 +625,20 @@ public class FtcGamepad extends TrcGameController
                 x = getLeftStickX(doExp);
                 y = getRightStickY(doExp);
                 rot = getTrigger(doExp);
-//                robot.dashboard.displayPrintf(1, "Holonomic:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                if (debugEnabled)
+                {
+                    globalTracer.traceInfo(funcName, "Holonomic:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                }
                 break;
 
             case ARCADE_MODE:
                 x = getRightStickX(doExp);
                 y = getRightStickY(doExp);
                 rot = getLeftStickX(doExp);
-//                robot.dashboard.displayPrintf(1, "Arcade:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                if (debugEnabled)
+                {
+                    globalTracer.traceInfo(funcName, "Arcade:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                }
                 break;
 
             case TANK_MODE:
@@ -755,7 +647,10 @@ public class FtcGamepad extends TrcGameController
                 x = 0.0;
                 y = (leftPower + rightPower)/2.0;
                 rot = (leftPower - rightPower)/2.0;
-//                robot.dashboard.displayPrintf(1, "Tank:left=%.1f,right=%.1f", leftPower, rightPower);
+                if (debugEnabled)
+                {
+                    globalTracer.traceInfo(funcName, "Tank:left=%.1f,right=%.1f", leftPower, rightPower);
+                }
                 break;
         }
         mag = TrcUtil.magnitude(x, y);
@@ -841,8 +736,7 @@ public class FtcGamepad extends TrcGameController
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "=%x", buttons);
+            globalTracer.traceInfo(funcName, "buttons=0x%x", buttons);
         }
 
         return buttons;

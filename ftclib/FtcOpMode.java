@@ -448,6 +448,11 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 }
                 TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.PRE_PERIODIC_TASK, runMode, slowPeriodicLoop);
                 //
+                // Perform event callback here because pre-periodic tasks have finished processing sensor inputs and
+                // may have signaled events. We will do all the callbacks before running periodic code.
+                //
+                TrcEvent.performEventCallback();
+                //
                 // Periodic.
                 //
                 if (debugEnabled)
@@ -469,7 +474,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 }
                 TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.POST_PERIODIC_TASK, runMode, slowPeriodicLoop);
 
-                TrcEvent.performEventCallback();
                 robotThreadWatchdog.sendHeartBeat();
                 //
                 // Letting FTC SDK do its things.

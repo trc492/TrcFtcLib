@@ -50,6 +50,7 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcBNO055Imu
 {
     private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
+    private static final boolean debugEnabled = false;
     private static final boolean USE_QUATERNION = false;
 
     /**

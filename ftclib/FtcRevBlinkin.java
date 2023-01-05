@@ -35,6 +35,9 @@ import TrcCommonLib.trclib.TrcRevBlinkin;
  */
 public class FtcRevBlinkin extends TrcRevBlinkin
 {
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
+    private static final boolean debugEnabled = false;
+
     private static final TrcHashMap<RevLedPattern, RevBlinkinLedDriver.BlinkinPattern> patternMap =
         new TrcHashMap<RevLedPattern, RevBlinkinLedDriver.BlinkinPattern>()
         /*
