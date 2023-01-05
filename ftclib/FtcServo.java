@@ -41,11 +41,8 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcServo extends TrcServo
 {
     private static final String moduleName = "FtcServo";
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
     private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
 
     private enum State
     {
@@ -77,18 +74,13 @@ public class FtcServo extends TrcServo
     {
         super(instanceName, continuous);
 
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         servo = hardwareMap.get(Servo.class, instanceName);
-        logicalPos = null;
         controller = servo.getController();
         holdTimer = new TrcTimer(instanceName);
         event = new TrcEvent(instanceName);
         sm = new TrcStateMachine<>(instanceName);
         servoTaskObj = TrcTaskMgr.createTask(instanceName + ".servoTask", this::servoTask);
+        logicalPos = null;
     }   //FtcServo
 
     /**
@@ -119,14 +111,6 @@ public class FtcServo extends TrcServo
      */
     public ServoController getController()
     {
-        final String funcName = "getController";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, controller.toString());
-        }
-
         return controller;
     }   //getController
 
@@ -135,14 +119,6 @@ public class FtcServo extends TrcServo
      */
     public void cancel()
     {
-        final String funcName = "cancel";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         if (sm.isEnabled())
         {
             holdTimer.cancel();
@@ -160,7 +136,7 @@ public class FtcServo extends TrcServo
     {
         if (enabled)
         {
-            servoTaskObj.registerTask(TrcTaskMgr.TaskType.FAST_POSTPERIODIC_TASK);
+            servoTaskObj.registerTask(TrcTaskMgr.TaskType.POST_PERIODIC_TASK);
         }
         else
         {
@@ -200,8 +176,7 @@ public class FtcServo extends TrcServo
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "on=%s", Boolean.toString(on));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            globalTracer.traceInfo(funcName, "on=%s", on);
         }
 
         if (on)
@@ -230,8 +205,7 @@ public class FtcServo extends TrcServo
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "inverted=%s", Boolean.toString(inverted));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            globalTracer.traceInfo(funcName, "inverted=%s", inverted);
         }
 
         servo.setDirection(inverted? Servo.Direction.REVERSE: Servo.Direction.FORWARD);
@@ -250,8 +224,7 @@ public class FtcServo extends TrcServo
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", inverted);
+            globalTracer.traceInfo(funcName, "inverted=%s", inverted);
         }
 
         return inverted;
@@ -269,8 +242,7 @@ public class FtcServo extends TrcServo
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "position=%f", position);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
+            globalTracer.traceInfo(funcName, "position=%f", position);
         }
 
         if (logicalPos == null || position != logicalPos)
@@ -296,8 +268,7 @@ public class FtcServo extends TrcServo
 
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", logicalPos);
+            globalTracer.traceInfo(funcName, "logicalPos=%f", logicalPos);
         }
 
         return logicalPos != null? logicalPos: 0.0;
@@ -320,8 +291,10 @@ public class FtcServo extends TrcServo
      *
      * @param taskType specifies the type of task being run.
      * @param runMode specifies the competition mode that is running.
+     * @param slowPeriodicLoop specifies true if it is running the slow periodic loop on the main robot thread,
+     *        false otherwise.
      */
-    private void servoTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode)
+    private void servoTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode, boolean slowPeriodicLoop)
     {
         if (sm.isReady())
         {

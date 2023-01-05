@@ -121,8 +121,10 @@ public class FtcBNO055Imu
          *
          * @param taskType specifies the type of task being run.
          * @param runMode specifies the competition mode that is running.
+         * @param slowPeriodicLoop specifies true if it is running the slow periodic loop on the main robot thread,
+         *        false otherwise.
          */
-        private void gyroTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode)
+        private void gyroTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode, boolean slowPeriodicLoop)
         {
             Quaternion q = null;
             Orientation orientation = null;
@@ -367,8 +369,10 @@ public class FtcBNO055Imu
          *
          * @param taskType specifies the type of task being run.
          * @param runMode specifies the competition mode that is running.
+         * @param slowPeriodicLoop specifies true if it is running the slow periodic loop on the main robot thread,
+         *        false otherwise.
          */
-        private void accelTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode)
+        private void accelTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode, boolean slowPeriodicLoop)
         {
             double currTime = TrcTimer.getCurrentTime();
             Acceleration acceleration = imu.getAcceleration();
