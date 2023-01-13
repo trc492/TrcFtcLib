@@ -109,10 +109,8 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * This method sets the intermediate mat of the pipeline as the video output mat and optionally annotate the
      * detected rectangle on it.
      *
-     * @param intermediateStep specifies the intermediate mat used as video output (1 is the original mat, 0 to
-     *        disable video output if supported).
+     * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
      * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
-     *        This parameter is ignored if intermediateStep is 0.
      */
     @Override
     public void setVideoOutput(int intermediateStep, boolean annotate)
@@ -124,7 +122,6 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * This method cycles to the next intermediate mat of the pipeline as the video output mat.
      *
      * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
-     *        This parameter is ignored if intermediateStep is 0.
      */
     @Override
     public void setNextVideoOutput(boolean annotate)
@@ -137,7 +134,7 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * steps. It may be useful to see an intermediate frame for a step in the pipeline for tuning or debugging
      * purposes.
      *
-     * @param step specifies the intermediate step (step 1 is the original input frame).
+     * @param step specifies the intermediate step (0 is the original input frame).
      * @return processed frame of the specified step.
      */
     @Override

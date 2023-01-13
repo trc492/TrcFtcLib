@@ -252,10 +252,10 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
         }
 
         // Annotate only if video output is enabled.
-        if (annotate && intermediateStep > 0)
+        if (annotate)
         {
-            Mat output = getIntermediateOutput(intermediateStep - 1);
-            Scalar color = intermediateStep == 1? ANNOTATE_RECT_COLOR: ANNOTATE_RECT_WHITE;
+            Mat output = getIntermediateOutput(intermediateStep);
+            Scalar color = intermediateStep == 0? ANNOTATE_RECT_COLOR: ANNOTATE_RECT_WHITE;
             annotateFrame(output, detectedObjects, color, ANNOTATE_RECT_THICKNESS);
 //            // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
 //            // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
@@ -287,15 +287,13 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
      * This method sets the intermediate mat of the pipeline as the video output mat and optionally annotate the
      * detected rectangle on it.
      *
-     * @param intermediateStep specifies the intermediate mat used as video output (1 is the original mat, 0 to
-     *        disable video output if supported).
+     * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
      * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
-     *        This parameter is ignored if intermediateStep is 0.
      */
     @Override
     public void setVideoOutput(int intermediateStep, boolean annotate)
     {
-        if (intermediateStep >= 0 && intermediateStep <= intermediateMats.length)
+        if (intermediateStep >= 0 && intermediateStep < intermediateMats.length)
         {
             this.intermediateStep = intermediateStep;
             this.annotate = annotate;
@@ -306,12 +304,11 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
      * This method cycles to the next intermediate mat of the pipeline as the video output mat.
      *
      * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
-     *        This parameter is ignored if intermediateStep is 0.
      */
     @Override
     public void setNextVideoOutput(boolean annotate)
     {
-        intermediateStep = (intermediateStep + 1) % (intermediateMats.length + 1);
+        intermediateStep = (intermediateStep + 1) % intermediateMats.length;
         this.annotate = annotate;
     }   //setNextVideoOutput
 
@@ -320,7 +317,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
      * steps. It may be useful to see an intermediate frame for a step in the pipeline for tuning or debugging
      * purposes.
      *
-     * @param step specifies the intermediate step (step 1 is the original input frame).
+     * @param step specifies the intermediate step (0 is the original input frame).
      * @return processed frame of the specified step.
      */
     @Override
@@ -328,9 +325,9 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     {
         Mat mat = null;
 
-        if (step > 0 && step <= intermediateMats.length)
+        if (step >= 0 && step < intermediateMats.length)
         {
-            mat = intermediateMats[step - 1];
+            mat = intermediateMats[step];
         }
 
         return mat;
@@ -384,7 +381,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
         process(input);
-        return intermediateStep >= 0? getIntermediateOutput(intermediateStep): input;
+        return getSelectedOutput();
     }   //processFrame
 
     /**
