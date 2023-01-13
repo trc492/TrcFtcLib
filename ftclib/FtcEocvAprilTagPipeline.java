@@ -218,10 +218,12 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
      * This method is called to process the input image through the pipeline.
      *
      * @param input specifies the input image to be processed.
+     * @return array of detected objects.
      */
     @Override
-    public void process(Mat input)
+    public DetectedObject[] process(Mat input)
     {
+        DetectedObject[] detectedObjects;
         double startTime = TrcTimer.getCurrentTime();
 
         intermediateMats[0] = input;
@@ -243,7 +245,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
         performanceMetrics.logProcessingTime(startTime);
         performanceMetrics.printMetrics(tracer);
 
-        DetectedObject[] detectedObjects = new DetectedObject[detections.size()];
+        detectedObjects = new DetectedObject[detections.size()];
         for (int i = 0; i < detectedObjects.length; i++)
         {
             detectedObjects[i] = new DetectedObject(detections.get(i));
@@ -265,8 +267,9 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
 //                Imgproc.rectangle(output, DetectedObject.getDetectedRect(detection), GREEN, 3);
 //            }
         }
-
         detectedObjsUpdate.set(detectedObjects);
+
+        return detectedObjects;
     }   //process
 
     /**
@@ -332,6 +335,17 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
 
         return mat;
     }   //getIntermediateOutput
+
+    /**
+     * This method returns the selected intermediate output Mat.
+     *
+     * @return selected output mat.
+     */
+    @Override
+    public Mat getSelectedOutput()
+    {
+        return getIntermediateOutput(intermediateStep);
+    }   //getSelectedOutput
 
     //
     // Implements OpenCvPipeline abstract method.

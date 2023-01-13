@@ -51,7 +51,7 @@ public class FtcEocvDetector
     private final TrcHomographyMapper homographyMapper;
 
     private boolean cameraStarted = false;
-    private volatile TrcOpenCvPipeline<?> openCvPipeline = null;
+    private volatile TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> openCvPipeline = null;
 
     /**
      * Constructor: Create an instance of the object.
@@ -129,17 +129,17 @@ public class FtcEocvDetector
      *
      * @param pipeline specifies the pipeline to be used for detection, can be null to disable vision.
      */
-    public synchronized void setPipeline(TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> pipeline)
+    public void setPipeline(TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> pipeline)
     {
         if (pipeline != openCvPipeline)
         {
-            // Pipeline has changed. Disable the old pipeline and enable the new one.
+            // Pipeline has changed.
             if (pipeline != null)
             {
                 pipeline.reset();
             }
-            openCvCamera.setPipeline((OpenCvPipeline) pipeline);
             openCvPipeline = pipeline;
+            openCvCamera.setPipeline((OpenCvPipeline) pipeline);
         }
     }   //setPipeline
 
@@ -148,7 +148,7 @@ public class FtcEocvDetector
      *
      * @return current active pipeline, null if no active pipeline.
      */
-    public synchronized TrcOpenCvPipeline<?> getPipeline()
+    public TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> getPipeline()
     {
         return openCvPipeline;
     }   //getPipeline
@@ -162,7 +162,7 @@ public class FtcEocvDetector
      * @param cameraHeight specifies the height of the camera above the floor.
      * @return array of detected target info.
      */
-    public synchronized TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] getDetectedTargetsInfo(
+    public TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] getDetectedTargetsInfo(
         TrcOpenCvDetector.FilterTarget filter,
         Comparator<? super TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> comparator,
         double objHeightOffset, double cameraHeight)
@@ -170,8 +170,7 @@ public class FtcEocvDetector
         final String funcName = instanceName + ".getDetectedTargetsInfo";
         TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] detectedTargets = null;
 
-        TrcOpenCvDetector.DetectedObject<?>[] objects =
-            (TrcOpenCvDetector.DetectedObject<?>[]) openCvPipeline.getDetectedObjects();
+        TrcOpenCvDetector.DetectedObject<?>[] objects = openCvPipeline.getDetectedObjects();
 
         if (objects != null)
         {

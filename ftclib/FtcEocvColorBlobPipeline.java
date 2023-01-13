@@ -86,11 +86,12 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * This method is called to process the input image through the pipeline.
      *
      * @param input specifies the input image to be processed.
+     * @return array of detected objects.
      */
     @Override
-    public void process(Mat input)
+    public TrcOpenCvColorBlobPipeline.DetectedObject[] process(Mat input)
     {
-        colorBlobPipeline.process(input);
+        return colorBlobPipeline.process(input);
     }   //process
 
     /**
@@ -144,6 +145,17 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     {
         return colorBlobPipeline.getIntermediateOutput(step);
     }   //getIntermediateOutput
+
+    /**
+     * This method returns the selected intermediate output Mat.
+     *
+     * @return selected output mat.
+     */
+    @Override
+    public Mat getSelectedOutput()
+    {
+        return colorBlobPipeline.getSelectedOutput();
+    }   //getSelectedOutput
 
     //
     // Implements OpenCvPipeline abstract methods.
