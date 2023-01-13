@@ -45,12 +45,12 @@ import TrcCommonLib.trclib.TrcWatchdogMgr;
 public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMode
 {
     private static final String moduleName = "FtcOpMode";
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
     private static final boolean debugEnabled = false;
 
     protected final static int NUM_DASHBOARD_LINES = 16;
     private final static long SLOW_LOOP_INTERVAL_NANO = 50000000;   // 50 msec (20 Hz)
 
+    private static TrcDbgTrace globalTracer = null;
     private static FtcOpMode instance = null;
     private final Object startNotifier;
 
@@ -76,6 +76,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         // have it or it will throw an exception.
         //
         TrcDbgTrace.setDbgLog(new FtcDbgLog());
+        globalTracer = TrcDbgTrace.getGlobalTracer();
         instance = this;
         try
         {

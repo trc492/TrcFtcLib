@@ -40,6 +40,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcOpenCvDetector;
@@ -50,7 +51,7 @@ import TrcCommonLib.trclib.TrcTimer;
  * This class implements an AprilTag pipeline using EasyOpenCV.
  */
 public class FtcEocvAprilTagPipeline extends OpenCvPipeline
-                                     implements TrcOpenCvPipeline<FtcEocvAprilTagPipeline.DetectedObject>
+                                     implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>
 {
     /**
      * This class encapsulates info of the detected object. It extends TrcOpenCvDetector.DetectedObject that requires
@@ -122,27 +123,9 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
 
     }   //class DetectedObject
 
-    /*
-     * A simple container to hold both rotation and translation vectors, which together form a 6DOF pose.
-     */
-    static class SixDofPose
-    {
-        Mat rvec;
-        Mat tvec;
-
-        public SixDofPose()
-        {
-            rvec = new Mat();
-            tvec = new Mat();
-        }   //SixDofPose
-
-        public SixDofPose(Mat rvec, Mat tvec)
-        {
-            this.rvec = rvec;
-            this.tvec = tvec;
-        }
-    }   //class SixDofPose
-
+    private static final Scalar ANNOTATE_RECT_COLOR = new Scalar(0, 255, 0, 255);
+    private static final Scalar ANNOTATE_RECT_WHITE = new Scalar(255, 255, 255, 255);
+    private static final int ANNOTATE_RECT_THICKNESS = 3;
     private static final float DEF_DECIMATION = 3.0f;
     private static final int NUM_THREADS = 3;
     private static final Scalar RED = new Scalar(255,0,0,255);
@@ -151,6 +134,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     private static final Scalar WHITE = new Scalar(255,255,255,255);
 
     // UNITS ARE METERS
+    private final AprilTagDetectorJNI.TagFamily tagFamily;
     private final double tagSize;
     private final double tagSizeX;
     private final double tagSizeY;
@@ -160,11 +144,13 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     private final double cy;
     private final TrcDbgTrace tracer;
     private final Mat cameraMatrix;
-    private long nativeApriltagPtr;
+    private long nativeAprilTagPtr;
+    private final Mat grayMat;
+    private final Mat[] intermediateMats;
 
-    private final Mat grey = new Mat();
-    private ArrayList<AprilTagDetection> detectionsUpdate = null;
-    private final Object detectionsUpdateSync = new Object();
+    private final AtomicReference<DetectedObject[]> detectedObjsUpdate = new AtomicReference<>();
+    private int intermediateStep = 0;
+    private boolean annotate = false;
     private final Object decimationSync = new Object();
     private float decimation;
     private boolean needToSetDecimation;
@@ -184,6 +170,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
         AprilTagDetectorJNI.TagFamily tagFamily, double tagSize, double fx, double fy, double cx, double cy,
         TrcDbgTrace tracer)
     {
+        this.tagFamily = tagFamily;
         this.tagSize = tagSize;
         this.tagSizeX = tagSize;
         this.tagSizeY = tagSize;
@@ -195,12 +182,37 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
 
         cameraMatrix = constructMatrix();
         // Allocate a native context object. See the corresponding deletion in the finalizer
-        nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(tagFamily.string, DEF_DECIMATION, NUM_THREADS);
+        nativeAprilTagPtr = AprilTagDetectorJNI.createApriltagDetector(tagFamily.string, DEF_DECIMATION, NUM_THREADS);
+        grayMat = new Mat();
+        intermediateMats = new Mat[2];
+        intermediateMats[0] = null;
+        intermediateMats[1] = grayMat;
     }   //FtcEocvAprilTagPipeline
+
+    /**
+     * This method returns the tag family string.
+     *
+     * @return tag family string.
+     */
+    @Override
+    public String toString()
+    {
+        return tagFamily.string;
+    }   //toString
 
     //
     // Implements TrcOpenCvPipeline interface.
     //
+
+    /**
+     * This method is called to reset the state of the pipeline if any.
+     */
+    @Override
+    public void reset()
+    {
+        performanceMetrics.reset();
+        intermediateStep = 0;
+    }   //reset
 
     /**
      * This method is called to process the input image through the pipeline.
@@ -211,39 +223,50 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     public void process(Mat input)
     {
         double startTime = TrcTimer.getCurrentTime();
-        // Convert to greyscale
-        Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
+
+        intermediateMats[0] = input;
+        // Convert to grayscale.
+        Imgproc.cvtColor(input, grayMat, Imgproc.COLOR_BGR2GRAY);
 
         synchronized (decimationSync)
         {
             if (needToSetDecimation)
             {
-                AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, decimation);
+                AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeAprilTagPtr, decimation);
                 needToSetDecimation = false;
             }
         }
 
         // Run AprilTag
         ArrayList<AprilTagDetection> detections =
-            AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagSize, fx, fy, cx, cy);
-
+            AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeAprilTagPtr, grayMat, tagSize, fx, fy, cx, cy);
         performanceMetrics.logProcessingTime(startTime);
         performanceMetrics.printMetrics(tracer);
 
-        synchronized (detectionsUpdateSync)
+        DetectedObject[] detectedObjects = new DetectedObject[detections.size()];
+        for (int i = 0; i < detectedObjects.length; i++)
         {
-            detectionsUpdate = detections;
+            detectedObjects[i] = new DetectedObject(detections.get(i));
         }
 
-        // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
-        // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
-        for (AprilTagDetection detection : detections)
+        // Annotate only if video output is enabled.
+        if (annotate && intermediateStep > 0)
         {
-//            SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
-//            drawAxisMarker(input, tagSizeY/2.0, 3, pose.rvec, pose.tvec, cameraMatrix);
-//            draw3dCubeMarker(input, tagSizeX, tagSizeX, tagSizeY, 3, pose.rvec, pose.tvec, cameraMatrix);
-            Imgproc.rectangle(input, DetectedObject.getDetectedRect(detection), GREEN, 3);
+            Mat output = getIntermediateOutput(intermediateStep - 1);
+            Scalar color = intermediateStep == 1? ANNOTATE_RECT_COLOR: ANNOTATE_RECT_WHITE;
+            annotateFrame(output, detectedObjects, color, ANNOTATE_RECT_THICKNESS);
+//            // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
+//            // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
+//            for (AprilTagDetection detection : detections)
+//            {
+//                SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
+//                drawAxisMarker(output, tagSizeY/2.0, 3, pose.rvec, pose.tvec, cameraMatrix);
+//                draw3dCubeMarker(output, tagSizeX, tagSizeX, tagSizeY, 3, pose.rvec, pose.tvec, cameraMatrix);
+//                Imgproc.rectangle(output, DetectedObject.getDetectedRect(detection), GREEN, 3);
+//            }
         }
+
+        detectedObjsUpdate.set(detectedObjects);
     }   //process
 
     /**
@@ -254,27 +277,61 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     @Override
     public DetectedObject[] getDetectedObjects()
     {
-        DetectedObject[] objects = null;
-        ArrayList<AprilTagDetection> detections;
-
-        synchronized (detectionsUpdateSync)
-        {
-            detections = detectionsUpdate;
-            detectionsUpdate = null;
-        }
-
-        if (detections != null)
-        {
-            objects = new DetectedObject[detections.size()];
-            for (int i = 0; i < objects.length; i++)
-            {
-                AprilTagDetection detection = detections.get(i);
-                objects[i] = new DetectedObject(detection);
-            }
-        }
-
-        return objects;
+        return detectedObjsUpdate.getAndSet(null);
     }   //getDetectedObjects
+
+    /**
+     * This method sets the intermediate mat of the pipeline as the video output mat and optionally annotate the
+     * detected rectangle on it.
+     *
+     * @param intermediateStep specifies the intermediate mat used as video output (1 is the original mat, 0 to
+     *        disable video output if supported).
+     * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
+     *        This parameter is ignored if intermediateStep is 0.
+     */
+    @Override
+    public void setVideoOutput(int intermediateStep, boolean annotate)
+    {
+        if (intermediateStep >= 0 && intermediateStep <= intermediateMats.length)
+        {
+            this.intermediateStep = intermediateStep;
+            this.annotate = annotate;
+        }
+    }   //setVideoOutput
+
+    /**
+     * This method cycles to the next intermediate mat of the pipeline as the video output mat.
+     *
+     * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
+     *        This parameter is ignored if intermediateStep is 0.
+     */
+    @Override
+    public void setNextVideoOutput(boolean annotate)
+    {
+        intermediateStep = (intermediateStep + 1) % (intermediateMats.length + 1);
+        this.annotate = annotate;
+    }   //setNextVideoOutput
+
+    /**
+     * This method returns an intermediate processed frame. Typically, a pipeline processes a frame in a number of
+     * steps. It may be useful to see an intermediate frame for a step in the pipeline for tuning or debugging
+     * purposes.
+     *
+     * @param step specifies the intermediate step (step 1 is the original input frame).
+     * @return processed frame of the specified step.
+     */
+    @Override
+    public Mat getIntermediateOutput(int step)
+    {
+        Mat mat = null;
+
+        if (step > 0 && step <= intermediateMats.length)
+        {
+            mat = intermediateMats[step - 1];
+        }
+
+        return mat;
+    }   //getIntermediateOutput
 
     //
     // Implements OpenCvPipeline abstract method.
@@ -289,16 +346,16 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     {
         final String funcName = "finalize";
 
-        // Might be null if createApriltagDetector() threw an exception
-        if (nativeApriltagPtr != 0)
+        // Might be null if createAprilTagDetector() threw an exception
+        if (nativeAprilTagPtr != 0)
         {
             // Delete the native context we created in the constructor
-            AprilTagDetectorJNI.releaseApriltagDetector(nativeApriltagPtr);
-            nativeApriltagPtr = 0;
+            AprilTagDetectorJNI.releaseApriltagDetector(nativeAprilTagPtr);
+            nativeAprilTagPtr = 0;
         }
         else
         {
-            TrcDbgTrace.getGlobalTracer().traceWarn(funcName, "nativeApriltagPtr was NULL.");
+            TrcDbgTrace.getGlobalTracer().traceWarn(funcName, "nativeAprilTagPtr was NULL.");
         }
     }   //finalize
 
@@ -313,22 +370,8 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
         process(input);
-        return input;
+        return intermediateStep >= 0? getIntermediateOutput(intermediateStep): input;
     }   //processFrame
-
-    /**
-     * This method sets the decimation parameter of the AprilTag detector.
-     *
-     * @param decimation specifies the new decimation value.
-     */
-    public void setDecimation(float decimation)
-    {
-        synchronized (decimationSync)
-        {
-            this.decimation = decimation;
-            needToSetDecimation = true;
-        }
-    }   //setDecimation
 
     /**
      * This method constructs the camera matrix.
@@ -359,6 +402,20 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
 
         return camMatrix;
     }   //constructMatrix
+
+    /**
+     * This method sets the decimation parameter of the AprilTag detector.
+     *
+     * @param decimation specifies the new decimation value.
+     */
+    public void setDecimation(float decimation)
+    {
+        synchronized (decimationSync)
+        {
+            this.decimation = decimation;
+            needToSetDecimation = true;
+        }
+    }   //setDecimation
 
     /**
      * Draw a 3D axis marker on a detection. (Similar to what Vuforia does)
@@ -447,6 +504,27 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
         Imgproc.line(buf, projectedPoints[6], projectedPoints[7], GREEN, thickness);
         Imgproc.line(buf, projectedPoints[4], projectedPoints[7], GREEN, thickness);
     }   //draw3dCubeMarker
+
+    /*
+     * A simple container to hold both rotation and translation vectors, which together form a 6DOF pose.
+     */
+    static class SixDofPose
+    {
+        Mat rvec;
+        Mat tvec;
+
+        public SixDofPose()
+        {
+            rvec = new Mat();
+            tvec = new Mat();
+        }   //SixDofPose
+
+        public SixDofPose(Mat rvec, Mat tvec)
+        {
+            this.rvec = rvec;
+            this.tvec = tvec;
+        }
+    }   //class SixDofPose
 
     /**
      * Extracts 6DOF pose from a trapezoid, using a camera intrinsics matrix and the

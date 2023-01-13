@@ -38,43 +38,40 @@ import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
  * This class implements an EasyOpenCV detector. Typically, it is extended by a specific detector that provides the
- * pipeline to process an image for detecting objects using OpenCV APIs.
+ * pipeline to process an image for detecting objects using OpenCV APIs. This class does not extend TrcOpenCvDetector
+ * because EOCV has its own thread and doesn't need a Vision Task to drive the pipeline.
  */
 public class FtcEocvDetector
 {
     private static final String moduleName = "FtcEocvDetector";
     private final String instanceName;
     private final OpenCvCamera openCvCamera;
-    private final int imageWidth, imageHeight;
     private final TrcDbgTrace tracer;
     private final int frameWidth, frameHeight;
     private final TrcHomographyMapper homographyMapper;
 
     private boolean cameraStarted = false;
-    private boolean eocvEnabled = false;
     private volatile TrcOpenCvPipeline<?> openCvPipeline = null;
 
     /**
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param openCvCamera specifies the camera object.
      * @param imageWidth specifies the width of the camera image.
      * @param imageHeight specifies the height of the camera image.
-     * @param cameraRotation specifies the camera orientation.
      * @param cameraRect specifies the camera rectangle for Homography Mapper, can be null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
+     * @param openCvCamera specifies the camera object.
+     * @param cameraRotation specifies the camera orientation.
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvDetector(
-        String instanceName, OpenCvCamera openCvCamera, int imageWidth, int imageHeight,
-        OpenCvCameraRotation cameraRotation, TrcHomographyMapper.Rectangle cameraRect,
-        TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
+        String instanceName, int imageWidth, int imageHeight,
+        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
+        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation, TrcDbgTrace tracer)
     {
         this.instanceName = instanceName;
         this.openCvCamera = openCvCamera;
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
         this.tracer = tracer;
 
         if (cameraRotation == OpenCvCameraRotation.UPRIGHT ||
@@ -128,18 +125,21 @@ public class FtcEocvDetector
     }   //isCameraStarted
 
     /**
-     * This method sets the EOCV pipeline to be used for the detection.
+     * This method sets the EOCV pipeline to be used for the detection and enables it.
      *
-     * @param pipeline specifies the pipeline to be used for detection.
+     * @param pipeline specifies the pipeline to be used for detection, can be null to disable vision.
      */
-    public void setPipeline(TrcOpenCvPipeline<?> pipeline)
+    public void setPipeline(TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> pipeline)
     {
         if (pipeline != openCvPipeline)
         {
             // Pipeline has changed. Disable the old pipeline and enable the new one.
-            setEnabled(false);
+            if (pipeline != null)
+            {
+                pipeline.reset();
+            }
+            openCvCamera.setPipeline((OpenCvPipeline) pipeline);
             openCvPipeline = pipeline;
-            setEnabled(true);
         }
     }   //setPipeline
 
@@ -154,40 +154,6 @@ public class FtcEocvDetector
     }   //getPipeline
 
     /**
-     * This method pauses/resumes pipeline processing.
-     *
-     * @param enabled specifies true to start pipeline processing, false to stop.
-     */
-    public void setEnabled(boolean enabled)
-    {
-        if (enabled && !eocvEnabled)
-        {
-            if (openCvPipeline != null)
-            {
-                openCvPipeline.reset();
-            }
-
-            openCvCamera.setPipeline((OpenCvPipeline) openCvPipeline);
-        }
-        else if (!enabled && eocvEnabled)
-        {
-            openCvCamera.setPipeline(null);
-        }
-
-        eocvEnabled = enabled;
-    }   //setEnabled
-
-    /**
-     * This method returns the state of EocvVision.
-     *
-     * @return true if the EocvVision is enabled, false otherwise.
-     */
-    public boolean isEnabled()
-    {
-        return eocvEnabled;
-    }   //isEnabled
-
-    /**
      * This method returns an array of detected targets from EasyOpenCV vision.
      *
      * @param filter specifies the filter to call to filter out false positive targets.
@@ -196,7 +162,6 @@ public class FtcEocvDetector
      * @param cameraHeight specifies the height of the camera above the floor.
      * @return array of detected target info.
      */
-    @SuppressWarnings("unchecked")
     public TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] getDetectedTargetsInfo(
         TrcOpenCvDetector.FilterTarget filter,
         Comparator<? super TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> comparator,

@@ -28,16 +28,16 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcOpenCvColorBlobPipeline;
+import TrcCommonLib.trclib.TrcOpenCvDetector;
 import TrcCommonLib.trclib.TrcOpenCvPipeline;
 
 /**
  * This class implements an EOCV color blob pipeline.
  */
 public class FtcEocvColorBlobPipeline extends OpenCvPipeline
-                                      implements TrcOpenCvPipeline<TrcOpenCvColorBlobPipeline.DetectedObject>
+                                      implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>
 {
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
-    private boolean showColorFilterOutput = false;
 
     /**
      * Constructor: Create an instance of the object.
@@ -80,7 +80,6 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     public void reset()
     {
         colorBlobPipeline.reset();
-        showColorFilterOutput = false;
     }   //reset
 
     /**
@@ -106,15 +105,45 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     }   //getDetectedObjects
 
     /**
-     * This method toggles between annotated input or color filter output on the display.
+     * This method sets the intermediate mat of the pipeline as the video output mat and optionally annotate the
+     * detected rectangle on it.
      *
-     * @return the updated state.
+     * @param intermediateStep specifies the intermediate mat used as video output (1 is the original mat, 0 to
+     *        disable video output if supported).
+     * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
+     *        This parameter is ignored if intermediateStep is 0.
      */
-    public boolean toggleColorFilterOutput()
+    @Override
+    public void setVideoOutput(int intermediateStep, boolean annotate)
     {
-        showColorFilterOutput = !showColorFilterOutput;
-        return showColorFilterOutput;
-    }   //toggleColorFilterOutput
+        colorBlobPipeline.setVideoOutput(intermediateStep, annotate);
+    }   //setVideoOutput
+
+    /**
+     * This method cycles to the next intermediate mat of the pipeline as the video output mat.
+     *
+     * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
+     *        This parameter is ignored if intermediateStep is 0.
+     */
+    @Override
+    public void setNextVideoOutput(boolean annotate)
+    {
+        colorBlobPipeline.setNextVideoOutput(annotate);
+    }   //setNextVideoOutput
+
+    /**
+     * This method returns an intermediate processed frame. Typically, a pipeline processes a frame in a number of
+     * steps. It may be useful to see an intermediate frame for a step in the pipeline for tuning or debugging
+     * purposes.
+     *
+     * @param step specifies the intermediate step (step 1 is the original input frame).
+     * @return processed frame of the specified step.
+     */
+    @Override
+    public Mat getIntermediateOutput(int step)
+    {
+        return colorBlobPipeline.getIntermediateOutput(step);
+    }   //getIntermediateOutput
 
     //
     // Implements OpenCvPipeline abstract methods.
@@ -130,8 +159,8 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        process(input);
-        return showColorFilterOutput? colorBlobPipeline.getColorThresholdOutput(): input;
+        colorBlobPipeline.process(input);
+        return colorBlobPipeline.getSelectedOutput();
     }   //processFrame
 
 }  //class FtcEocvColorBlobPipeline
