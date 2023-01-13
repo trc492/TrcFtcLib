@@ -129,7 +129,7 @@ public class FtcEocvDetector
      *
      * @param pipeline specifies the pipeline to be used for detection, can be null to disable vision.
      */
-    public void setPipeline(TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> pipeline)
+    public synchronized void setPipeline(TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>> pipeline)
     {
         if (pipeline != openCvPipeline)
         {
@@ -148,7 +148,7 @@ public class FtcEocvDetector
      *
      * @return current active pipeline, null if no active pipeline.
      */
-    public TrcOpenCvPipeline<?> getPipeline()
+    public synchronized TrcOpenCvPipeline<?> getPipeline()
     {
         return openCvPipeline;
     }   //getPipeline
@@ -162,7 +162,7 @@ public class FtcEocvDetector
      * @param cameraHeight specifies the height of the camera above the floor.
      * @return array of detected target info.
      */
-    public TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] getDetectedTargetsInfo(
+    public synchronized TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] getDetectedTargetsInfo(
         TrcOpenCvDetector.FilterTarget filter,
         Comparator<? super TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> comparator,
         double objHeightOffset, double cameraHeight)
