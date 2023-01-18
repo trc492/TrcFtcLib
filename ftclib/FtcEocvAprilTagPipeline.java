@@ -251,7 +251,6 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
             detectedObjects[i] = new DetectedObject(detections.get(i));
         }
 
-        // Annotate only if video output is enabled.
         if (annotate)
         {
             Mat output = getIntermediateOutput(intermediateStep);
