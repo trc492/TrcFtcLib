@@ -46,6 +46,7 @@ import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcOpenCvDetector;
 import TrcCommonLib.trclib.TrcOpenCvPipeline;
 import TrcCommonLib.trclib.TrcTimer;
+import TrcCommonLib.trclib.TrcVisionPerformanceMetrics;
 
 /**
  * This class implements an AprilTag pipeline using EasyOpenCV.
@@ -148,6 +149,7 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
     private final Mat grayMat;
     private final Mat[] intermediateMats;
 
+    private final TrcVisionPerformanceMetrics performanceMetrics = new TrcVisionPerformanceMetrics();
     private final AtomicReference<DetectedObject[]> detectedObjsUpdate = new AtomicReference<>();
     private int intermediateStep = 0;
     private boolean annotate = false;
