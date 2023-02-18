@@ -265,7 +265,6 @@ public class FtcEocvAprilTagPipeline extends OpenCvPipeline
 //                SixDofPose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagSizeX, tagSizeY);
 //                drawAxisMarker(output, tagSizeY/2.0, 3, pose.rvec, pose.tvec, cameraMatrix);
 //                draw3dCubeMarker(output, tagSizeX, tagSizeX, tagSizeY, 3, pose.rvec, pose.tvec, cameraMatrix);
-//                Imgproc.rectangle(output, DetectedObject.getDetectedRect(detection), GREEN, 3);
 //            }
         }
         detectedObjsUpdate.set(detectedObjects);

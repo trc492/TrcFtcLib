@@ -24,6 +24,7 @@ package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
@@ -33,6 +34,7 @@ import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcPidController;
 import TrcCommonLib.trclib.TrcTimer;
+import TrcCommonLib.trclib.TrcUtil;
 
 /**
  * This class implements the generic DC Motor Controller extending TrcMotor. It provides implementation of the
@@ -52,8 +54,10 @@ public class FtcDcMotor extends TrcMotor
     private final TrcDigitalInput fwdLimitSwitch;
     private final TrcAnalogInput analogSensor;
     public final DcMotorEx motor;
+    private final VoltageSensor voltageSensor;
 //    private int prevEncPos;
     private double prevMotorValue = 0.0;
+    private double batteryNominalVoltage = 0.0;
 
     /**
      * Constructor: Create an instance of the object.
@@ -73,6 +77,7 @@ public class FtcDcMotor extends TrcMotor
         this.fwdLimitSwitch = fwdLimitSwitch;
         this.analogSensor = analogSensor;
         motor = hardwareMap.get(DcMotorEx.class, instanceName);
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
 //        prevEncPos = motor.getCurrentPosition();
     }   //FtcDcMotor
 
@@ -168,6 +173,12 @@ public class FtcDcMotor extends TrcMotor
     {
         final String funcName = "setMotorPower";
         double origValue = value;
+
+        if (batteryNominalVoltage != 0.0)
+        {
+            value /= voltageSensor.getVoltage() / batteryNominalVoltage;
+            value = TrcUtil.clipRange(value);
+        }
 
         if (value > 0.0 && fwdLimitSwitch != null && fwdLimitSwitch.isActive() ||
             value < 0.0 && revLimitSwitch != null && revLimitSwitch.isActive())
@@ -511,5 +522,26 @@ public class FtcDcMotor extends TrcMotor
         maxMotorVelocity = 0.0;
         motor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }   //disableVelocityMode
+
+    /**
+     * This method enables voltage compensation so that it will maintain the motor output regardless of battery
+     * voltage.
+     *
+     * @param batteryNominalVoltage specifies the nominal voltage of the battery.
+     */
+    @Override
+    public void enableVoltageCompensation(double batteryNominalVoltage)
+    {
+        this.batteryNominalVoltage = batteryNominalVoltage;
+    }   //enableVoltageCompensation
+
+    /**
+     * This method disables voltage compensation
+     */
+    @Override
+    public void disableVoltageCompensation()
+    {
+        this.batteryNominalVoltage = 0.0;
+    }   //disableVoltageCompensation
 
 }   //class FtcDcMotor
