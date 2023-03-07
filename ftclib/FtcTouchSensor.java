@@ -81,9 +81,9 @@ public class FtcTouchSensor extends TrcDigitalInput
      * @return true if the touch sensor is active, false otherwise.
      */
     @Override
-    public boolean isActive()
+    public boolean getInputState()
     {
-        final String funcName = "isActive";
+        final String funcName = "getInputState";
         boolean touchState = touchSensor.isPressed();
 
         if (debugEnabled)
@@ -93,6 +93,6 @@ public class FtcTouchSensor extends TrcDigitalInput
         }
 
         return touchState;
-    }   //isActive
+    }   //getInputState
 
 }   //class FtcTouchSensor

@@ -115,18 +115,26 @@ public class FtcMotorActuator
     public FtcMotorActuator(String instanceName, MotorParams motorParams, TrcPidActuator.Parameters actuatorParams)
     {
         FtcDigitalInput lowerLimitSwitch =
-            motorParams.hasLowerLimitSwitch?
-                new FtcDigitalInput(instanceName + ".lowerLimit", motorParams.lowerLimitInverted): null;
+            motorParams.hasLowerLimitSwitch? new FtcDigitalInput(instanceName + ".lowerLimit"): null;
         FtcDigitalInput upperLimitSwitch =
-            motorParams.hasUpperLimitSwitch?
-                new FtcDigitalInput(instanceName + ".upperLimit", motorParams.upperLimitInverted): null;
+            motorParams.hasUpperLimitSwitch? new FtcDigitalInput(instanceName + ".upperLimit"): null;
+
+        if (lowerLimitSwitch != null)
+        {
+            lowerLimitSwitch.setInverted(motorParams.lowerLimitInverted);
+        }
+
+        if (upperLimitSwitch != null)
+        {
+            upperLimitSwitch.setInverted(motorParams.upperLimitInverted);
+        }
 
         actuatorMotor = new FtcDcMotor(
             instanceName + ".motor",
             !motorParams.lowerLimitZeroCalibrateOnly? lowerLimitSwitch: null, upperLimitSwitch);
         actuatorMotor.setBrakeModeEnabled(true);
         actuatorMotor.setOdometryEnabled(true, true, true);
-        actuatorMotor.setInverted(motorParams.motorInverted);
+        actuatorMotor.setMotorInverted(motorParams.motorInverted);
 
         pidActuator = new TrcPidActuator(
             instanceName, actuatorMotor, lowerLimitSwitch, upperLimitSwitch, actuatorParams);

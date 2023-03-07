@@ -34,32 +34,18 @@ import TrcCommonLib.trclib.TrcDigitalInput;
 public class FtcDigitalInput extends TrcDigitalInput
 {
     private final DigitalChannel digitalInput;
-    private volatile boolean inverted;
 
     /**
      * Constructor: Creates an instance of the object.
      *
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
-     * @param inverted specifies true to invert the digital input, false otherwise.
      */
-    public FtcDigitalInput(HardwareMap hardwareMap, String instanceName, boolean inverted)
+    public FtcDigitalInput(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
         digitalInput = hardwareMap.get(DigitalChannel.class, instanceName);
         digitalInput.setMode(DigitalChannel.Mode.INPUT);
-        this.inverted = inverted;
-    }   //FtcDigitalInput
-
-    /**
-     * Constructor: Creates an instance of the object.
-     *
-     * @param instanceName specifies the instance name.
-     * @param inverted specifies true to invert the digital input, false otherwise.
-     */
-    public FtcDigitalInput(String instanceName, boolean inverted)
-    {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, inverted);
     }   //FtcDigitalInput
 
     /**
@@ -69,19 +55,8 @@ public class FtcDigitalInput extends TrcDigitalInput
      */
     public FtcDigitalInput(String instanceName)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, false);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcDigitalInput
-
-    /**
-     * This method inverts the digital input state. It is useful for changing a limit switch from Normal Open to
-     * Normal Close, for example.
-     *
-     * @param inverted specifies true to invert the digital input, false otherwise.
-     */
-    public synchronized void setInverted(boolean inverted)
-    {
-        this.inverted = inverted;
-    }   //setInverted
 
     //
     // Implements TrcDigitalInput abstract methods.
@@ -93,11 +68,11 @@ public class FtcDigitalInput extends TrcDigitalInput
      * @return true if the digital input sensor is active, false otherwise.
      */
     @Override
-    public synchronized boolean isActive()
+    public boolean getInputState()
     {
-        final String funcName = "isActive";
+        final String funcName = "getInputState";
         if (getInputElapsedTimer != null) getInputElapsedTimer.recordStartTime();
-        boolean state = digitalInput.getState() ^ inverted;
+        boolean state = digitalInput.getState();
         if (getInputElapsedTimer != null) getInputElapsedTimer.recordEndTime();
 
         if (debugEnabled)
@@ -106,6 +81,6 @@ public class FtcDigitalInput extends TrcDigitalInput
         }
 
         return state;
-    }   //isActive
+    }   //getInputState
 
 }   //class FtcDigitalInput
