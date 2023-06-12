@@ -26,12 +26,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-import TrcCommonLib.trclib.TrcEvent;
-import TrcCommonLib.trclib.TrcRobot;
+import TrcCommonLib.trclib.TrcEncoder;
 import TrcCommonLib.trclib.TrcServo;
-import TrcCommonLib.trclib.TrcDbgTrace;
-import TrcCommonLib.trclib.TrcStateMachine;
-import TrcCommonLib.trclib.TrcTaskMgr;
 import TrcCommonLib.trclib.TrcTimer;
 
 /**
@@ -41,26 +37,11 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcServo extends TrcServo
 {
     private static final String moduleName = "FtcServo";
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
 
-    private enum State
-    {
-        SET_POSITION,
-        DISABLE_CONTROLLER,
-        DONE
-    }   //enum State
-
-    private static final double CONTROLLER_ONOFF_DELAY = 0.1;
-
+    private final TrcEncoder encoder;
     private final Servo servo;
     private final ServoController controller;
-    private final TrcTimer holdTimer;
-    private final TrcEvent event;
-    private final TrcStateMachine<State> sm;
-    private final TrcTaskMgr.TaskObject servoTaskObj;
-    private double servoPos = 0.0;
-    private double servoOnTime = 0.0;
+    private final TrcTimer timer;
     private Double logicalPos;
 
     /**
@@ -69,17 +50,16 @@ public class FtcServo extends TrcServo
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
      * @param continuous specifies true if it is a continuous servo, false otherwise.
+     * @param encoder specifies the encoder for reporting servo position, can be null if none provided.
      */
-    public FtcServo(HardwareMap hardwareMap, String instanceName, boolean continuous)
+    public FtcServo(HardwareMap hardwareMap, String instanceName, boolean continuous, TrcEncoder encoder)
     {
         super(instanceName, continuous);
 
+        this.encoder = encoder;
         servo = hardwareMap.get(Servo.class, instanceName);
         controller = servo.getController();
-        holdTimer = new TrcTimer(instanceName);
-        event = new TrcEvent(instanceName);
-        sm = new TrcStateMachine<>(instanceName);
-        servoTaskObj = TrcTaskMgr.createTask(instanceName + ".servoTask", this::servoTask);
+        timer = new TrcTimer(instanceName);
         logicalPos = null;
     }   //FtcServo
 
@@ -88,10 +68,11 @@ public class FtcServo extends TrcServo
      *
      * @param instanceName specifies the instance name.
      * @param continuous specifies true if it is a continuous servo, false otherwise.
+     * @param encoder specifies the encoder for reporting servo position, can be null if none provided.
      */
-    public FtcServo(String instanceName, boolean continuous)
+    public FtcServo(String instanceName, boolean continuous, TrcEncoder encoder)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, continuous);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, continuous, encoder);
     }   //FtcServo
 
     /**
@@ -101,7 +82,7 @@ public class FtcServo extends TrcServo
      */
     public FtcServo(String instanceName)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, false);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName, false, null);
     }   //FtcServo
 
     /**
@@ -119,30 +100,8 @@ public class FtcServo extends TrcServo
      */
     public void cancel()
     {
-        if (sm.isEnabled())
-        {
-            holdTimer.cancel();
-            sm.stop();
-            setTaskEnabled(false);
-        }
+        timer.cancel();
     }   //cancel
-
-    /**
-     * This method enables/disables the periodic task that runs the state machine.
-     *
-     * @param enabled specifies true to enable the state machine task, false otherwise.
-     */
-    private void setTaskEnabled(boolean enabled)
-    {
-        if (enabled)
-        {
-            servoTaskObj.registerTask(TrcTaskMgr.TaskType.POST_PERIODIC_TASK);
-        }
-        else
-        {
-            servoTaskObj.unregisterTask();
-        }
-    }   //setTaskEnabled
 
     /**
      * This method sets the servo position but will cut power to the servo when done. Since servo motors can't really
@@ -157,11 +116,19 @@ public class FtcServo extends TrcServo
     public void setPositionWithOnTime(double pos, double onTime)
     {
         cancel();
-        servoPos = pos;
-        servoOnTime = onTime;
-        sm.start(State.SET_POSITION);
-        setTaskEnabled(true);
+        setPosition(pos);
+        timer.set(onTime, this::onTimeExpired);
     }   //setPositionWithOnTime
+
+    /**
+     * This method is called when the onTime has expired. It disables the servo controller.
+     *
+     * @param context specifies callback context (not used).
+     */
+    private void onTimeExpired(Object context)
+    {
+        controller.pwmDisable();
+    }   //onTimeExpired
 
     /**
      * The method eanbles/disables the servo controller. If the servo controller is disabled, all servos on the
@@ -172,13 +139,6 @@ public class FtcServo extends TrcServo
      */
     public void setControllerOn(boolean on)
     {
-        final String funcName = "setControllerOn";
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "on=%s", on);
-        }
-
         if (on)
         {
             controller.pwmEnable();
@@ -201,13 +161,6 @@ public class FtcServo extends TrcServo
     @Override
     public void setInverted(boolean inverted)
     {
-        final String funcName = "setInverted";
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "inverted=%s", inverted);
-        }
-
         servo.setDirection(inverted? Servo.Direction.REVERSE: Servo.Direction.FORWARD);
     }   //setInverted
 
@@ -219,16 +172,35 @@ public class FtcServo extends TrcServo
     @Override
     public boolean isInverted()
     {
-        final String funcName = "isInverted";
-        boolean inverted = servo.getDirection() == Servo.Direction.REVERSE;
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "inverted=%s", inverted);
-        }
-
-        return inverted;
+        return servo.getDirection() == Servo.Direction.REVERSE;
     }   //isInverted
+
+    /**
+     * This method resets the position sensor and therefore only applicable if the servo has one.
+     */
+    @Override
+    public void resetPosition()
+    {
+        if (encoder != null)
+        {
+            encoder.reset();
+        }
+    }   //reset
+
+    /**
+     * This method sets the position sensor scale and offset and therefore only applicable if the servo has one.
+     *
+     * @param scale specifies the position scale value.
+     * @param offset specifies the optional offset that adds to the final position value.
+     */
+    @Override
+    public void setPositionScaleAndOffset(double scale, double offset)
+    {
+        if (encoder != null)
+        {
+            encoder.setScaleAndOffset(scale, offset);
+        }
+    }   //setPositionScaleAndOffset
 
     /**
      * This method sets the logical position of the servo motor.
@@ -238,13 +210,6 @@ public class FtcServo extends TrcServo
     @Override
     public void setLogicalPosition(double position)
     {
-        final String funcName = "setLogicalPosition";
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "position=%f", position);
-        }
-
         if (logicalPos == null || position != logicalPos)
         {
             if (servoSetPosElapsedTimer != null) servoSetPosElapsedTimer.recordStartTime();
@@ -264,14 +229,7 @@ public class FtcServo extends TrcServo
     @Override
     public double getLogicalPosition()
     {
-        final String funcName = "getLogicalPosition";
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "logicalPos=%f", logicalPos);
-        }
-
-        return logicalPos != null? logicalPos: 0.0;
+        return encoder != null? encoder.getPosition(): logicalPos != null? logicalPos: 0.0;
     }   //getLogicalPosition
 
     /**
@@ -284,43 +242,5 @@ public class FtcServo extends TrcServo
             setLogicalPosition(SERVO_CONTINUOUS_STOP);
         }
     }   //stopContinuous
-
-    /**
-     * This method is called periodically to run a state machine that will enable the servo controller, set the servo
-     * position, wait for the specified hold time, and finally disable the servo controller.
-     *
-     * @param taskType specifies the type of task being run.
-     * @param runMode specifies the competition mode that is running.
-     * @param slowPeriodicLoop specifies true if it is running the slow periodic loop on the main robot thread,
-     *        false otherwise.
-     */
-    private void servoTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode, boolean slowPeriodicLoop)
-    {
-        if (sm.isReady())
-        {
-            State state = sm.getState();
-            switch (state)
-            {
-                case SET_POSITION:
-                    setPosition(servoPos);
-                    holdTimer.set(servoOnTime, event);
-                    sm.addEvent(event);
-                    sm.waitForEvents(State.DISABLE_CONTROLLER);
-                    break;
-
-                case DISABLE_CONTROLLER:
-                    controller.pwmDisable();
-                    holdTimer.set(CONTROLLER_ONOFF_DELAY, event);
-                    sm.addEvent(event);
-                    sm.waitForEvents(State.DONE);
-                    break;
-
-                case DONE:
-                default:
-                    sm.stop();
-                    setTaskEnabled(false);
-            }
-        }
-    }   //servoTask
 
 }   //class FtcServo

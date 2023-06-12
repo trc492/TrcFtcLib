@@ -131,7 +131,7 @@ public class FtcMotorActuator
 
         actuatorMotor = new FtcDcMotor(
             instanceName + ".motor",
-            !motorParams.lowerLimitZeroCalibrateOnly? lowerLimitSwitch: null, upperLimitSwitch);
+            !motorParams.lowerLimitZeroCalibrateOnly? lowerLimitSwitch: null, upperLimitSwitch, 0.0);
         actuatorMotor.setBrakeModeEnabled(true);
         actuatorMotor.setOdometryEnabled(true, true, true);
         actuatorMotor.setMotorInverted(motorParams.motorInverted);
