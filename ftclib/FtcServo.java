@@ -36,8 +36,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcServo extends TrcServo
 {
-    private static final String moduleName = "FtcServo";
-
     private final TrcEncoder encoder;
     private final Servo servo;
     private final ServoController controller;
