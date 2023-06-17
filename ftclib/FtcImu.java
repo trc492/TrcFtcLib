@@ -28,7 +28,9 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGyro;
@@ -354,7 +356,7 @@ public class FtcImu extends TrcGyro
     private void gyroTask(TrcTaskMgr.TaskType taskType, TrcRobot.RunMode runMode, boolean slowPeriodicLoop)
     {
         double currTime = TrcTimer.getCurrentTime();
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        Orientation orientation = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
         AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
 
         if (debugEnabled)
@@ -371,9 +373,9 @@ public class FtcImu extends TrcGyro
             // All axes return positive heading in the anticlockwise direction, so we must negate it for our
             // convention which is positive clockwise.
             //
-            gyroData.xAngle = -orientation.getPitch(AngleUnit.DEGREES);
-            gyroData.yAngle = -orientation.getRoll(AngleUnit.DEGREES);
-            gyroData.zAngle = -orientation.getYaw(AngleUnit.DEGREES);
+            gyroData.xAngle = -orientation.firstAngle;
+            gyroData.yAngle = -orientation.secondAngle;
+            gyroData.zAngle = -orientation.thirdAngle;
 
             gyroData.xRotationRate = angularVelocity.xRotationRate;
             gyroData.yRotationRate = angularVelocity.yRotationRate;
