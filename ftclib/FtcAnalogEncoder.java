@@ -96,7 +96,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     }   //getRawVoltage
 
     //
-    // Implements the FrcEncoder interface.
+    // Implements the TrcEncoder interface.
     //
 
     /**

@@ -59,6 +59,15 @@ public class FtcImu extends TrcGyro
     private final TrcTaskMgr.TaskObject gyroTaskObj;
     private boolean taskEnabled = false;
 
+    /*
+     * Define how the hub is mounted on the robot to get the correct Yaw, Pitch and Roll values.
+     *
+     * Two input parameters are required to fully specify the Orientation.
+     * The first parameter specifies the direction the printed logo on the Hub is pointing.
+     * The second parameter specifies the direction the USB connector on the Hub is pointing.
+     * All directions are relative to the robot, and left/right is as-viewed from behind the robot.
+     */
+
     /**
      * Constructor: Creates an instance of the object.
      *
