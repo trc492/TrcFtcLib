@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Titan Robotics Club (http://www.titanrobotics.com)
+ * Copyright (c) 2023 Titan Robotics Club (http://www.titanrobotics.com)
  * Based on sample code by Robert Atkinson.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,10 +23,9 @@
 
 package TrcFtcLib.ftclib;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
@@ -37,19 +36,18 @@ import java.util.List;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHomographyMapper;
+import TrcCommonLib.trclib.TrcPose3D;
 import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
- * This class makes using TensorFlow a little easier by minimizing the number of calls to it. It only exposes the
- * minimum things you need to set for the FTC competition. If you want to do more complex stuff, you may consider
- * not using this and call TensorFlow directly so you can customize other stuff. This class provides methods to
- * simplify getting detected object info from TensorFlow.
+ * This class encapsulates the TensorFlow vision processor to make all vision processors conform to our framework
+ * library. By doing so, one can switch between different vision processors and have access to a common interface.
  */
-public class FtcTensorFlow
+public class FtcVisionTensorFlow
 {
     /**
      * This class encapsulates info of the detected object. It extends TrcVisionTargetInfo.ObjectInfo that requires
-     * it to provide a method to return the detected object rect.
+     * it to provide methods to return the detected object rect and area.
      */
     public static class DetectedObject implements TrcVisionTargetInfo.ObjectInfo
     {
@@ -82,6 +80,7 @@ public class FtcTensorFlow
         @Override
         public Rect getRect()
         {
+            // Get rect from detected object.
             return rect;
         }   //getRect
 
@@ -93,8 +92,21 @@ public class FtcTensorFlow
         @Override
         public double getArea()
         {
+            // Detected object does not provide area, just calculate it from rect.
             return rect.area();
         }   //getArea
+
+        /**
+         * This method returns the pose of the detected object relative to the camera.
+         *
+         * @return pose of the detected object relative to camera.
+         */
+        @Override
+        public TrcPose3D getPose()
+        {
+            // TensorFlow does not provide detected object pose, let caller use homography to calculate it.
+            return null;
+        }   //getPose
 
         /**
          * This method returns the string form of the target info.
@@ -110,6 +122,50 @@ public class FtcTensorFlow
     }   //class DetectedObject
 
     /**
+     * This class encapsulates all the parameters for creating the TensorFlow vision processor. If this is not used,
+     * all default parameters will be applied.
+     */
+    public static class Parameters
+    {
+        boolean modelIsTensorFlow2 = true;
+        boolean modelIsQuantized = true;
+        int modelInputSize = 300;
+        double modelAspectRatio = 16.0/9.0;
+        int maxNumRecognitions = 10;
+
+        public Parameters setIsModelTensorFlow2(boolean isTensorFlow2)
+        {
+            this.modelIsTensorFlow2 = isTensorFlow2;
+            return this;
+        }   //setIsModelTensorFlow2
+
+        public Parameters setIsModelQuantized(boolean isQuantized)
+        {
+            this.modelIsQuantized = isQuantized;
+            return this;
+        }   //setIsModelQuantized
+
+        public Parameters setModelInputSize(int inputSize)
+        {
+            this.modelInputSize = inputSize;
+            return this;
+        }   //setModelInputSize
+
+        public Parameters setModelAspectRatio(double aspectRatio)
+        {
+            this.modelAspectRatio = aspectRatio;
+            return this;
+        }   //setModelAspectRatio
+
+        public Parameters setMaxNumRecognitions(int maxRecognitions)
+        {
+            this.maxNumRecognitions = maxRecognitions;
+            return this;
+        }   //setMaxNumRecognitions
+
+    }   //class Parameters
+
+    /**
      * This interface provides a method for filtering false positive objects in the detected target list.
      */
     public interface FilterTarget
@@ -117,29 +173,41 @@ public class FtcTensorFlow
         boolean validateTarget(Recognition object);
     }   //interface FilterTarget
 
+    private final String instanceName;
     private final TrcDbgTrace tracer;
-    private final TFObjectDetector tfod;
+    private final TfodProcessor tensorFlowProcessor;
     private final TrcHomographyMapper homographyMapper;
-    private boolean enabled = false;
 
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param vuforia specifies the FtcVuforia object.
-     * @param tfodParams specifies the TensorFlow parameters.
+     * @param params specifies the TensorFlow parameters, can be null if using default parameters.
      * @param modelAsset specifies the model asset file name.
      * @param objectLabels specifies the names of detectable objects.
-     * @param cameraRect specifies the camera rectangle for Homography Mapper.
-     * @param worldRect specifies the world rectangle for Homography Mapper.
-     * @param tracer specifies the tracer for trace info, null if none provided.
+     * @param cameraRect specifies the camera rectangle for Homography Mapper, null if not provided.
+     * @param worldRect specifies the world rectangle for Homography Mapper, null if not provided.
+     * @param tracer specifies the tracer for trace info, null if not provided.
      */
-    public FtcTensorFlow(
-        FtcVuforia vuforia, TFObjectDetector.Parameters tfodParams, String modelAsset, String[] objectLabels,
+    public FtcVisionTensorFlow(
+        Parameters params, String modelAsset, String[] objectLabels,
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
     {
+        this.instanceName = modelAsset;
         this.tracer = tracer;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParams, vuforia.getLocalizer());
-        tfod.loadModelFromAsset(modelAsset, objectLabels);
+        // Create the TensorFlow processor by using a builder.
+        TfodProcessor.Builder builder = new TfodProcessor.Builder()
+            .setModelAssetName(modelAsset)
+            .setModelLabels(objectLabels);
+
+        if (params != null)
+        {
+            builder.setIsModelTensorFlow2(params.modelIsTensorFlow2)
+                   .setIsModelQuantized(params.modelIsQuantized)
+                   .setModelInputSize(params.modelInputSize)
+                   .setModelAspectRatio(params.modelAspectRatio)
+                   .setMaxNumRecognitions(params.maxNumRecognitions);
+        }
+        tensorFlowProcessor = builder.build();
 
         if (cameraRect != null && worldRect != null)
         {
@@ -149,85 +217,53 @@ public class FtcTensorFlow
         {
             homographyMapper = null;
         }
-    }   //FtcTensorFlow
+    }   //FtcVisionTensorFlow
 
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param vuforia specifies the FtcVuforia object.
-     * @param tfodParams specifies the TensorFlow parameters.
+     * @param params specifies the TensorFlow parameters.
      * @param modelAsset specifies the model asset file name.
      * @param objectLabels specifies the names of detectable objects.
-     * @param tracer specifies the tracer for trace info, null if none provided.
+     * @param tracer specifies the tracer for trace info, null if not provided.
      */
-    public FtcTensorFlow(
-        FtcVuforia vuforia, TFObjectDetector.Parameters tfodParams, String modelAsset, String[] objectLabels,
-        TrcDbgTrace tracer)
+    public FtcVisionTensorFlow(Parameters params, String modelAsset, String[] objectLabels, TrcDbgTrace tracer)
     {
-        this(vuforia, tfodParams, modelAsset, objectLabels, null, null, tracer);
-    }   //FtcTensorFlow
+        this(params, modelAsset, objectLabels, null, null, tracer);
+    }   //FtcVisionTensorFlow
 
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param vuforia specifies the FtcVuforia object.
-     * @param tfodParams specifies the TensorFlow parameters.
+     * @param params specifies the TensorFlow parameters.
      * @param modelAsset specifies the model asset file name.
      * @param objectLabels specifies the names of detectable objects.
      */
-    public FtcTensorFlow(
-        FtcVuforia vuforia, TFObjectDetector.Parameters tfodParams, String modelAsset, String[] objectLabels)
+    public FtcVisionTensorFlow(Parameters params, String modelAsset, String[] objectLabels)
     {
-        this(vuforia, tfodParams, modelAsset, objectLabels, null, null, null);
-    }   //FtcTensorFlow
+        this(params, modelAsset, objectLabels, null, null, null);
+    }   //FtcVisionTensorFlow
 
     /**
-     * This method enables/disables TensorFlow.
+     * This method returns the tag family string.
      *
-     * @param enabled specifies true to enable TensorFlow, false to disable.
+     * @return tag family string.
      */
-    public void setEnabled(boolean enabled)
+    @Override
+    public String toString()
     {
-        if (!this.enabled && enabled)
-        {
-            tfod.activate();
-        }
-        else if (this.enabled && !enabled)
-        {
-            tfod.deactivate();
-        }
-        this.enabled = enabled;
-    }   //setEnabled
+        return instanceName;
+    }   //toString
 
     /**
-     * This method checks if TensorFlow is enabled.
+     * This method returns the TensorFlow vision processor.
      *
-     * @return true if TensorFlow is enabled, false otherwise.
+     * @return TensorFlow vision processor.
      */
-    public boolean isEnabled()
+    public TfodProcessor getVisionProcessor()
     {
-        return enabled;
-    }   //isEnabled
-
-    /**
-     * This method shuts down TensorFlow.
-     */
-    public void shutdown()
-    {
-        setEnabled(false);
-        tfod.shutdown();
-    }   //shutdown
-
-    /**
-     * This method sets the zoom parameters.
-     *
-     * @param magnification specifies the magnification factor, 1.0 for full camera view.
-     * @param aspectRatio specifies the aspect ratio of the zoom region.
-     */
-    public void setZoom(double magnification, double aspectRatio)
-    {
-        tfod.setZoom(magnification, aspectRatio);
-    }   //setZoom
+        return tensorFlowProcessor;
+    }   //getVisionProcessor
 
     /**
      * This method returns an array list of detected targets. If a target label is given, only detected targets with
@@ -242,10 +278,10 @@ public class FtcTensorFlow
         final String funcName = "getDetectedTargets";
         ArrayList<Recognition> targets = null;
         //
-        // getUpdatedRecognitions() will return null if no new information is available since
-        // the last time that call was made.
+        // getFreshRecognitions() will return null if no new information is available since the last time that call
+        // was made.
         //
-        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+        List<Recognition> updatedRecognitions = tensorFlowProcessor.getFreshRecognitions();
         if (updatedRecognitions != null)
         {
             targets = new ArrayList<>();
@@ -299,13 +335,13 @@ public class FtcTensorFlow
     public TrcVisionTargetInfo<DetectedObject> getDetectedTargetInfo(
         Recognition target, double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getTargetInfo";
+        final String funcName = "getDetectedTargetInfo";
         TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
             new DetectedObject(
                 target.getLabel(),
                 new Rect((int)target.getLeft(), (int)target.getTop(), (int)target.getWidth(), (int)target.getHeight()),
                 target.estimateAngleToObject(AngleUnit.DEGREES), target.getConfidence()),
-            target.getImageWidth(), target.getImageHeight(), homographyMapper, objHeightOffset, cameraHeight);
+            homographyMapper, objHeightOffset, cameraHeight);
 
         if (tracer != null)
         {
@@ -360,4 +396,4 @@ public class FtcTensorFlow
         return homographyMapper != null? homographyMapper.mapPoint(point): null;
     }   //mapPoint
 
-}   //class FtcTensorFlow
+}   //class FtcVisionTensorFlow

@@ -39,6 +39,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     private double sign = 1.0;
     private double scale = 1.0;
     private double offset = 0.0;
+    private double zeroOffset = 0.0;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -95,6 +96,16 @@ public class FtcAnalogEncoder implements TrcEncoder
         return analogInput.getRawData(0, DataType.RAW_DATA).value;
     }   //getRawVoltage
 
+    /**
+     * This method sets the zero offset for the absolute encoder.
+     *
+     * @param zeroOffset specifies normalized zero offset.
+     */
+    public void setZeroOffset(double zeroOffset)
+    {
+        this.zeroOffset = zeroOffset;
+    }   //setZeroOffset
+
     //
     // Implements the TrcEncoder interface.
     //
@@ -129,7 +140,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     {
         // getCartesianData returns the normalized reading from AnalogInput.
         // Offset must also be normalized.
-        return sign * (cardinalConverter.getCartesianData(0).value - offset) * scale;
+        return sign * (cardinalConverter.getCartesianData(0).value - zeroOffset) * scale + offset;
     }   //getPosition
 
     /**
@@ -142,6 +153,17 @@ public class FtcAnalogEncoder implements TrcEncoder
     {
         sign = inverted ? -1.0 : 1.0;
     }   //setInverted
+
+    /**
+     * This method checks if the encoder direction is inverted.
+     *
+     * @return true if encoder direction is rerversed, false otherwise.
+     */
+    @Override
+    public boolean isInverted()
+    {
+        return sign == -1.0;
+    }   //isInverted
 
     /**
      * This method sets the encoder scale and offset.

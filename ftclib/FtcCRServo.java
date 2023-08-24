@@ -22,39 +22,26 @@
 
 package TrcFtcLib.ftclib;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcEncoder;
 import TrcCommonLib.trclib.TrcMotor;
 import TrcCommonLib.trclib.TrcPidController;
-import TrcCommonLib.trclib.TrcTimer;
 
 /**
- * This class implements an FTC DC Motor Controller extending TrcMotor. It provides implementation of the
- * TrcMotorController interface. It supports limit switches and an external position sensor (e.g. encoder).
+ * This class implements an FTC Continuous Rotation Servo extending TrcMotor. It provides implementation of the
+ * TrcMotorController interface in TrcMotor. It supports limit switches and an external position sensor (e.g. encoder).
  * When this class is constructed with limit switches, all motor movements will respect them and will not move the
  * motor into the direction where the limit switch is activated.
  */
-public class FtcDcMotor extends TrcMotor
+public class FtcCRServo extends TrcMotor
 {
-    private static final double DEF_POS_RESET_TIMEOUT = 0.1;
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
-
-    public final DcMotorEx motor;
+    public final CRServoImplEx motor;
     private final VoltageSensor voltageSensor;
-    private DcMotor.RunMode runMode;
-    private double velocityPidTolerance = 0.0;
-    private double velocityTarget = 0.0;
-    private int positionTarget = 0;
 
     /**
      * Constructor: Create an instance of the object.
@@ -63,18 +50,17 @@ public class FtcDcMotor extends TrcMotor
      * @param instanceName specifies the instance name.
      * @param lowerLimitSwitch specifies an external lower limit switch, can be null if not provided.
      * @param upperLimitSwitch specifies an external upper limit switch, can be null if not provided.
-     * @param encoder specifies an external position sensor overriding the motor controller one, can be null
-     *        if not provided.
+     * @param encoder specifies an external position sensor for reporting motor position, can be null if not provided.
      */
-    public FtcDcMotor(
+    public FtcCRServo(
         HardwareMap hardwareMap, String instanceName, TrcDigitalInput lowerLimitSwitch,
         TrcDigitalInput upperLimitSwitch, TrcEncoder encoder)
     {
         super(instanceName, lowerLimitSwitch, upperLimitSwitch, encoder);
-        motor = hardwareMap.get(DcMotorEx.class, instanceName);
+
+        motor = hardwareMap.get(CRServoImplEx.class, instanceName);
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
-        runMode = motor.getMode();
-    }   //FtcDcMotor
+    }   //FtcCRServo
 
     /**
      * Constructor: Create an instance of the object.
@@ -82,14 +68,13 @@ public class FtcDcMotor extends TrcMotor
      * @param instanceName specifies the instance name.
      * @param lowerLimitSwitch specifies an external lower limit switch, can be null if not provided.
      * @param upperLimitSwitch specifies an external upper limit switch, can be null if not provided.
-     * @param encoder specifies an external position sensor overriding the motor controller one, can be null
-     *        if not provided.
+     * @param encoder specifies an external encoder for reporting motor position, can be null if not provided.
      */
-    public FtcDcMotor(
+    public FtcCRServo(
         String instanceName, TrcDigitalInput lowerLimitSwitch, TrcDigitalInput upperLimitSwitch, TrcEncoder encoder)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, lowerLimitSwitch, upperLimitSwitch, encoder);
-    }   //FtcDcMotor
+    }   //FtcCRServo
 
     /**
      * Constructor: Create an instance of the object.
@@ -98,58 +83,57 @@ public class FtcDcMotor extends TrcMotor
      * @param lowerLimitSwitch specifies an external lower limit switch, can be null if not provided.
      * @param upperLimitSwitch specifies an external upper limit switch, can be null if not provided.
      */
-    public FtcDcMotor(
-        String instanceName, TrcDigitalInput lowerLimitSwitch, TrcDigitalInput upperLimitSwitch)
+    public FtcCRServo(String instanceName, TrcDigitalInput lowerLimitSwitch, TrcDigitalInput upperLimitSwitch)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, lowerLimitSwitch, upperLimitSwitch, null);
-    }   //FtcDcMotor
+    }   //FtcCRServo
 
     /**
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param encoder specifies an external position sensor overriding the motor controller one, can be null
-     *        if not provided.
+     * @param encoder specifies an external encoder for reporting motor position, can be null if not provided.
      */
-    public FtcDcMotor(String instanceName, TrcEncoder encoder)
+    public FtcCRServo(String instanceName, TrcEncoder encoder)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, null, null, encoder);
-    }   //FtcDcMotor
+    }   //FtcCRServo
 
     /**
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
      */
-    public FtcDcMotor(String instanceName)
+    public FtcCRServo(String instanceName)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, null, null, null);
-    }   //FtcDcMotor
+    }   //FtcCRServo
 
     //
     // Implements TrcMotorController interface.
     //
 
-//    /**
-//     * This method is used to check if the motor controller supports close loop control.
-//     *
-//     * @return true if motor controller supports close loop control, false otherwise.
-//     */
-//    @Override
-//    public boolean supportNativeCloseLoopControl()
-//    {
-//        return true;
-//    }   //supportNativeCloseloopControl
+//     /**
+//      * This method is used to check if the motor controller supports close loop control natively.
+//      *
+//      * @return true if motor controller supports close loop control, false otherwise.
+//      */
+//     public boolean supportCloseLoopControl()
+//     {
+//         return false;
+//     }   // supportCloseLoopControl
 
 //    /**
-//     * This method checks if the motor controller is connected to the robot.
+//     * This method checks if the motor controller is connected to the robot. Note that this does NOT guarantee the
+//     * connection status of the motor to the motor controller. If detecting the motor presence is impossible (i.e. the
+//     * motor controller is connected via PWM) this method will always return true.
 //     *
 //     * @return true if the motor is connected or if it's impossible to know, false otherwise.
 //     */
 //    @Override
 //    public boolean isConnected()
 //    {
-//        return motor.isMotorEnabled();
+//        return motor.isPwmEnabled();
 //    }   //isConnected
 
     /**
@@ -158,8 +142,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void resetFactoryDefault()
     {
-        motor.resetDeviceConfigurationForOpMode();
-        runMode = motor.getMode();
+        throw new UnsupportedOperationException("CRServo does not support resetFactoryDefault.");
     }   //resetFactoryDefault
 
     /**
@@ -184,33 +167,21 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setCurrentLimit(double currentLimit, double triggerThresholdCurrent, double triggerThresholdTime)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setCurrentLimit.");
+        throw new UnsupportedOperationException("CRServo does not support setCurrentLimit.");
     }   //setCurrentLimit
 
-//    /**
-//     * This method sets the close loop percentage output limits. By default the limits are set to the max at -1 to 1.
-//     * By setting a non-default limits, it effectively limits the output power of the close loop control.
-//     *
-//     * @param revLimit specifies the percentage output limit of the reverse direction.
-//     * @param fwdLimit specifies the percentage output limit of the forward direction.
-//     */
-//    @Override
-//    public void setCloseLoopOutputLimits(double revLimit, double fwdLimit)
-//    {
-//        // Allow this only if we are in close loop position control mode.
-//        if (runMode == DcMotor.RunMode.RUN_TO_POSITION)
-//        {
-//            revLimit = Math.abs(revLimit);
-//            fwdLimit = Math.abs(fwdLimit);
-//
-//            if (revLimit != fwdLimit)
-//            {
-//                throw new IllegalArgumentException("revLimit and fwdLimit must have the same magnitude.");
-//            }
-//
-//            setNativeMotorPower(fwdLimit);
-//        }
-//    }   //setCloseLoopOutputLimits
+//     /**
+//      * This method sets the close loop percentage output limits. By default the limits are set to the max at -1 to 1.
+//      * By setting a non-default limits, it effectively limits the output power of the close loop control.
+//      *
+//      * @param revLimit specifies the percentage output limit of the reverse direction.
+//      * @param fwdLimit specifies the percentage output limit of the forward direction.
+//      */
+//     @Override
+//     public void setCloseLoopOutputLimits(double revLimit, double fwdLimit)
+//     {
+//        throw new UnsupportedOperationException("CRServo does not support setCloseLoopOutputLimits.");
+//     }   //setCloseLoopOutputLimits
 
     /**
      * This method sets the close loop ramp rate.
@@ -220,7 +191,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setCloseLoopRampRate(double rampTime)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setCloseLoopRampRate.");
+        throw new UnsupportedOperationException("CRServo does not support setCloseLoopRampRate.");
     }   //setCloseLoopRampRate
 
     /**
@@ -231,7 +202,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setOpenLoopRampRate(double rampTime)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setOpenLoopRampRate.");
+        throw new UnsupportedOperationException("CRServo does not support setOpenLoopRampRate.");
     }   //setOpenLoopRampRate
 
     /**
@@ -245,7 +216,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setBrakeModeEnabled(boolean enabled)
     {
-        motor.setZeroPowerBehavior(enabled? DcMotor.ZeroPowerBehavior.BRAKE: DcMotor.ZeroPowerBehavior.FLOAT);
+        throw new UnsupportedOperationException("CRServo does not support setBrakeModeEnabled.");
     }   //setBrakeModeEnabled
 
     /**
@@ -256,7 +227,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void enableMotorRevLimitSwitch(boolean normalClose)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //enableMotorRevLimitSwitch
 
     /**
@@ -267,7 +238,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void enableMotorFwdLimitSwitch(boolean normalClose)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //enableMotorFwdLimitSwitch
 
     /**
@@ -276,7 +247,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void disableMotorRevLimitSwitch()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //disableMotorRevLimitSwitch
 
     /**
@@ -285,8 +256,8 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void disableMotorFwdLimitSwitch()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
-    }   //disableMotorFwdLimitSwitch
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
+    }   //disableMotorRevLimitSwitch
 
     /**
      * This method checks if the reverse limit switch is enabled.
@@ -296,7 +267,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorRevLimitSwitchEnabled()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //isMotorRevLimitSwitchEnabled
 
     /**
@@ -307,7 +278,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorFwdLimitSwitchEnabled()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //isMotorFwdLimitSwitchEnabled
 
     /**
@@ -319,7 +290,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorRevLimitSwitchInverted(boolean inverted)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //setMotorRevLimitSwitchInverted
 
     /**
@@ -331,7 +302,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorFwdLimitSwitchInverted(boolean inverted)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //setMotorFwdLimitSwitchInverted
 
     /**
@@ -342,7 +313,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorRevLimitSwitchActive()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //isMotorRevLimitSwitchActive
 
     /**
@@ -353,7 +324,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorFwdLimitSwitchActive()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException("CRServo does not support limit switches.");
     }   //isMotorFwdLimitSwitchActive
 
     /**
@@ -364,7 +335,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorRevSoftPositionLimit(Double limit)
     {
-        throw new UnsupportedOperationException("Motor controller does not support soft limits.");
+        throw new UnsupportedOperationException("CRServo does not support soft limits.");
     }   //setMotorRevSoftPositionLimit
 
     /**
@@ -375,7 +346,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorFwdSoftPositionLimit(Double limit)
     {
-        throw new UnsupportedOperationException("Motor controller does not support soft limits.");
+        throw new UnsupportedOperationException("CRServo does not support soft limits.");
     }   //setMotorFwdSoftPositionLimit
 
     /**
@@ -389,7 +360,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorPositionSensorInverted(boolean inverted)
     {
-        throw new UnsupportedOperationException("Motor controller does not support position sensor.");
+        throw new UnsupportedOperationException("CRServo does not support position sensor.");
     }   //setMotorPositionSensorInverted
 
     /**
@@ -400,83 +371,16 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorPositionSensorInverted()
     {
-        throw new UnsupportedOperationException("Motor controller does not support position sensor.");
+        throw new UnsupportedOperationException("CRServo does not support position sensor.");
     }   //isMotorPositionSensorInverted
 
     /**
-     * This method resets the motor position sensor, typically an encoder. This is a synchronous call and will take
-     * time. It should only be called at robot init time.
-     *
-     * @param timeout specifies a timeout period in seconds.
-     */
-    public void resetMotorPosition(double timeout)
-    {
-        final String funcName = "resetMotorPosition";
-        //
-        // Resetting the encoder is done by setting the motor controller mode. This is a long operation and has side
-        // effect of disabling the motor controller unless you do another setMode to re-enable it. Therefore,
-        // resetMotorPosition is a synchronous call. This should only be called at robotInit time. For other times,
-        // you should call software resetPosition instead.
-        //
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(
-                funcName, "[%.3f] Before resetting %s: enc=%d",
-                TrcTimer.getModeElapsedTime(), this, motor.getCurrentPosition());
-        }
-
-        DcMotor.RunMode prevMotorMode = motor.getMode();
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        double expiredTime = TrcTimer.getCurrentTime() + timeout;
-        int motorPos = 0;
-        while (TrcTimer.getCurrentTime() < expiredTime)
-        {
-            FtcOpMode.getInstance().clearBulkCacheInManualMode();
-            motorPos = motor.getCurrentPosition();
-            if (debugEnabled)
-            {
-                globalTracer.traceInfo(
-                    funcName, "[%.3f] Waiting for %s to reset: enc=%d",
-                    TrcTimer.getModeElapsedTime(), this, motorPos);
-            }
-
-            if (motorPos != 0)
-            {
-                Thread.yield();
-            }
-            else
-            {
-                if (debugEnabled)
-                {
-                    globalTracer.traceInfo(
-                        funcName, "[%.3f] Reset %s success!", TrcTimer.getModeElapsedTime(), this);
-                }
-                break;
-            }
-        }
-
-        if (motorPos != 0)
-        {
-            globalTracer.traceWarn(funcName, "motor %s encoder reset timed out (enc=%d).", this, motorPos);
-        }
-        // Restore previous motor mode.
-        motor.setMode(prevMotorMode);
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "timeout=%.3f,pos=%d", timeout, motorPos);
-        }
-    }   //resetMotorPosition
-
-    /**
-     * This method resets the motor position sensor, typically an encoder. This is a synchronous call and will take
-     * time. It should only be called at robot init time.
+     * This method resets the motor position sensor, typically an encoder.
      */
     @Override
     public void resetMotorPosition()
     {
-        resetMotorPosition(DEF_POS_RESET_TIMEOUT);
+        throw new UnsupportedOperationException("CRServo does not support position sensor.");
     }   //resetMotorPosition
 
     /**
@@ -487,7 +391,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorInverted(boolean inverted)
     {
-        motor.setDirection(inverted? DcMotor.Direction.REVERSE: DcMotor.Direction.FORWARD);
+        motor.setDirection(inverted? DcMotorSimple.Direction.REVERSE: DcMotorSimple.Direction.FORWARD);
     }   //setMotorInverted
 
     /**
@@ -498,7 +402,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorInverted()
     {
-        return motor.getDirection() == DcMotor.Direction.REVERSE;
+        return motor.getDirection() == DcMotorSimple.Direction.REVERSE;
     }   //isMotorInverted
 
     /**
@@ -509,12 +413,6 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorPower(double power)
     {
-        if (runMode != DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-        {
-            // Not in power control mode, set it so.
-            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            runMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
-        }
         motor.setPower(power);
     }   //setMotorPower
 
@@ -532,61 +430,46 @@ public class FtcDcMotor extends TrcMotor
     /**
      * This method commands the motor to spin at the given velocity using close loop control.
      *
-     * @param vel specifies the motor velocity in raw sensor units per second (encoder counts per sec).
+     * @param velocity specifies the motor velocity in rotations per second.
      */
     @Override
-    public void setMotorVelocity(double vel)
+    public void setMotorVelocity(double velocity)
     {
-        if (runMode != DcMotor.RunMode.RUN_USING_ENCODER)
-        {
-            // Not in velocity control mode, set it so.
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            runMode = DcMotor.RunMode.RUN_USING_ENCODER;
-        }
-        motor.setVelocity(vel);
-        velocityTarget = vel;
+        throw new UnsupportedOperationException("CRServo does not support setMotorVelocity.");
     }   //setMotorVelocity
 
     /**
      * This method returns the current motor velocity.
      *
-     * @return current motor velocity in raw sensor units per sec (counts per sec).
+     * @return current motor velocity in sensor units per second.
      */
     @Override
     public double getMotorVelocity()
     {
-        return motor.getVelocity();
+        throw new UnsupportedOperationException("CRServo does not support getMotorVelocity.");
     }   //getMotorVelocity
 
     /**
      * This method commands the motor to go to the given position using close loop control.
      *
-     * @param pos specifies the motor position in raw sensor units (encoder counts).
-     * @param powerLimit specifies the maximum power limit the motor will move.
+     * @param position specifies the motor position in number of rotations.
+     * @param powerLimit specifies the maximum power output limits.
      */
     @Override
-    public void setMotorPosition(double pos, double powerLimit)
+    public void setMotorPosition(double position, double powerLimit)
     {
-        if (runMode != DcMotor.RunMode.RUN_TO_POSITION)
-        {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            runMode = DcMotor.RunMode.RUN_TO_POSITION;
-        }
-        motor.setPower(powerLimit);
-        motor.setTargetPosition((int) pos);
-        positionTarget = (int) pos;
+        throw new UnsupportedOperationException("CRServo does not support setMotorPosition.");
     }   //setMotorPosition
 
     /**
-     * This method returns the motor position by reading the position sensor. The position sensor can be an encoder
-     * or a potentiometer.
+     * This method returns the motor position by reading the position sensor.
      *
      * @return current motor position in raw sensor units.
      */
     @Override
     public double getMotorPosition()
     {
-        return motor.getCurrentPosition();
+        throw new UnsupportedOperationException("CRServo does not support position sensor.");
     }   //getMotorPosition
 
     /**
@@ -597,7 +480,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorCurrent(double current)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setMotorCurrent.");
+        throw new UnsupportedOperationException("CRServo does not support setMotorCurrent.");
     }   //setMotorCurrent
 
     /**
@@ -608,7 +491,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public double getMotorCurrent()
     {
-        return motor.getCurrent(CurrentUnit.AMPS);
+        throw new UnsupportedOperationException("CRServo does not support getMotorCurrent.");
     }   //getMotorCurrent
 
     /**
@@ -619,7 +502,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorVelocityPidCoefficients(TrcPidController.PidCoefficients pidCoeff)
     {
-        motor.setVelocityPIDFCoefficients(pidCoeff.kP, pidCoeff.kI, pidCoeff.kD, pidCoeff.kF);
+        throw new UnsupportedOperationException("CRServo does not support setMotorVelocityPidCoefficients.");
     }   //setMotorVelocityPidCoefficients
 
     /**
@@ -630,7 +513,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorVelocityPidTolerance(double tolerance)
     {
-        velocityPidTolerance = tolerance;
+        throw new UnsupportedOperationException("CRServo does not support setMotorVelocityPidTolerance.");
     }   //setMotorVelocityPidTolerance
 
     /**
@@ -641,12 +524,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public TrcPidController.PidCoefficients getMotorVelocityPidCoefficients()
     {
-        TrcPidController.PidCoefficients pidCoeff;
-
-        PIDFCoefficients pidfCoeffs = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidCoeff = new TrcPidController.PidCoefficients(pidfCoeffs.p, pidfCoeffs.i, pidfCoeffs.d, pidfCoeffs.f);
-
-        return pidCoeff;
+        throw new UnsupportedOperationException("CRServo does not support getMotorVelocityPidCoefficients.");
     }   //getMotorVelocityPidCoefficients
 
     /**
@@ -657,19 +535,18 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean getMotorVelocityOnTarget()
     {
-        return Math.abs(velocityTarget - motor.getVelocity()) <= velocityPidTolerance;
+        throw new UnsupportedOperationException("CRServo does not support getMotorVelocityOnTarget.");
     }   //getMotorVelocityOnTarget
 
     /**
-     * This method sets the PID coefficients for the motor's position PID controller. For FTC motors, only kP makes
-     * sense because of the double layer architecture (i.e. position PID is used in conjunction with velocity PID).
+     * This method sets the PID coefficients of the motor controller's position PID controller.
      *
      * @param pidCoeff specifies the PID coefficients to set.
      */
     @Override
     public void setMotorPositionPidCoefficients(TrcPidController.PidCoefficients pidCoeff)
     {
-        motor.setPositionPIDFCoefficients(pidCoeff.kP);
+        throw new UnsupportedOperationException("CRServo does not support setMotorPositionPidCoefficients.");
     }   //setMotorPositionPidCoefficients
 
     /**
@@ -680,7 +557,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorPositionPidTolerance(double tolerance)
     {
-        motor.setTargetPositionTolerance((int) tolerance);
+        throw new UnsupportedOperationException("CRServo does not support setMotorPositionPidTolerance.");
     }   //setMotorPositionPidTolerance
 
     /**
@@ -691,12 +568,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public TrcPidController.PidCoefficients getMotorPositionPidCoefficients()
     {
-        TrcPidController.PidCoefficients pidCoeff;
-
-        PIDFCoefficients pidfCoeffs = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
-        pidCoeff = new TrcPidController.PidCoefficients(pidfCoeffs.p, pidfCoeffs.i, pidfCoeffs.d, pidfCoeffs.f);
-
-        return pidCoeff;
+        throw new UnsupportedOperationException("CRServo does not support getMotorPositionPidCoefficients.");
     }   //getMotorPositionPidCoefficients
 
     /**
@@ -707,7 +579,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean getMotorPositionOnTarget()
     {
-        return Math.abs(positionTarget - motor.getCurrentPosition()) <= motor.getTargetPositionTolerance();
+        throw new UnsupportedOperationException("CRServo does not support getMotorPositionOnTarget.");
     }   //getMotorPositionOnTarget
 
     /**
@@ -718,7 +590,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorCurrentPidCoefficients(TrcPidController.PidCoefficients pidCoeff)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setMotorCurretPidCoefficients.");
+        throw new UnsupportedOperationException("CRServo does not support setMotorCurretPidCoefficients.");
     }   //setMotorCurrentPidCoefficients
 
     /**
@@ -729,7 +601,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorCurrentPidTolerance(double tolerance)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setMotorCurretPidTolerance.");
+        throw new UnsupportedOperationException("CRServo does not support setMotorCurretPidTolerance.");
     }   //setMotorCurrentPidTolerance
 
     /**
@@ -740,7 +612,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public TrcPidController.PidCoefficients getMotorCurrentPidCoefficients()
     {
-        throw new UnsupportedOperationException("Motor controller does not support getMotorCurretPidCoefficients.");
+        throw new UnsupportedOperationException("CRServo does not support getMotorCurretPidCoefficients.");
     }   //geteMotorCurrentPidCoefficients
 
     /**
@@ -751,11 +623,11 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean getMotorCurrentOnTarget()
     {
-        throw new UnsupportedOperationException("Motor controller does not support getMotorCurretOnTarget.");
+        throw new UnsupportedOperationException("CRServo does not support getMotorCurretOnTarget.");
     }   //getMotorCurrentOnTarget
 
     //
     // The following methods override the software simulation in TrcMotor providing direct support in hardware.
     //
 
-}   //class FtcDcMotor
+}   //class FtcCRServo

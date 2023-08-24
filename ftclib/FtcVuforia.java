@@ -32,6 +32,7 @@ import com.vuforia.PIXEL_FORMAT;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -57,6 +58,7 @@ import TrcCommonLib.trclib.TrcVideoSource;
  * the getLocalizer method to get the Vuforia localizer object and use it to call Vuforia directly. This class
  * provides methods to simplify getting robot location from trackable images.
  */
+@Deprecated
 public class FtcVuforia implements TrcVideoSource<Mat>
 {
     /**
@@ -94,7 +96,7 @@ public class FtcVuforia implements TrcVideoSource<Mat>
     }   //class TargetInfo
 
     private CameraName cameraName;
-    private VuforiaLocalizer.CameraDirection cameraDir;
+    private BuiltinCameraDirection cameraDir;
     private final VuforiaLocalizer localizer;
     private final ArrayList<VuforiaTrackables> targetLists = new ArrayList<>();
     private final HashMap<String, TargetInfo> targetMap = new HashMap<>();
