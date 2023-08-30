@@ -610,21 +610,20 @@ public class FtcGamepad extends TrcGameController
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
      *              raised exponentially, it gives you more precise control on the low end values.
      * @param drivePowerScale specifies the scaling factor for drive power.
+     * @param turnPowerScale specifies the scaling factor for turn power.
      * @return an array of 3 values for x, y and rotation power.
      */
-    public double[] getDriveInputs(DriveMode driveMode, boolean doExp, double drivePowerScale)
+    public double[] getDriveInputs(DriveMode driveMode, boolean doExp, double drivePowerScale, double turnPowerScale)
     {
         final String funcName = "getDriveInputs";
         double x = 0.0, y = 0.0, rot = 0.0;
-        double mag;
-        double newMag;
 
         switch (driveMode)
         {
             case HOLONOMIC_MODE:
                 x = getLeftStickX(doExp);
-                y = getRightStickY(doExp);
-                rot = getTrigger(doExp);
+                y = getLeftStickY(doExp);
+                rot = getRightStickX(doExp);
                 if (debugEnabled)
                 {
                     globalTracer.traceInfo(funcName, "Holonomic:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
@@ -653,23 +652,16 @@ public class FtcGamepad extends TrcGameController
                 }
                 break;
         }
-        mag = TrcUtil.magnitude(x, y);
+
+        double mag = TrcUtil.magnitude(x, y);
         if (mag > 1.0)
         {
             x /= mag;
             y /= mag;
-            mag = 1.0;
         }
-        newMag = Math.pow(mag, 3);
-
-        newMag *= drivePowerScale;
-        rot *= drivePowerScale;
-
-        if (mag != 0.0)
-        {
-            x *= newMag / mag;
-            y *= newMag / mag;
-        }
+        x *= drivePowerScale;
+        y *= drivePowerScale;
+        rot *= turnPowerScale;
 
         return new double[] { x, y, rot };
     }   //getDriveInput
@@ -685,7 +677,7 @@ public class FtcGamepad extends TrcGameController
      */
     public double[] getDriveInputs(DriveMode driveMode, boolean doExp)
     {
-        return getDriveInputs(driveMode, doExp, 1.0);
+        return getDriveInputs(driveMode, doExp, 1.0, 1.0);
     }   //getDriveInputs
 
     //
