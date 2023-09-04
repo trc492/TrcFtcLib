@@ -34,6 +34,7 @@ import java.util.List;
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcEvent;
 import TrcCommonLib.trclib.TrcMotor;
+import TrcCommonLib.trclib.TrcPeriodicThread;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
 import TrcCommonLib.trclib.TrcTimer;
@@ -361,7 +362,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         setBulkCachingModeEnabled(true);
         //
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
-        // competition starts (e.g. in initRobot) so it will report elapsed time from the "Init" button being pressed.
+        // competition starts (e.g. in robotInit) so it will report elapsed time from the "Init" button being pressed.
         //
         TrcTimer.recordModeStartTime();
 
@@ -373,12 +374,14 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             if (debugEnabled)
             {
                 globalTracer.traceInfo(
-                    funcName, "[%.3f] RunMode(%s): starting initRoot.", TrcTimer.getModeElapsedTime(), runMode);
+                    funcName, "[%.3f] RunMode(%s): starting robotInit.", TrcTimer.getModeElapsedTime(), runMode);
             }
-            dashboard.displayPrintf(0, "initRobot starting...");
-            // Note: initRobot is synchronous, nothing periodic will be processed until it comes back.
-            initRobot();
-            dashboard.displayPrintf(0, "initRobot completed!");
+            dashboard.displayPrintf(0, "robotInit starting...");
+            // Note: robotInit is synchronous, nothing periodic will be processed until it comes back.
+            robotInit();
+            dashboard.displayPrintf(0, "robotInit completed!");
+            // robotInit has finished, tell all periodic threads to start running.
+            TrcPeriodicThread.setRobotInitialized(true);
             //
             // Run initPeriodic while waiting for competition to start.
             //
@@ -493,6 +496,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 globalTracer.traceInfo(funcName, "[%.3f] running StopMode tasks.", TrcTimer.getModeElapsedTime());
             }
             TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.STOP_TASK, runMode, false);
+            // OpMode is stopping, tell all periodic threads to stop.
+            TrcPeriodicThread.setRobotInitialized(false);
         }
         finally
         {
@@ -526,7 +531,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     }   //printPerformanceMetrics
 
     /**
-     * This method is called periodically after initRobot() is called but before competition starts. Typically,
+     * This method is called periodically after robotInit() is called but before competition starts. Typically,
      * you override this method and put code that will check and display robot status in this method. For example,
      * one may monitor the gyro heading in this method to make sure there is no major gyro drift before competition
      * starts. By default, this method is doing exactly what waitForStart() does.
@@ -554,7 +559,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      * This method is called to initialize the robot. In FTC, this is called when the "Init" button on the Driver
      * Station phone is pressed.
      */
-    public abstract void initRobot();
+    public abstract void robotInit();
 
     /**
      * This method is called when the competition mode is about to start. In FTC, this is called when the "Play"
