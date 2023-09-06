@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
@@ -59,11 +60,10 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     private Thread robotThread;
     private TrcWatchdogMgr.Watchdog robotThreadWatchdog;
 
-    private static long loopCounter = 0;
     private static long loopStartNanoTime = 0;
-    private long periodicTotalElapsedTime = 0;
-    private int periodicTimeSlotCount = 0;
-    private long sdkTotalElapsedTime = 0;
+    private final long[] totalElapsedTime = new long[10];
+    private long initLoopCount;
+    private long loopCount;
 
     /**
      * Constructor: Creates an instance of the object. It calls the constructor of the LinearOpMode class and saves
@@ -125,18 +125,6 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         return loopStartNanoTime/1000000000.0;
     }   //getElapsedTime
-
-    /**
-     * This method returns the loop counter. This is very useful for code to determine if it is called multiple times
-     * in the same loop. For example, it can be used to optimize sensor access so that if the sensor is accessed in
-     * the same loop, there is no reason to create a new bus transaction to get "fresh" data from the sensor.
-     *
-     * @return loop counter value.
-     */
-    public static long getLoopCounter()
-    {
-        return loopCounter;
-    }   //getLoopCounter
 
 //    /**
 //     * This method returns a TextToSpeech object. If it doesn't exist yet, one is created.
@@ -269,6 +257,16 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     }   //clearBulkCacheInManualMode
 
     /**
+     * This method is called by the IO task thread at the beginning of the IO loop so we can clear the bulk cache.
+     *
+     * @param runMode specifies the robot run mode (not used).
+     */
+    private void ioTaskLoopBegin(TrcRobot.RunMode runMode)
+    {
+        clearBulkCacheInManualMode();
+    }   //ioTaskLoopBegin
+
+    /**
      * This method sends a heart beat to the main robot thread watchdog. This is important if during robot init time
      * that the user code decided to synchronously busy wait for something, it must periodically call this method to
      * prevent the watchdog from complaining.
@@ -360,6 +358,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         }
 
         setBulkCachingModeEnabled(true);
+        TrcTaskMgr.registerIoTaskLoopCallback(this::ioTaskLoopBegin, null);
         //
         // Initialize mode start time before match starts in case somebody calls TrcUtil.getModeElapsedTime before
         // competition starts (e.g. in robotInit) so it will report elapsed time from the "Init" button being pressed.
@@ -368,6 +367,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
         try
         {
+            long startNanoTime;
+            Arrays.fill(totalElapsedTime, 0L);
             //
             // robotInit contains code to initialize the robot.
             //
@@ -378,7 +379,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
             dashboard.displayPrintf(0, "robotInit starting...");
             // Note: robotInit is synchronous, nothing periodic will be processed until it comes back.
+            startNanoTime = TrcTimer.getNanoTime();
             robotInit();
+            totalElapsedTime[0] = TrcTimer.getNanoTime() - startNanoTime;
             dashboard.displayPrintf(0, "robotInit completed!");
             // robotInit has finished, tell all periodic threads to start running.
             TrcPeriodicThread.setRobotInitialized(true);
@@ -390,21 +393,23 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 globalTracer.traceInfo(
                     funcName, "[%.3f] RunMode(%s): starting initPeriodic.", TrcTimer.getModeElapsedTime(), runMode);
             }
-            loopCounter = 0;
             dashboard.displayPrintf(0, "initPeriodic starting...");
+            initLoopCount = 0;
             while (!isStarted())
             {
-                loopCounter++;
                 loopStartNanoTime = TrcTimer.getNanoTime();
+                initLoopCount++;
 
                 if (debugEnabled)
                 {
                     globalTracer.traceInfo(
-                        funcName, "[%d:%.3f] running initPeriodic.", loopCounter, TrcTimer.getModeElapsedTime());
+                        funcName, "[%d:%.3f] running initPeriodic.", initLoopCount, TrcTimer.getModeElapsedTime());
                 }
 
-                clearBulkCacheInManualMode();
+//                clearBulkCacheInManualMode();
+                startNanoTime = TrcTimer.getNanoTime();
                 initPeriodic();
+                totalElapsedTime[1] += TrcTimer.getNanoTime() - startNanoTime;
                 TrcEvent.performEventCallback();
                 robotThreadWatchdog.sendHeartBeat();
             }
@@ -417,7 +422,9 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             {
                 globalTracer.traceInfo(funcName, "[%.3f] running StartMode tasks.", TrcTimer.getModeElapsedTime());
             }
+            startNanoTime = TrcTimer.getNanoTime();
             TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.START_TASK, runMode, false);
+            totalElapsedTime[2] = TrcTimer.getNanoTime() - startNanoTime;
 
             if (debugEnabled)
             {
@@ -425,14 +432,20 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             }
             startMode(null, runMode);
 
-            long startNanoTime = TrcTimer.getNanoTime();
-            long nextSlowLoopNanoTime = startNanoTime;
-            loopCounter = 0;
+            long prevLoopStartTime = 0L;
+            long nextSlowLoopNanoTime = TrcTimer.getNanoTime();
+            startNanoTime = nextSlowLoopNanoTime;
+            loopCount = 0;
             while (opModeIsActive())
             {
                 loopStartNanoTime = TrcTimer.getNanoTime();
-                loopCounter++;
-                sdkTotalElapsedTime += loopStartNanoTime - startNanoTime;
+                loopCount++;
+                if (prevLoopStartTime > 0)
+                {
+                    totalElapsedTime[3] += loopStartNanoTime - prevLoopStartTime;
+                }
+                prevLoopStartTime = loopStartNanoTime;
+                totalElapsedTime[4] += loopStartNanoTime - startNanoTime;
                 double opModeElapsedTime = TrcTimer.getModeElapsedTime();
                 boolean slowPeriodicLoop = loopStartNanoTime >= nextSlowLoopNanoTime;
                 if (slowPeriodicLoop)
@@ -441,16 +454,18 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                     dashboard.displayPrintf(0, "%s: %.3f", opModeName, opModeElapsedTime);
                 }
 
-                clearBulkCacheInManualMode();
+//                clearBulkCacheInManualMode();
                 //
                 // Pre-Periodic Task.
                 //
                 if (debugEnabled)
                 {
                     globalTracer.traceInfo(
-                        funcName, "[%d:%.3f]: running Pre-periodic tasks.", loopCounter, opModeElapsedTime);
+                        funcName, "[%d:%.3f]: running Pre-periodic tasks.", loopCount, opModeElapsedTime);
                 }
+                startNanoTime = TrcTimer.getNanoTime();
                 TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.PRE_PERIODIC_TASK, runMode, slowPeriodicLoop);
+                totalElapsedTime[5] += TrcTimer.getNanoTime() - startNanoTime;
                 //
                 // Perform event callback here because pre-periodic tasks have finished processing sensor inputs and
                 // may have signaled events. We will do all the callbacks before running periodic code.
@@ -462,34 +477,39 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
                 if (debugEnabled)
                 {
                     globalTracer.traceInfo(
-                        funcName, "[%d:%.3f]: running Periodic.", loopCounter, opModeElapsedTime);
+                        funcName, "[%d:%.3f]: running Periodic.", loopCount, opModeElapsedTime);
                 }
                 startNanoTime = TrcTimer.getNanoTime();
                 periodic(opModeElapsedTime, slowPeriodicLoop);
-                periodicTotalElapsedTime += TrcTimer.getNanoTime() - startNanoTime;
-                periodicTimeSlotCount++;
+                totalElapsedTime[6] += TrcTimer.getNanoTime() - startNanoTime;
+//                periodicTimeSlotCount++;
                 //
                 // Post-Periodic Task.
                 //
                 if (debugEnabled)
                 {
                     globalTracer.traceInfo(
-                        funcName, "[%d:%.3f]: running Post-periodic tasks.", loopCounter, opModeElapsedTime);
+                        funcName, "[%d:%.3f]: running Post-periodic tasks.", loopCount, opModeElapsedTime);
                 }
+                startNanoTime = TrcTimer.getNanoTime();
                 TrcTaskMgr.executeTaskType(TrcTaskMgr.TaskType.POST_PERIODIC_TASK, runMode, slowPeriodicLoop);
+                totalElapsedTime[7] += TrcTimer.getNanoTime() - startNanoTime;
 
                 robotThreadWatchdog.sendHeartBeat();
                 //
                 // Letting FTC SDK do its things.
                 //
                 startNanoTime = TrcTimer.getNanoTime();
+                totalElapsedTime[8] += startNanoTime - loopStartNanoTime;
             }
 
             if (debugEnabled)
             {
                 globalTracer.traceInfo(funcName, "[%.3f] running StopMode.", TrcTimer.getModeElapsedTime());
             }
+            startNanoTime = TrcTimer.getNanoTime();
             stopMode(runMode, null);
+            totalElapsedTime[9] = TrcTimer.getNanoTime() - startNanoTime;
 
             if (debugEnabled)
             {
@@ -523,11 +543,32 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
      */
     public void printPerformanceMetrics(TrcDbgTrace tracer)
     {
-        tracer.traceInfo(
-            moduleName, "%16s: Periodic=%.6f, SDK=%.6f",
-            opModeName, (double)periodicTotalElapsedTime/periodicTimeSlotCount/1000000000,
-            (double)sdkTotalElapsedTime/loopCounter/1000000000);
         TrcTaskMgr.printTaskPerformanceMetrics(tracer);
+        tracer.traceInfo(
+            moduleName,
+            "[%s] Main robot thread average elapsed times:\n" +
+            "       robotInit=%.6fs\n" +
+            "    initPeriodic=%.6fs\n" +
+            "       startMode=%.6fs\n" +
+            "    loopInterval=%.6fs (%.3fHz)\n" +
+            "             sdk=%.6fs\n" +
+            " prePeriodicTask=%.6fs\n" +
+            "        periodic=%.6fs\n" +
+            "postPeriodicTask=%.6fs\n" +
+            "         loopSum=%.6fs\n" +
+            "        stopMode=%.6fs",
+            opModeName,
+            totalElapsedTime[0] / 1000000000.0,                     //robotInit
+            totalElapsedTime[1] / 1000000000.0 / initLoopCount,     //initPeriodic
+            totalElapsedTime[2] / 1000000000.0,                     //startMode
+            totalElapsedTime[3] / 1000000000.0 / loopCount,         //loopInterval
+            1000000000.0 * loopCount / totalElapsedTime[3],         //loopFrequency
+            totalElapsedTime[4] / 1000000000.0 / loopCount,         //sdk
+            totalElapsedTime[5] / 1000000000.0 / loopCount,         //prePeriodicTask
+            totalElapsedTime[6] / 1000000000.0 / loopCount,         //periodic
+            totalElapsedTime[7] / 1000000000.0 / loopCount,         //postPeriodicTask
+            totalElapsedTime[8] / 1000000000.0 / loopCount,         //loopSum
+            totalElapsedTime[9] / 1000000000.0);                    //stopMode
     }   //printPerformanceMetrics
 
     /**
