@@ -25,6 +25,7 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
+import TrcCommonLib.trclib.TrcDriveBase;
 import TrcCommonLib.trclib.TrcGameController;
 import TrcCommonLib.trclib.TrcUtil;
 
@@ -72,13 +73,6 @@ public class FtcGamepad extends TrcGameController
 //        }   //toString
 //
 //    }   //enum GamepadButtons
-
-    public enum DriveMode
-    {
-        TANK_MODE,
-        HOLONOMIC_MODE,
-        ARCADE_MODE
-    }   //enum DriveMode
 
     public static final int GAMEPAD_A           = ((int)1 << 0);
     public static final int GAMEPAD_B           = ((int)1 << 1);
@@ -613,7 +607,8 @@ public class FtcGamepad extends TrcGameController
      * @param turnPowerScale specifies the scaling factor for turn power.
      * @return an array of 3 values for x, y and rotation power.
      */
-    public double[] getDriveInputs(DriveMode driveMode, boolean doExp, double drivePowerScale, double turnPowerScale)
+    public double[] getDriveInputs(
+        TrcDriveBase.DriveMode driveMode, boolean doExp, double drivePowerScale, double turnPowerScale)
     {
         final String funcName = "getDriveInputs";
         double x = 0.0, y = 0.0, rot = 0.0;
@@ -621,22 +616,13 @@ public class FtcGamepad extends TrcGameController
         switch (driveMode)
         {
             case HOLONOMIC_MODE:
+            case ARCADE_MODE:
                 x = getLeftStickX(doExp);
                 y = getLeftStickY(doExp);
                 rot = getRightStickX(doExp);
                 if (debugEnabled)
                 {
-                    globalTracer.traceInfo(funcName, "Holonomic:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
-                }
-                break;
-
-            case ARCADE_MODE:
-                x = getRightStickX(doExp);
-                y = getRightStickY(doExp);
-                rot = getLeftStickX(doExp);
-                if (debugEnabled)
-                {
-                    globalTracer.traceInfo(funcName, "Arcade:x=%.1f,y=%.1f,rot=%.1f", x, y, rot);
+                    globalTracer.traceInfo(funcName, "%s:x=%.1f,y=%.1f,rot=%.1f", driveMode, x, y, rot);
                 }
                 break;
 
@@ -648,7 +634,7 @@ public class FtcGamepad extends TrcGameController
                 rot = (leftPower - rightPower)/2.0;
                 if (debugEnabled)
                 {
-                    globalTracer.traceInfo(funcName, "Tank:left=%.1f,right=%.1f", leftPower, rightPower);
+                    globalTracer.traceInfo(funcName, "%s:left=%.1f,right=%.1f", driveMode, leftPower, rightPower);
                 }
                 break;
         }
@@ -675,7 +661,7 @@ public class FtcGamepad extends TrcGameController
      *              raised exponentially, it gives you more precise control on the low end values.
      * @return an array of 3 values for x, y and rotation power.
      */
-    public double[] getDriveInputs(DriveMode driveMode, boolean doExp)
+    public double[] getDriveInputs(TrcDriveBase.DriveMode driveMode, boolean doExp)
     {
         return getDriveInputs(driveMode, doExp, 1.0, 1.0);
     }   //getDriveInputs
