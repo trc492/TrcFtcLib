@@ -132,15 +132,26 @@ public class FtcVisionAprilTag
         @Override
         public String toString()
         {
-            return String.format(
-                Locale.US,
-                "{id=%d,center=%.1f/%.1f,rect=%s,ftcPose=(x=%.1f,y=%.1f,z=%.1f,yaw=%.1f,pitch=%.1f,roll=%.1f," +
-                "range=%.1f,bearing=%.1f,elevator=%.1f),hamming=%d,decisionMargin=%.1f}",
-                aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
-                aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
-                aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll,
-                aprilTagDetection.ftcPose.range, aprilTagDetection.ftcPose.bearing, aprilTagDetection.ftcPose.elevation,
-                aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
+            if (aprilTagDetection.ftcPose != null)
+            {
+                return String.format(
+                    Locale.US,
+                    "{id=%d,center=%.1f/%.1f,rect=%s,ftcPose=(x=%.1f,y=%.1f,z=%.1f,yaw=%.1f,pitch=%.1f,roll=%.1f," +
+                    "range=%.1f,bearing=%.1f,elevator=%.1f),hamming=%d,decisionMargin=%.1f}",
+                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
+                    aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
+                    aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll,
+                    aprilTagDetection.ftcPose.range, aprilTagDetection.ftcPose.bearing,
+                    aprilTagDetection.ftcPose.elevation, aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
+            }
+            else
+            {
+                return String.format(
+                    Locale.US,
+                    "{id=%d,center=%.1f/%.1f,rect=%s,hamming=%d,decisionMargin=%.1f}",
+                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
+                    aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
+            }
         }   //toString
 
     }   //class DetectedObject

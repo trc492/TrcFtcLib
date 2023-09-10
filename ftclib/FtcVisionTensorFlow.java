@@ -395,7 +395,7 @@ public class FtcVisionTensorFlow
      * @param cameraHeight specifies the height of the camera above the floor.
      * @return filtered target info array.
      */
-    public TrcVisionTargetInfo<DetectedObject> getBestDetectedTargetsInfo(
+    public TrcVisionTargetInfo<DetectedObject> getBestDetectedTargetInfo(
         String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
         double objHeightOffset, double cameraHeight)
     {
@@ -409,7 +409,7 @@ public class FtcVisionTensorFlow
         }
 
         return bestTarget;
-    }   //getBestDetectedTargetsInfo
+    }   //getBestDetectedTargetInfo
 
     /**
      * This method maps a camera screen point to the real world point using homography.

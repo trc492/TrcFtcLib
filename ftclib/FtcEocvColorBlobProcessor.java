@@ -26,7 +26,6 @@ package TrcFtcLib.ftclib;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -45,7 +44,8 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
                                                   VisionProcessor
 {
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
-    private final Paint rectPaint;
+    private final Paint linePaint;
+    private boolean annotate = false;
 
     /**
      * Constructor: Create an instance of the object.
@@ -64,11 +64,11 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
             instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
-        rectPaint = new Paint();
-        rectPaint.setColor(Color.RED);
-        rectPaint.setAntiAlias(true);
-        rectPaint.setStrokeCap(Paint.Cap.ROUND);
-        rectPaint.setStrokeWidth(3);
+        linePaint = new Paint();
+        linePaint.setColor(Color.GREEN);
+        linePaint.setAntiAlias(true);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setStrokeWidth(3);
     }   //FtcEocvColorBlobProcessor
 
     /**
@@ -126,7 +126,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
     @Override
     public void setAnnotateEnabled(boolean enabled)
     {
-        colorBlobPipeline.setAnnotateEnabled(enabled);
+        annotate = enabled;
     }   //setAnnotateEnabled
 
     /**
@@ -137,7 +137,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
     @Override
     public boolean isAnnotateEnabled()
     {
-        return colorBlobPipeline.isAnnotateEnabled();
+        return annotate;
     }   //isAnnotateEnabled
 
     /**
@@ -224,7 +224,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
     {
         // Only one draw operation at a time thank you very much.
         // (we could be called from two different threads - viewport or camera stream)
-        if (colorBlobPipeline.isAnnotateEnabled() && userContext != null)
+        if (annotate && userContext != null)
         {
             TrcOpenCvColorBlobPipeline.DetectedObject[] dets =
                 (TrcOpenCvColorBlobPipeline.DetectedObject[]) userContext;
@@ -232,8 +232,12 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
             for (TrcOpenCvColorBlobPipeline.DetectedObject object : dets)
             {
                 org.opencv.core.Rect objRect = object.getRect();
-                canvas.drawRect(
-                    new Rect(objRect.x, objRect.y, objRect.x + objRect.width, objRect.y + objRect.height), rectPaint);
+                float left = objRect.x, right = objRect.x + objRect.width;
+                float top = objRect.y, bottom = objRect.y + objRect.height;
+                canvas.drawLine(left, top, right, top, linePaint);
+                canvas.drawLine(right, top, right, bottom, linePaint);
+                canvas.drawLine(right, bottom, left, bottom, linePaint);
+                canvas.drawLine(left, bottom, left, top, linePaint);
             }
         }
     }   //onDrawFrame
