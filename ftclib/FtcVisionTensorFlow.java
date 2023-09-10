@@ -386,6 +386,32 @@ public class FtcVisionTensorFlow
     }   //getDetectedTargetsInfo
 
     /**
+     * This method returns the target info of the best detected target.
+     *
+     * @param label specifies the target label to filter the target list, can be null if no filtering.
+     * @param filter specifies the filter to call to filter out false positive targets.
+     * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
+     * @param objHeightOffset specifies the object height offset above the floor.
+     * @param cameraHeight specifies the height of the camera above the floor.
+     * @return filtered target info array.
+     */
+    public TrcVisionTargetInfo<DetectedObject> getBestDetectedTargetsInfo(
+        String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
+        double objHeightOffset, double cameraHeight)
+    {
+        TrcVisionTargetInfo<DetectedObject> bestTarget = null;
+        TrcVisionTargetInfo<DetectedObject>[] detectedTargets = getDetectedTargetsInfo(
+            label, filter, comparator, objHeightOffset, cameraHeight);
+
+        if (detectedTargets != null && detectedTargets.length > 0)
+        {
+            bestTarget = detectedTargets[0];
+        }
+
+        return bestTarget;
+    }   //getBestDetectedTargetsInfo
+
+    /**
      * This method maps a camera screen point to the real world point using homography.
      *
      * @param point specifies the camera screen point.

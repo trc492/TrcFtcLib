@@ -233,6 +233,32 @@ public class FtcVisionEocvColorBlob
     }   //getDetectedTargetsInfo
 
     /**
+     * This method returns the target info of the best detected target.
+     *
+     * @param filter specifies the filter to call to filter out false positive targets.
+     * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
+     * @param objHeightOffset specifies the object height offset above the floor.
+     * @param cameraHeight specifies the height of the camera above the floor.
+     * @return information about the best detected target.
+     */
+    public TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> getBestDetectedTargetInfo(
+        FilterTarget filter,
+        Comparator<? super TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>> comparator,
+        double objHeightOffset, double cameraHeight)
+    {
+        TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> bestTarget = null;
+        TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>[] detectedTargets = getDetectedTargetsInfo(
+            filter, comparator, objHeightOffset, cameraHeight);
+
+        if (detectedTargets != null && detectedTargets.length > 0)
+        {
+            bestTarget = detectedTargets[0];
+        }
+
+        return bestTarget;
+    }   //getBestDetectedTargetInfo
+
+    /**
      * This method maps a camera screen point to the real world point using homography.
      *
      * @param point specifies the camera screen point.

@@ -24,6 +24,9 @@
 package TrcFtcLib.ftclib;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -34,149 +37,205 @@ import TrcCommonLib.trclib.TrcOpenCvColorBlobPipeline;
 import TrcCommonLib.trclib.TrcOpenCvDetector;
 import TrcCommonLib.trclib.TrcOpenCvPipeline;
 
+/**
+ * This class implements a vision processor on top of an EOCV color blob pipeline.
+ */
+
 public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>,
                                                   VisionProcessor
 {
-   private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
+    private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
+    private final Paint rectPaint;
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param colorConversion specifies color space conversion (Imgproc.COLOR_*).
+     * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
+     *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
+     *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
+     * @param filterContourParams specifies the parameters for filtering contours.
+     * @param tracer specifies the tracer for trace info, null if none provided.
+     */
+    public FtcEocvColorBlobProcessor(
+        String instanceName, int colorConversion, double[] colorThresholds,
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
+    {
+        colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
+            instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
+        rectPaint = new Paint();
+        rectPaint.setColor(Color.RED);
+        rectPaint.setAntiAlias(true);
+        rectPaint.setStrokeCap(Paint.Cap.ROUND);
+        rectPaint.setStrokeWidth(3);
+    }   //FtcEocvColorBlobProcessor
+
+    /**
+     * This method returns the pipeline instance name.
+     *
+     * @return pipeline instance Name
+     */
+    @Override
+    public String toString()
+    {
+        return colorBlobPipeline.toString();
+    }   //toString
+
+    //
+    // Implements TrcOpenCvPipeline interface.
+    //
+
+    /**
+     * This method is called to reset the state of the pipeline if any.
+     */
+    @Override
+    public void reset()
+    {
+        colorBlobPipeline.reset();
+    }   //reset
+
+    /**
+     * This method is called to process the input image through the pipeline.
+     *
+     * @param input specifies the input image to be processed.
+     * @return array of detected objects.
+     */
+    @Override
+    public TrcOpenCvColorBlobPipeline.DetectedObject[] process(Mat input)
+    {
+        return colorBlobPipeline.process(input);
+    }   //process
+
+    /**
+     * This method returns the array of detected objects.
+     *
+     * @return array of detected objects.
+     */
+    @Override
+    public TrcOpenCvColorBlobPipeline.DetectedObject[] getDetectedObjects()
+    {
+        return colorBlobPipeline.getDetectedObjects();
+    }   //getDetectedObjects
+
+    /**
+     * This method enables/disables image annotation of the detected object.
+     *
+     * @param enabled specifies true to enable annotation, false to disable.
+     */
+    @Override
+    public void setAnnotateEnabled(boolean enabled)
+    {
+        colorBlobPipeline.setAnnotateEnabled(enabled);
+    }   //setAnnotateEnabled
+
+    /**
+     * This method checks if image annotation is enabled.
+     *
+     * @return true if annotation is enabled, false otherwise.
+     */
+    @Override
+    public boolean isAnnotateEnabled()
+    {
+        return colorBlobPipeline.isAnnotateEnabled();
+    }   //isAnnotateEnabled
+
+    /**
+     * This method sets the intermediate mat of the pipeline as the video output mat.
+     * Note: FTC supports multiple vision processors, so we don't control video output. Let's throw an exception here.
+     *
+     * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
+     */
+    @Override
+    public void setVideoOutput(int intermediateStep)
+    {
+        throw new UnsupportedOperationException("FTC does not support setting video output.");
+    }   //setVideoOutput
+
+    /**
+     * This method cycles to the next intermediate mat of the pipeline as the video output mat.
+     * Note: FTC supports multiple vision processors, so we don't control video output. Let's throw an exception here.
+     */
+    @Override
+    public void setNextVideoOutput()
+    {
+        throw new UnsupportedOperationException("FTC does not support setting video output.");
+    }   //setNextVideoOutput
+
+    /**
+     * This method returns an intermediate processed frame. Typically, a pipeline processes a frame in a number of
+     * steps. It may be useful to see an intermediate frame for a step in the pipeline for tuning or debugging
+     * purposes.
+     *
+     * @param step specifies the intermediate step (0 is the original input frame).
+     * @return processed frame of the specified step.
+     */
+    @Override
+    public Mat getIntermediateOutput(int step)
+    {
+        return colorBlobPipeline.getIntermediateOutput(step);
+    }   //getIntermediateOutput
+
+    /**
+     * This method returns the selected intermediate output Mat.
+     *
+     * @return selected output mat.
+     */
+    @Override
+    public Mat getSelectedOutput()
+    {
+        return colorBlobPipeline.getSelectedOutput();
+    }   //getSelectedOutput
+
+    //
+    // Implements VisionProcessor interface.
+    //
 
    /**
-    * Constructor: Create an instance of the object.
+    * This method is called to initialize the vision processor.
     *
-    * @param instanceName specifies the instance name.
-    * @param colorConversion specifies color space conversion (Imgproc.COLOR_*).
-    * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
-    *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
-    *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
-    * @param filterContourParams specifies the parameters for filtering contours.
-    * @param tracer specifies the tracer for trace info, null if none provided.
+    * @param width specifies the image width.
+    * @param height specifies the image height.
+    * @param calibration specifies the camera calibration data.
     */
-   public FtcEocvColorBlobProcessor(
-       String instanceName, int colorConversion, double[] colorThresholds,
-       TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
-   {
-      colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-          instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
-   }   //FtcEocvColorBlobProcessor
+    @Override
+    public void init(int width, int height, CameraCalibration calibration)
+    {
+        // Don't really need to do anything here.
+    }   //init
 
    /**
-    * This method returns the pipeline instance name.
+    * This method is called to process an image frame.
     *
-    * @return pipeline instance Name
-    */
-   @Override
-   public String toString()
-   {
-      return colorBlobPipeline.toString();
-   }   //toString
-
-   //
-   // Implements TrcOpenCvPipeline interface.
-   //
-
-   /**
-    * This method is called to reset the state of the pipeline if any.
-    */
-   @Override
-   public void reset()
-   {
-      colorBlobPipeline.reset();
-   }   //reset
-
-   /**
-    * This method is called to process the input image through the pipeline.
-    *
-    * @param input specifies the input image to be processed.
+    * @param frame specifies the source image to be processed.
+    * @param captureTimeNanos specifies the capture frame timestamp.
     * @return array of detected objects.
     */
-   @Override
-   public TrcOpenCvColorBlobPipeline.DetectedObject[] process(Mat input)
-   {
-      return colorBlobPipeline.process(input);
-   }   //process
+    @Override
+    public Object processFrame(Mat frame, long captureTimeNanos)
+    {
+        return colorBlobPipeline.process(frame);
+    }   //processFrame
 
-   /**
-    * This method returns the array of detected objects.
-    *
-    * @return array of detected objects.
-    */
-   @Override
-   public TrcOpenCvColorBlobPipeline.DetectedObject[] getDetectedObjects()
-   {
-      return colorBlobPipeline.getDetectedObjects();
-   }   //getDetectedObjects
+    @Override
+    public synchronized void onDrawFrame(
+        Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
+        Object userContext)
+    {
+        // Only one draw operation at a time thank you very much.
+        // (we could be called from two different threads - viewport or camera stream)
+        if (colorBlobPipeline.isAnnotateEnabled() && userContext != null)
+        {
+            TrcOpenCvColorBlobPipeline.DetectedObject[] dets =
+                (TrcOpenCvColorBlobPipeline.DetectedObject[]) userContext;
 
-   /**
-    * This method sets the intermediate mat of the pipeline as the video output mat and optionally annotate the
-    * detected rectangle on it.
-    *
-    * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
-    * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
-    */
-   @Override
-   public void setVideoOutput(int intermediateStep, boolean annotate)
-   {
-      colorBlobPipeline.setVideoOutput(intermediateStep, annotate);
-   }   //setVideoOutput
-
-   /**
-    * This method cycles to the next intermediate mat of the pipeline as the video output mat.
-    *
-    * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
-    */
-   @Override
-   public void setNextVideoOutput(boolean annotate)
-   {
-      colorBlobPipeline.setNextVideoOutput(annotate);
-   }   //setNextVideoOutput
-
-   /**
-    * This method returns an intermediate processed frame. Typically, a pipeline processes a frame in a number of
-    * steps. It may be useful to see an intermediate frame for a step in the pipeline for tuning or debugging
-    * purposes.
-    *
-    * @param step specifies the intermediate step (0 is the original input frame).
-    * @return processed frame of the specified step.
-    */
-   @Override
-   public Mat getIntermediateOutput(int step)
-   {
-      return colorBlobPipeline.getIntermediateOutput(step);
-   }   //getIntermediateOutput
-
-   /**
-    * This method returns the selected intermediate output Mat.
-    *
-    * @return selected output mat.
-    */
-   @Override
-   public Mat getSelectedOutput()
-   {
-      return colorBlobPipeline.getSelectedOutput();
-   }   //getSelectedOutput
-
-   //
-   // Implements VisionProcessor interface.
-   //
-
-   @Override
-   public void init(int width, int height, CameraCalibration calibration)
-   {
-      // TODO: Do we need to do anything here?
-   }  //init
-
-   @Override
-   public Object processFrame(Mat frame, long captureTimeNanos)
-   {
-      colorBlobPipeline.process(frame);
-      return colorBlobPipeline.getSelectedOutput();
-   }  //processFrame
-
-   @Override
-   public void onDrawFrame(
-       Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
-       Object userContext)
-   {
-      // No-op: we already annotated the frame in the pipeline process method.
-   }  //onDrawFrame
+            for (TrcOpenCvColorBlobPipeline.DetectedObject object : dets)
+            {
+                org.opencv.core.Rect objRect = object.getRect();
+                canvas.drawRect(
+                    new Rect(objRect.x, objRect.y, objRect.x + objRect.width, objRect.y + objRect.height), rectPaint);
+            }
+        }
+    }   //onDrawFrame
 
 }  //class FtcEocvColorBlobProcessor

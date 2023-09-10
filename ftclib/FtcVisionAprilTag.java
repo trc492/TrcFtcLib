@@ -111,10 +111,17 @@ public class FtcVisionAprilTag
         @Override
         public TrcPose3D getPose()
         {
-            // Get pose from AprilTag detection ftcPose.
-            return new TrcPose3D(
-                aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
-                aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll);
+            TrcPose3D pose3d = null;
+
+            if (aprilTagDetection.ftcPose != null)
+            {
+                // Get pose from AprilTag detection ftcPose.
+                pose3d = new TrcPose3D(
+                    aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
+                    aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll);
+            }
+
+            return pose3d;
         }   //getPose
 
         /**
@@ -305,5 +312,25 @@ public class FtcVisionAprilTag
 
         return targetsInfo;
     }   //getDetectedTargetsInfo
+
+    /**
+     * This method returns the target info of the best detected target.
+     *
+     * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
+     * @return information about the best detected target.
+     */
+    public TrcVisionTargetInfo<DetectedObject> getBestDetectedTargetInfo(
+        Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
+    {
+        TrcVisionTargetInfo<DetectedObject> bestTarget = null;
+        TrcVisionTargetInfo<DetectedObject>[] detectedTargets = getDetectedTargetsInfo(comparator);
+
+        if (detectedTargets != null && detectedTargets.length > 0)
+        {
+            bestTarget = detectedTargets[0];
+        }
+
+        return bestTarget;
+    }   //getBestDetectedTargetInfo
 
 }   //class FtcVisionAprilTag

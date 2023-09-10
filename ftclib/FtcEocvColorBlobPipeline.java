@@ -32,7 +32,7 @@ import TrcCommonLib.trclib.TrcOpenCvDetector;
 import TrcCommonLib.trclib.TrcOpenCvPipeline;
 
 /**
- * This class implements an EOCV color blob pipeline.
+ * This class implements a raw EOCV color blob pipeline.
  */
 public class FtcEocvColorBlobPipeline extends OpenCvPipeline
                                       implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>
@@ -106,27 +106,47 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     }   //getDetectedObjects
 
     /**
-     * This method sets the intermediate mat of the pipeline as the video output mat and optionally annotate the
-     * detected rectangle on it.
+     * This method enables/disables image annotation of the detected object.
      *
-     * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
-     * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
+     * @param enabled specifies true to enable annotation, false to disable.
      */
     @Override
-    public void setVideoOutput(int intermediateStep, boolean annotate)
+    public void setAnnotateEnabled(boolean enabled)
     {
-        colorBlobPipeline.setVideoOutput(intermediateStep, annotate);
+        colorBlobPipeline.setAnnotateEnabled(enabled);
+    }   //setAnnotateEnabled
+
+    /**
+     * This method checks if image annotation is enabled.
+     *
+     * @return true if annotation is enabled, false otherwise.
+     */
+    @Override
+    public boolean isAnnotateEnabled()
+    {
+        return colorBlobPipeline.isAnnotateEnabled();
+    }   //isAnnotateEnabled
+
+    /**
+     * This method sets the intermediate mat of the pipeline as the video output mat.
+     * Note: FTC supports multiple vision processors, so we don't control video output. Let's throw an exception here.
+     *
+     * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
+     */
+    @Override
+    public void setVideoOutput(int intermediateStep)
+    {
+        throw new UnsupportedOperationException("FTC does not support setting video output.");
     }   //setVideoOutput
 
     /**
      * This method cycles to the next intermediate mat of the pipeline as the video output mat.
-     *
-     * @param annotate specifies true to annotate detected rectangles on the output mat, false otherwise.
+     * Note: FTC supports multiple vision processors, so we don't control video output. Let's throw an exception here.
      */
     @Override
-    public void setNextVideoOutput(boolean annotate)
+    public void setNextVideoOutput()
     {
-        colorBlobPipeline.setNextVideoOutput(annotate);
+        throw new UnsupportedOperationException("FTC does not support setting video output.");
     }   //setNextVideoOutput
 
     /**
