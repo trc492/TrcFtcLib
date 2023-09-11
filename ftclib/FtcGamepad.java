@@ -108,8 +108,8 @@ public class FtcGamepad extends TrcGameController
      * @param instanceName specifies the instance name.
      * @param gamepad specifies the gamepad associated with this instance.
      * @param deadbandThreshold specifies the deadband of the gamepad analog sticks.
-     * @param buttonHandler specifies the object that will handle the button events. If none provided, it is set
-     *                      to null.
+     * @param buttonHandler specifies the object that will handle the button events. If none provided, it is set to
+     *        null.
      */
     public FtcGamepad(
         final String instanceName, Gamepad gamepad, final double deadbandThreshold, ButtonHandler buttonHandler)
@@ -126,7 +126,7 @@ public class FtcGamepad extends TrcGameController
      * @param instanceName specifies the instance name.
      * @param gamepad specifies the gamepad associated with this instance.
      * @param buttonHandler specifies the object that will handle the button events. If none provided, it is set to
-     *                      null.
+     *        null.
      */
     public FtcGamepad(final String instanceName, Gamepad gamepad, ButtonHandler buttonHandler)
     {
@@ -173,7 +173,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the x-axis value of the left stick using the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return x-axis value of the left stick.
      */
     public double getLeftStickX(double cubicCoefficient)
@@ -185,8 +184,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the x-axis value of the left stick.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return x-axis value of the left stick.
      */
     public double getLeftStickX(boolean doExp)
@@ -208,7 +206,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the y-axis value of the left stick using the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return y-axis value of the left stick.
      */
     public double getLeftStickY(double cubicCoefficient)
@@ -220,8 +217,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the y-axis value of the left stick.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return y-axis value of the left stick.
      */
     public double getLeftStickY(boolean doExp)
@@ -243,7 +239,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the x-axis value of the right stick using the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return x-axis value of the right stick.
      */
     public double getRightStickX(double cubicCoefficient)
@@ -255,8 +250,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the x-axis value of the right stick.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return x-axis value of the right stick.
      */
     public double getRightStickX(boolean doExp)
@@ -278,7 +272,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the y-axis value of the right stick using the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return y-axis value of the right stick.
      */
     public double getRightStickY(double cubicCoefficient)
@@ -290,8 +283,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the y-axis value of the right stick.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return y-axis value of the right stick.
      */
     public double getRightStickY(boolean doExp)
@@ -313,7 +305,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the left trigger value using the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return left trigger value.
      */
     public double getLeftTrigger(double cubicCoefficient)
@@ -325,8 +316,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the left trigger value.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return left trigger value.
      */
     public double getLeftTrigger(boolean doExp)
@@ -348,7 +338,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the right trigger value using the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return right trigger value.
      */
     public double getRightTrigger(double cubicCoefficient)
@@ -360,8 +349,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the right trigger value.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return right trigger value.
      */
     public double getRightTrigger(boolean doExp)
@@ -380,22 +368,42 @@ public class FtcGamepad extends TrcGameController
     }   //getRightTrigger
 
     /**
+     * This method combines the left trigger and right trigger values to a value with a range of -1.0 to 1.0 using
+     * the cubic polynomial curve.
+     *
+     * @param cubicCoefficient specifies the cubic coefficient.
+     * @return combined left and right trigger value.
+     */
+    public double getTrigger(double cubicCoefficient)
+    {
+        return adjustAnalogControl(gamepad.right_trigger - gamepad.left_trigger, cubicCoefficient);
+    }   //getTrigger
+
+    /**
      * This method combines the left trigger and right trigger values to a value with a range of -1.0 to 1.0.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return combined left and right trigger value.
      */
     public double getTrigger(boolean doExp)
     {
-        return getRightTrigger(doExp) - getLeftTrigger(doExp);
+        return adjustAnalogControl(gamepad.right_trigger - gamepad.left_trigger, doExp);
+    }   //getTrigger
+
+    /**
+     * This method combines the left trigger and right trigger values to a value with a range of -1.0 to 1.0.
+     * @return combined left and right trigger value.
+     */
+    public double getTrigger()
+    {
+        return getTrigger(false);
     }   //getTrigger
 
     /**
      * This method returns the left stick magnitude combining the x and y axes and applying the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return left stick magnitude.
      */
     public double getLeftStickMagnitude(double cubicCoefficient)
@@ -407,8 +415,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the left stick magnitude combining the x and y axes.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return left stick magnitude.
      */
     public double getLeftStickMagnitude(boolean doExp)
@@ -430,7 +437,6 @@ public class FtcGamepad extends TrcGameController
      * This method returns the right stick magnitude combining the x and y axes and applying the cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return right stick magnitude.
      */
     public double getRightStickMagnitude(double cubicCoefficient)
@@ -442,8 +448,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the right stick magnitude combining the x and y axes.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return right stick magnitude.
      */
     public double getRightStickMagnitude(boolean doExp)
@@ -466,7 +471,6 @@ public class FtcGamepad extends TrcGameController
      * cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return left stick direction in radians.
      */
     public double getLeftStickDirectionRadians(double cubicCoefficient)
@@ -478,8 +482,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the left stick direction in radians combining the x and y axes.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return left stick direction in radians.
      */
     public double getLeftStickDirectionRadians(boolean doExp)
@@ -502,7 +505,6 @@ public class FtcGamepad extends TrcGameController
      * cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return right stick direction in radians.
      */
     public double getRightStickDirectionRadians(double cubicCoefficient)
@@ -514,8 +516,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the right stick direction in radians combining the x and y axes.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return right stick direction in radians.
      */
     public double getRightStickDirectionRadians(boolean doExp)
@@ -538,7 +539,6 @@ public class FtcGamepad extends TrcGameController
      * cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return left stick direction in degrees.
      */
     public double getLeftStickDirectionDegrees(double cubicCoefficient)
@@ -550,8 +550,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the left stick direction in degrees combining the x and y axes.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return left stick direction in degrees.
      */
     public double getLeftStickDirectionDegrees(boolean doExp)
@@ -574,7 +573,6 @@ public class FtcGamepad extends TrcGameController
      * cubic polynomial curve.
      *
      * @param cubicCoefficient specifies the cubic coefficient.
-     *
      * @return right stick direction in degrees.
      */
     public double getRightStickDirectionDegrees(double cubicCoefficient)
@@ -586,8 +584,7 @@ public class FtcGamepad extends TrcGameController
      * This method returns the right stick direction in degrees combining the x and y axes.
      *
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
-     *
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return right stick direction in degrees.
      */
     public double getRightStickDirectionDegrees(boolean doExp)
@@ -611,7 +608,7 @@ public class FtcGamepad extends TrcGameController
      *
      * @param driveMode specifies the drive mode which determines the control mappings.
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @param drivePowerScale specifies the scaling factor for drive power.
      * @param turnPowerScale specifies the scaling factor for turn power.
      * @return an array of 3 values for x, y and rotation power.
@@ -627,7 +624,7 @@ public class FtcGamepad extends TrcGameController
             case HOLONOMIC_MODE:
                 x = getRightStickX(doExp);
                 y = getLeftStickY(doExp);
-                rot = expValue(getRightTrigger() - getLeftTrigger(), doExp);
+                rot = getTrigger(doExp);
                 if (debugEnabled)
                 {
                     globalTracer.traceInfo(funcName, "%s:x=%.1f,y=%.1f,rot=%.1f", driveMode, x, y, rot);
@@ -676,7 +673,7 @@ public class FtcGamepad extends TrcGameController
      *
      * @param driveMode specifies the drive mode which determines the control mappings.
      * @param doExp specifies true if the value should be raised exponentially, false otherwise. If the value is
-     *              raised exponentially, it gives you more precise control on the low end values.
+     *        raised exponentially, it gives you more precise control on the low end values.
      * @return an array of 3 values for x, y and rotation power.
      */
     public double[] getDriveInputs(DriveMode driveMode, boolean doExp)
