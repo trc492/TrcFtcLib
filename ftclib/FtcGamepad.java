@@ -625,6 +625,15 @@ public class FtcGamepad extends TrcGameController
         switch (driveMode)
         {
             case HOLONOMIC_MODE:
+                x = getRightStickX(doExp);
+                y = getLeftStickY(doExp);
+                rot = expValue(getRightTrigger() - getLeftTrigger(), doExp);
+                if (debugEnabled)
+                {
+                    globalTracer.traceInfo(funcName, "%s:x=%.1f,y=%.1f,rot=%.1f", driveMode, x, y, rot);
+                }
+                break;
+
             case ARCADE_MODE:
                 x = getLeftStickX(doExp);
                 y = getLeftStickY(doExp);
