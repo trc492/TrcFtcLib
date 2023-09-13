@@ -519,6 +519,11 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
             // OpMode is stopping, tell all periodic threads to stop.
             TrcPeriodicThread.setRobotInitialized(false);
         }
+        catch (Exception e)
+        {
+            globalTracer.traceFatal(funcName, "Caught unexpected exception:\n%s", e);
+            throw e;
+        }
         finally
         {
             //

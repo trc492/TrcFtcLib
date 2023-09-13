@@ -63,12 +63,14 @@ public class FtcVisionEocvColorBlob
      * @param filterContourParams specifies the parameters for filtering contours.
      * @param cameraRect specifies the camera rectangle for Homography Mapper, null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, null if not provided.
+     * @param annotate specifies true to draw annotation, false otherwise.
      * @param tracer specifies the tracer for trace info, null if not provided.
      */
     public FtcVisionEocvColorBlob(
         String instanceName, int colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams,
-        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
+        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
+        boolean annotate, TrcDbgTrace tracer)
     {
         this.tracer = tracer;
         // Create the Color Blob processor.
@@ -83,6 +85,8 @@ public class FtcVisionEocvColorBlob
         {
             homographyMapper = null;
         }
+
+        colorBlobProcessor.setAnnotateEnabled(annotate);
     }   //FtcVisionEocvColorBlob
 
     /**
@@ -101,7 +105,7 @@ public class FtcVisionEocvColorBlob
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams,
         TrcDbgTrace tracer)
     {
-        this(instanceName, colorConversion, colorThresholds, filterContourParams, null, null, tracer);
+        this(instanceName, colorConversion, colorThresholds, filterContourParams, null, null, true, tracer);
     }   //FtcVisionEocvColorBlob
 
     /**
