@@ -45,6 +45,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
 {
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
     private final Paint linePaint;
+    private final Paint textPaint;
     private boolean annotate = false;
 
     /**
@@ -69,6 +70,11 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
         linePaint.setAntiAlias(true);
         linePaint.setStrokeCap(Paint.Cap.ROUND);
         linePaint.setStrokeWidth(3);
+        textPaint = new Paint();
+        textPaint.setColor(Color.RED);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextSize(48f);
+        textPaint.setTextAlign(Paint.Align.LEFT);
     }   //FtcEocvColorBlobProcessor
 
     /**
@@ -238,6 +244,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
                 canvas.drawLine(right, top, right, bottom, linePaint);
                 canvas.drawLine(right, bottom, left, bottom, linePaint);
                 canvas.drawLine(left, bottom, left, top, linePaint);
+                canvas.drawText(colorBlobPipeline.toString(), left, bottom, textPaint);
             }
         }
     }   //onDrawFrame
