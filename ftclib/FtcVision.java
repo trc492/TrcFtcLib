@@ -42,8 +42,6 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcVision
 {
     private final VisionPortal visionPortal;
-    private final ExposureControl exposureControl;
-    private final GainControl gainControl;
 
     /**
      * Constructor: Create an instance of the object.
@@ -86,8 +84,6 @@ public class FtcVision
         builder.addProcessors(visionProcessors);
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
-        exposureControl = visionPortal.getCameraControl(ExposureControl.class);
-        gainControl = visionPortal.getCameraControl(GainControl.class);
     }   //FtcVision
 
     /**
@@ -167,92 +163,152 @@ public class FtcVision
     /**
      * This method return the camera exposure mode.
      *
-     * @return exposure mode.
+     * @return exposure mode, null if unsuccessful.
      */
     public ExposureControl.Mode getExposureMode()
     {
-        return exposureControl.getMode();
+        ExposureControl.Mode exposureMode = null;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            exposureMode = visionPortal.getCameraControl(ExposureControl.class).getMode();
+        }
+
+        return exposureMode;
     }   //getExposureMode
 
     /**
      * This method sets the exposure mode.
      *
      * @param exposureMode specifies the exposure mode.
+     * @return true if successful, false otherwise.
      */
-    public void setExposureMode(ExposureControl.Mode exposureMode)
+    public boolean setExposureMode(ExposureControl.Mode exposureMode)
     {
-        exposureControl.setMode(exposureMode);
+        boolean success = false;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            success = visionPortal.getCameraControl(ExposureControl.class).setMode(exposureMode);
+        }
+
+        return success;
     }   //setExposureMode
 
     /**
-     * This method returns the camera min exposure setting.
+     * This method returns the camera min and max exposure setting.
      *
-     * @return min exposure.
+     * @return array containing min and max exposure times in msec, null if unsuccessful.
      */
-    public int getMinExposure()
+    public int[] getExposureSetting()
     {
-        return (int)exposureControl.getMinExposure(TimeUnit.MILLISECONDS);
-    }   //getMinExposure
+        int[] exposureTimes = null;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+
+            exposureTimes = new int[2];
+            exposureTimes[0] = (int) exposureControl.getMinExposure(TimeUnit.MILLISECONDS);
+            exposureTimes[1] = (int) exposureControl.getMaxExposure(TimeUnit.MILLISECONDS);
+        }
+
+        return exposureTimes;
+    }   //getExposureSetting
 
     /**
-     * This method returns the camera max exposure setting.
+     * This method returns the current camera exposure time in msec.
      *
-     * @return max exposure.
+     * @return current exposure time in msec, 0 if unsuccessful.
      */
-    public int getMaxExposure()
+    public int getCurrentExposure()
     {
-        return (int)exposureControl.getMaxExposure(TimeUnit.MILLISECONDS);
-    }   //getMaxExposure
+        int currExposure = 0;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            currExposure =
+                (int) visionPortal.getCameraControl(ExposureControl.class).getExposure(TimeUnit.MILLISECONDS);
+        }
+
+        return currExposure;
+    }   //getCurrentExposure
 
     /**
-     * This method returns the camera min gain setting.
+     * This method returns the camera min and max gain setting.
      *
-     * @return min gain.
+     * @return array containing min and max gain values, null if unsuccessful.
      */
-    public int getMinGain()
+    public int[] getGainSetting()
     {
-        return gainControl.getMinGain();
-    }   //getMinGain
+        int[] gains = null;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+
+            gains = new int[2];
+            gains[0] = (int) gainControl.getMinGain();
+            gains[1] = (int) gainControl.getMaxGain();
+        }
+
+        return gains;
+    }   //getGainSetting
 
     /**
-     * This method returns the camera max gain setting.
+     * This method returns the current camera gain.
      *
-     * @return max gain.
+     * @return current gain, 0 if unsuccessful.
      */
-    public int getMaxGain()
+    public int getCurrentGain()
     {
-        return gainControl.getMaxGain();
-    }   //getMaxGain
+        int currGain = 0;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            currGain = (int) visionPortal.getCameraControl(GainControl.class).getGain();
+        }
+
+        return currGain;
+    }   //getCurrentGain
 
     /**
-     * This method sets the camera exposure. If the camera is not already in manual exposure mode, this method will
-     * switch the camera to manual exposure mode.
+     * This method sets the camera exposure and gain. This can only be done if the camera is in manual exposure mode.
+     * If the camera is not already in manual exposure mode, this method will switch the camera to manual exposure mode.
      * Note: This is a synchronous call and may take some time, so it should only be called at robotInit time.
      *
      * @param exposureMS specifies the exposure time in msec.
+     * @param gain specifies the camera gain.
+     * @return true if successful, false otherwise.
      */
-    public void setManualExposure(int exposureMS)
+    public boolean setManualExposure(int exposureMS, int gain)
     {
-        if (exposureControl.getMode() != ExposureControl.Mode.Manual)
+        boolean success = false;
+
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
         {
-            exposureControl.setMode(ExposureControl.Mode.Manual);
-            TrcTimer.sleep(50);
+            ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+
+            if (exposureControl.getMode() != ExposureControl.Mode.Manual)
+            {
+                success = exposureControl.setMode(ExposureControl.Mode.Manual);
+                TrcTimer.sleep(50);
+            }
+
+            if (success)
+            {
+                success = exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
+                TrcTimer.sleep(20);
+            }
+
+            if (success)
+            {
+                success = visionPortal.getCameraControl(GainControl.class).setGain(gain);
+                TrcTimer.sleep(20);
+            }
         }
 
-        exposureControl.setExposure((long)exposureMS, TimeUnit.MILLISECONDS);
-        TrcTimer.sleep(20);
+        return success;
     }   //setManualExposure
-
-    /**
-     * This method sets the camera gain.
-     * Note: This is a synchronous call and may take some time, so it should only be called at robotInit time.
-     *
-     * @param gain specifies the camera gain.
-     */
-    public void setGain(int gain)
-    {
-        gainControl.setGain(gain);
-        TrcTimer.sleep(20);
-    }   //setGain
 
 }   //class FtcVision
