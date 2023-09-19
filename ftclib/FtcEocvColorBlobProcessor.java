@@ -43,10 +43,54 @@ import TrcCommonLib.trclib.TrcOpenCvPipeline;
 public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>,
                                                   VisionProcessor
 {
+    private static final int DEF_LINE_COLOR = Color.GREEN;
+    private static final float DEF_LINE_WIDTH = 3.0f;
+    private static final int DEF_TEXT_COLOR = Color.RED;
+    private static final float DEF_TEXT_SIZE = 20.0f;
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
     private final Paint linePaint;
     private final Paint textPaint;
     private boolean annotate = false;
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param instanceName specifies the instance name.
+     * @param colorConversion specifies color space conversion (Imgproc.COLOR_*).
+     * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
+     *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
+     *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
+     * @param filterContourParams specifies the parameters for filtering contours.
+     * @param lineColor specifies the line color to draw the bounding rectangle, can be null if not provided in which
+     *        case default color is used.
+     * @param lineWidth specifies the line width to draw the bounding rectangle, can be null if not provided in which
+     *        case default width is used.
+     * @param textColor specifies the text color to draw the label text, can be null if not provided in which case
+     *        default color is used.
+     * @param textSize specifies the text size to draw the label text, can be null if not provided in which case
+     *        default text size is used.
+     * @param tracer specifies the tracer for trace info, null if none provided.
+     */
+    public FtcEocvColorBlobProcessor(
+        String instanceName, int colorConversion, double[] colorThresholds,
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams,
+        Integer lineColor, Float lineWidth, Integer textColor, Float textSize, TrcDbgTrace tracer)
+    {
+        colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
+            instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
+
+        linePaint = new Paint();
+        linePaint.setAntiAlias(true);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setColor(lineColor != null? lineColor: DEF_LINE_COLOR);
+        linePaint.setStrokeWidth(lineWidth != null? lineWidth: DEF_LINE_WIDTH);
+
+        textPaint = new Paint();
+        textPaint.setAntiAlias(true);
+        textPaint.setTextAlign(Paint.Align.LEFT);
+        textPaint.setColor(textColor != null? textColor: DEF_TEXT_COLOR);
+        textPaint.setTextSize(textSize != null? textSize: DEF_TEXT_SIZE);
+    }   //FtcEocvColorBlobProcessor
 
     /**
      * Constructor: Create an instance of the object.
@@ -63,18 +107,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
         String instanceName, int colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
     {
-        colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-            instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
-        linePaint = new Paint();
-        linePaint.setColor(Color.GREEN);
-        linePaint.setAntiAlias(true);
-        linePaint.setStrokeCap(Paint.Cap.ROUND);
-        linePaint.setStrokeWidth(3);
-        textPaint = new Paint();
-        textPaint.setColor(Color.RED);
-        textPaint.setAntiAlias(true);
-        textPaint.setTextSize(48f);
-        textPaint.setTextAlign(Paint.Align.LEFT);
+        this(instanceName, colorConversion, colorThresholds, filterContourParams, null, null, null, null, tracer);
     }   //FtcEocvColorBlobProcessor
 
     /**
