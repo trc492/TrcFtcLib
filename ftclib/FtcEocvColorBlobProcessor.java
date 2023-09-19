@@ -44,7 +44,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
                                                   VisionProcessor
 {
     private static final int DEF_LINE_COLOR = Color.GREEN;
-    private static final float DEF_LINE_WIDTH = 3.0f;
+    private static final float DEF_LINE_WIDTH = 4.0f;
     private static final int DEF_TEXT_COLOR = Color.RED;
     private static final float DEF_TEXT_SIZE = 20.0f;
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
