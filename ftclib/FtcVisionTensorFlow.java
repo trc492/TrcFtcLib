@@ -182,22 +182,30 @@ public class FtcVisionTensorFlow
      * Constructor: Create an instance of the object.
      *
      * @param params specifies the TensorFlow parameters, can be null if using default parameters.
-     * @param modelAsset specifies the model asset file name.
+     * @param modelIsAsset specifies true if model is an asset, false if it is a file name.
+     * @param model specifies the model asset or model file name.
      * @param objectLabels specifies the names of detectable objects.
      * @param cameraRect specifies the camera rectangle for Homography Mapper, null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, null if not provided.
      * @param tracer specifies the tracer for trace info, null if not provided.
      */
     public FtcVisionTensorFlow(
-        Parameters params, String modelAsset, String[] objectLabels,
+        Parameters params, boolean modelIsAsset, String model, String[] objectLabels,
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
     {
-        this.instanceName = modelAsset;
+        this.instanceName = model;
         this.tracer = tracer;
         // Create the TensorFlow processor by using a builder.
-        TfodProcessor.Builder builder = new TfodProcessor.Builder()
-            .setModelAssetName(modelAsset)
-            .setModelLabels(objectLabels);
+        TfodProcessor.Builder builder = new TfodProcessor.Builder().setModelLabels(objectLabels);
+
+        if (modelIsAsset)
+        {
+            builder.setModelAssetName(model);
+        }
+        else
+        {
+            builder.setModelFileName(model);
+        }
 
         if (params != null)
         {
@@ -222,26 +230,30 @@ public class FtcVisionTensorFlow
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param params specifies the TensorFlow parameters.
-     * @param modelAsset specifies the model asset file name.
+     * @param params specifies the TensorFlow parameters, can be null if using default parameters.
+     * @param modelIsAsset specifies true if model is an asset, false if it is a file name.
+     * @param model specifies the model asset or model file name.
      * @param objectLabels specifies the names of detectable objects.
      * @param tracer specifies the tracer for trace info, null if not provided.
      */
-    public FtcVisionTensorFlow(Parameters params, String modelAsset, String[] objectLabels, TrcDbgTrace tracer)
+    public FtcVisionTensorFlow(
+        Parameters params, boolean modelIsAsset, String model, String[] objectLabels, TrcDbgTrace tracer)
     {
-        this(params, modelAsset, objectLabels, null, null, tracer);
+        this(params, modelIsAsset, model, objectLabels, null, null, tracer);
     }   //FtcVisionTensorFlow
 
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param params specifies the TensorFlow parameters.
-     * @param modelAsset specifies the model asset file name.
+     * @param params specifies the TensorFlow parameters, can be null if using default parameters.
+     * @param modelIsAsset specifies true if model is an asset, false if it is a file name.
+     * @param model specifies the model asset or model file name.
      * @param objectLabels specifies the names of detectable objects.
      */
-    public FtcVisionTensorFlow(Parameters params, String modelAsset, String[] objectLabels)
+    public FtcVisionTensorFlow(
+        Parameters params, boolean modelIsAsset, String model, String[] objectLabels)
     {
-        this(params, modelAsset, objectLabels, null, null, null);
+        this(params, modelIsAsset, model, objectLabels, null, null, null);
     }   //FtcVisionTensorFlow
 
     /**

@@ -32,10 +32,10 @@ import TrcCommonLib.trclib.TrcOpenCvDetector;
 import TrcCommonLib.trclib.TrcOpenCvPipeline;
 
 /**
- * This class implements a raw EOCV color blob pipeline.
+ * This class implements an EOCV color blob pipeline.
  */
-public class FtcEocvColorBlobPipeline extends OpenCvPipeline
-                                      implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>
+public class FtcRawEocvColorBlobPipeline extends OpenCvPipeline
+                                         implements TrcOpenCvPipeline<TrcOpenCvDetector.DetectedObject<?>>
 {
     private final TrcOpenCvColorBlobPipeline colorBlobPipeline;
 
@@ -50,13 +50,13 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
      * @param filterContourParams specifies the parameters for filtering contours.
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
-    public FtcEocvColorBlobPipeline(
+    public FtcRawEocvColorBlobPipeline(
         String instanceName, int colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
             instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
-    }   //FtcEocvColorBlobPipeline
+    }   //FtcRawEocvColorBlobPipeline
 
     /**
      * This method returns the pipeline instance name.
@@ -68,6 +68,26 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
     {
         return colorBlobPipeline.toString();
     }   //toString
+
+    /**
+     * This method returns the color threshold values.
+     *
+     * @return array of color threshold values.
+     */
+    public double[] getColorThresholds()
+    {
+        return colorBlobPipeline.getColorThresholds();
+    }   //getColorThresholds
+
+    /**
+     * This method sets the color threshold values.
+     *
+     * @param colorThresholds specifies an array of color threshold values.
+     */
+    public void setColorThresholds(double... colorThresholds)
+    {
+        colorBlobPipeline.setColorThresholds(colorThresholds);
+    }   //setColorThresholds
 
     //
     // Implements TrcOpenCvPipeline interface.
@@ -129,24 +149,22 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
 
     /**
      * This method sets the intermediate mat of the pipeline as the video output mat.
-     * Note: FTC supports multiple vision processors, so we don't control video output. Let's throw an exception here.
      *
      * @param intermediateStep specifies the intermediate mat used as video output (0 is the original input frame).
      */
     @Override
     public void setVideoOutput(int intermediateStep)
     {
-        throw new UnsupportedOperationException("FTC does not support setting video output.");
+        colorBlobPipeline.setVideoOutput(intermediateStep);
     }   //setVideoOutput
 
     /**
      * This method cycles to the next intermediate mat of the pipeline as the video output mat.
-     * Note: FTC supports multiple vision processors, so we don't control video output. Let's throw an exception here.
      */
     @Override
     public void setNextVideoOutput()
     {
-        throw new UnsupportedOperationException("FTC does not support setting video output.");
+        colorBlobPipeline.setNextVideoOutput();
     }   //setNextVideoOutput
 
     /**
@@ -192,4 +210,4 @@ public class FtcEocvColorBlobPipeline extends OpenCvPipeline
         return colorBlobPipeline.getSelectedOutput();
     }   //processFrame
 
-}  //class FtcEocvColorBlobPipeline
+}  //class FtcRawEocvColorBlobPipeline

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2023 Titan Robotics Club (http://www.titanrobotics.com)
- * Based on sample code by Robert Atkinson.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -256,6 +255,23 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
         return colorBlobPipeline.process(frame);
     }   //processFrame
 
+    /**
+     * Called during the viewport's frame rendering operation at some later point after
+     * you called called {@link #requestViewportDrawHook(Object)} during processFrame().
+     * Allows you to use the Canvas API to draw annotations on the frame, rather than
+     * using OpenCV calls. This allows for more eye-candy-y annotations since you've got
+     * a high resolution canvas to work with rather than, say, a 320x240 image.
+     *
+     * Note that this is NOT called from the same thread that calls processFrame()!
+     * And may actually be called from the UI thread depending on the viewport renderer.
+     *
+     * @param canvas the canvas that's being drawn on NOTE: Do NOT get dimensions from it, use below
+     * @param onscreenWidth the width of the canvas that corresponds to the image
+     * @param onscreenHeight the height of the canvas that corresponds to the image
+     * @param scaleBmpPxToCanvasPx multiply pixel coords by this to scale to canvas coords
+     * @param scaleCanvasDensity a scaling factor to adjust e.g. text size. Relative to Nexus5 DPI.
+     * @param userContext whatever you passed in when requesting the draw hook :monkey:
+     */
     @Override
     public synchronized void onDrawFrame(
         Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
@@ -271,8 +287,13 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
             for (TrcOpenCvColorBlobPipeline.DetectedObject object : dets)
             {
                 org.opencv.core.Rect objRect = object.getRect();
-                float left = objRect.x, right = objRect.x + objRect.width;
-                float top = objRect.y, bottom = objRect.y + objRect.height;
+                // Detected rect is on camera Mat that has different resolution from the canvas. Therefore, we must
+                // scale the rect to canvas resolution.
+                float left = objRect.x * scaleBmpPxToCanvasPx;
+                float right = (objRect.x + objRect.width) * scaleBmpPxToCanvasPx;
+                float top = objRect.y * scaleBmpPxToCanvasPx;
+                float bottom = (objRect.y + objRect.height) * scaleBmpPxToCanvasPx;
+
                 canvas.drawLine(left, top, right, top, linePaint);
                 canvas.drawLine(right, top, right, bottom, linePaint);
                 canvas.drawLine(right, bottom, left, bottom, linePaint);
