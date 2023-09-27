@@ -109,7 +109,7 @@ public class FtcVisionAprilTag
          * @return pose of the detected object relative to camera.
          */
         @Override
-        public TrcPose3D getPose()
+        public TrcPose3D getObjectPose()
         {
             TrcPose3D pose3d = null;
 
@@ -122,7 +122,31 @@ public class FtcVisionAprilTag
             }
 
             return pose3d;
-        }   //getPose
+        }   //getObjectPose
+
+        /**
+         * This method returns the real world width of the detected object.
+         *
+         * @return real world width of the detected object.
+         */
+        @Override
+        public Double getObjectWidth()
+        {
+            // AprilTag detection does not provide detected object width.
+            return null;
+        }   //getObjectWidth
+
+        /**
+         * This method returns the real world depth of the detected object.
+         *
+         * @return real world depth of the detected object.
+         */
+        @Override
+        public Double getObjectDepth()
+        {
+            // AprilTag detection does not provide detected object depth.
+            return null;
+        }   //getObjectDepth
 
         /**
          * This method returns the string form of the target info.
@@ -289,7 +313,7 @@ public class FtcVisionAprilTag
 
         if (tracer != null)
         {
-            tracer.traceInfo(funcName, "###TargetInfo###: %s", targetInfo);
+            tracer.traceInfo(funcName, "%s: TargetInfo=%s", this, targetInfo);
         }
 
         return targetInfo;

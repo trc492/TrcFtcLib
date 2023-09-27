@@ -45,7 +45,7 @@ public class FtcVisionEocvColorBlob
      */
     public interface FilterTarget
     {
-        boolean validateTarget(TrcOpenCvColorBlobPipeline.DetectedObject object);
+        boolean validateTarget(TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> objInfo);
     }   //interface FilterTarget
 
     private final TrcDbgTrace tracer;
@@ -130,56 +130,6 @@ public class FtcVisionEocvColorBlob
     }   //getVisionProcessor
 
     /**
-     * This method returns an array list of detected targets. If a target label is given, only detected targets with
-     * the same label will be returned.
-     *
-     * @param filter specifies the filter to call to filter out false positive targets.
-     * @return filtered target array list.
-     */
-    private ArrayList<TrcOpenCvColorBlobPipeline.DetectedObject> getDetectedTargets(FilterTarget filter)
-    {
-        final String funcName = "getDetectedTargets";
-        ArrayList<TrcOpenCvColorBlobPipeline.DetectedObject> targets = null;
-        TrcOpenCvColorBlobPipeline.DetectedObject[] detectedObjects = colorBlobProcessor.getDetectedObjects();
-
-        if (detectedObjects != null)
-        {
-            targets = new ArrayList<>();
-            for (int i = 0; i < detectedObjects.length; i++)
-            {
-                TrcOpenCvColorBlobPipeline.DetectedObject object = detectedObjects[i];
-                boolean rejected = false;
-
-                if (filter == null || filter.validateTarget(object))
-                {
-                    targets.add(object);
-                }
-                else
-                {
-                    rejected = true;
-                }
-
-                if (tracer != null)
-                {
-                    tracer.traceInfo(
-                        funcName, "[%d] %s:rect=%s,pose=%s,rejected=%s",
-                        i, this, object.getRect(), object.getPose(), rejected);
-                }
-            }
-
-            if (targets.size() == 0)
-            {
-                //
-                // No target found.
-                //
-                targets = null;
-            }
-        }
-
-        return targets;
-    }   //getDetectedTargets
-
-    /**
      * This method returns the target info of the given detected target.
      *
      * @param target specifies the detected target
@@ -190,13 +140,13 @@ public class FtcVisionEocvColorBlob
     public TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> getDetectedTargetInfo(
         TrcOpenCvColorBlobPipeline.DetectedObject target, double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getTargetInfo";
+        final String funcName = "getDetectedTargetInfo";
         TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
             target, homographyMapper, objHeightOffset, cameraHeight);
 
         if (tracer != null)
         {
-            tracer.traceInfo(funcName, "###TargetInfo###: %s", targetInfo);
+            tracer.traceInfo(funcName, "%s: TargetInfo=%s", this, targetInfo);
         }
 
         return targetInfo;
@@ -216,20 +166,43 @@ public class FtcVisionEocvColorBlob
         Comparator<? super TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>> comparator,
         double objHeightOffset, double cameraHeight)
     {
-        ArrayList<TrcOpenCvColorBlobPipeline.DetectedObject> targets = getDetectedTargets(filter);
-        TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>[] targetsInfo =
-            targets != null && targets.size() > 0? new TrcVisionTargetInfo[targets.size()]: null;
+        final String funcName = "getDetectedTargetsInfo";
+        TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>[] targetsInfo = null;
+        TrcOpenCvColorBlobPipeline.DetectedObject[] detectedObjects = colorBlobProcessor.getDetectedObjects();
 
-        if (targetsInfo != null)
+        if (detectedObjects != null)
         {
-            for (int i = 0; i < targets.size(); i++)
+            ArrayList<TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>> targets = new ArrayList<>();
+            for (int i = 0; i < detectedObjects.length; i++)
             {
-                targetsInfo[i] = getDetectedTargetInfo(targets.get(i), objHeightOffset, cameraHeight);
+                TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> objInfo =
+                    getDetectedTargetInfo(detectedObjects[i], objHeightOffset, cameraHeight);
+                boolean rejected = false;
+
+                if (filter == null || filter.validateTarget(objInfo))
+                {
+                    targets.add(objInfo);
+                }
+                else
+                {
+                    rejected = true;
+                }
+
+                if (tracer != null)
+                {
+                    tracer.traceInfo(funcName, "[%d] rejected=%s", i, rejected);
+                }
             }
 
-            if (comparator != null)
+            if (targets.size() > 0)
             {
-                Arrays.sort(targetsInfo, comparator);
+                targetsInfo = new TrcVisionTargetInfo[targets.size()];
+                targets.toArray(targetsInfo);
+
+                if (comparator != null)
+                {
+                    Arrays.sort(targetsInfo, comparator);
+                }
             }
         }
 

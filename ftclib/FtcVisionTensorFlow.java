@@ -102,11 +102,35 @@ public class FtcVisionTensorFlow
          * @return pose of the detected object relative to camera.
          */
         @Override
-        public TrcPose3D getPose()
+        public TrcPose3D getObjectPose()
         {
             // TensorFlow does not provide detected object pose, let caller use homography to calculate it.
             return null;
-        }   //getPose
+        }   //getObjectPose
+
+        /**
+         * This method returns the real world width of the detected object.
+         *
+         * @return real world width of the detected object.
+         */
+        @Override
+        public Double getObjectWidth()
+        {
+            // TensorFlow detection does not provide detected object width, let caller use homography to calculate it.
+            return null;
+        }   //getObjectWidth
+
+        /**
+         * This method returns the real world depth of the detected object.
+         *
+         * @return real world depth of the detected object.
+         */
+        @Override
+        public Double getObjectDepth()
+        {
+            // TensorFlow detection does not provide detected object depth, let caller use homography to calculate it.
+            return null;
+        }   //getObjectDepth
 
         /**
          * This method returns the string form of the target info.
@@ -170,7 +194,7 @@ public class FtcVisionTensorFlow
      */
     public interface FilterTarget
     {
-        boolean validateTarget(Recognition object);
+        boolean validateTarget(TrcVisionTargetInfo<DetectedObject> objInfo);
     }   //interface FilterTarget
 
     private final String instanceName;
@@ -278,65 +302,6 @@ public class FtcVisionTensorFlow
     }   //getVisionProcessor
 
     /**
-     * This method returns an array list of detected targets. If a target label is given, only detected targets with
-     * the same label will be returned.
-     *
-     * @param label specifies the target label to filter the target list, can be null if no filtering.
-     * @param filter specifies the filter to call to filter out false positive targets.
-     * @return filtered target array list.
-     */
-    private ArrayList<Recognition> getDetectedTargets(String label, FilterTarget filter)
-    {
-        final String funcName = "getDetectedTargets";
-        ArrayList<Recognition> targets = null;
-        //
-        // getFreshRecognitions() will return null if no new information is available since the last time that call
-        // was made.
-        //
-        List<Recognition> updatedRecognitions = tensorFlowProcessor.getFreshRecognitions();
-        if (updatedRecognitions != null)
-        {
-            targets = new ArrayList<>();
-            for (int i = 0; i < updatedRecognitions.size(); i++)
-            {
-                Recognition object = updatedRecognitions.get(i);
-                boolean foundIt = label == null || label.equals(object.getLabel());
-                boolean rejected = false;
-
-                if (foundIt)
-                {
-                    if (filter == null || filter.validateTarget(object))
-                    {
-                        targets.add(object);
-                    }
-                    else
-                    {
-                        rejected = true;
-                    }
-                }
-
-                if (tracer != null)
-                {
-                    tracer.traceInfo(
-                        funcName, "[%d] TensorFlow.%s:x=%.0f,y=%.0f,w=%.0f,h=%.0f,foundIt=%s,rejected=%s",
-                        i, object.getLabel(), object.getLeft(), object.getTop(), object.getWidth(),
-                        object.getHeight(), foundIt, rejected);
-                }
-            }
-
-            if (targets.size() == 0)
-            {
-                //
-                // No target found.
-                //
-                targets = null;
-            }
-        }
-
-        return targets;
-    }   //getDetectedTargets
-
-    /**
      * This method returns the target info of the given detected target.
      *
      * @param target specifies the detected target
@@ -357,7 +322,10 @@ public class FtcVisionTensorFlow
 
         if (tracer != null)
         {
-            tracer.traceInfo(funcName, "###TargetInfo###: %s", targetInfo);
+            tracer.traceInfo(
+                funcName, "%s.%s: x=%.0f,y=%.0f,w=%.0f,h=%.0f,TargetInfo=%s",
+                this, target.getLabel(), target.getLeft(), target.getTop(), target.getWidth(), target.getHeight(),
+                targetInfo);
         }
 
         return targetInfo;
@@ -377,20 +345,58 @@ public class FtcVisionTensorFlow
         String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
         double objHeightOffset, double cameraHeight)
     {
-        ArrayList<Recognition> targets = getDetectedTargets(label, filter);
-        TrcVisionTargetInfo<DetectedObject>[] targetsInfo =
-            targets != null && targets.size() > 0? new TrcVisionTargetInfo[targets.size()]: null;
+        final String funcName = "getDetectedTargetsInfo";
+        TrcVisionTargetInfo<DetectedObject>[] targetsInfo = null;
+        // getFreshRecognitions() will return null if no new information is available since the last time that call
+        // was made.
+        List<Recognition> updatedRecognitions = tensorFlowProcessor.getFreshRecognitions();
 
-        if (targetsInfo != null)
+        if (updatedRecognitions != null)
         {
-            for (int i = 0; i < targets.size(); i++)
+            ArrayList<Recognition> targets = new ArrayList<>();
+            for (int i = 0; i < updatedRecognitions.size(); i++)
             {
-                targetsInfo[i] = getDetectedTargetInfo(targets.get(i), objHeightOffset, cameraHeight);
+                Recognition object = updatedRecognitions.get(i);
+                TrcVisionTargetInfo<DetectedObject> objInfo =
+                    getDetectedTargetInfo(object, objHeightOffset, cameraHeight);
+                boolean foundIt = label == null || label.equals(object.getLabel());
+                boolean rejected = false;
+
+                if (foundIt)
+                {
+                    if (filter == null || filter.validateTarget(objInfo))
+                    {
+                        targets.add(object);
+                    }
+                    else
+                    {
+                        rejected = true;
+                    }
+                }
+
+                if (tracer != null)
+                {
+                    tracer.traceInfo(funcName, "[%d] foundIt=%s,rejected=%s", i, foundIt, rejected);
+                }
             }
 
-            if (comparator != null)
+            if (targets.size() > 0)
             {
-                Arrays.sort(targetsInfo, comparator);
+                targetsInfo = new TrcVisionTargetInfo[targets.size()];
+                targets.toArray(targetsInfo);
+
+                if (comparator != null)
+                {
+                    Arrays.sort(targetsInfo, comparator);
+                }
+            }
+
+            if (targets.size() == 0)
+            {
+                //
+                // No target found.
+                //
+                targets = null;
             }
         }
 
