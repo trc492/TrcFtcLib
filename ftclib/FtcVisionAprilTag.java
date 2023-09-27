@@ -322,22 +322,30 @@ public class FtcVisionAprilTag
     /**
      * This method returns an array of target info on the filtered detected targets.
      *
+     * @param id specifies the AprilTag ID to look for, null if match to any ID.
      * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
      * @return sorted target info array.
      */
     public TrcVisionTargetInfo<DetectedObject>[] getDetectedTargetsInfo(
-        Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
+        Integer id, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
     {
+        TrcVisionTargetInfo<DetectedObject>[] targetsInfo = null;
+        ArrayList<TrcVisionTargetInfo<DetectedObject>> targetsList = new ArrayList<>();
         ArrayList<AprilTagDetection> targets = aprilTagProcessor.getFreshDetections();
-        TrcVisionTargetInfo<DetectedObject>[] targetsInfo =
-            targets != null && targets.size() > 0? new TrcVisionTargetInfo[targets.size()]: null;
 
-        if (targetsInfo != null)
+        for (AprilTagDetection detection: targets)
         {
-            for (int i = 0; i < targets.size(); i++)
+            // Check for ID match if provided.
+            if (id == null || id == detection.id)
             {
-                targetsInfo[i] = getDetectedTargetInfo(targets.get(i));
+                targetsList.add(getDetectedTargetInfo(detection));
             }
+        }
+
+        if (!targetsList.isEmpty())
+        {
+            targetsInfo = new TrcVisionTargetInfo[targetsList.size()];
+            targetsList.toArray(targetsInfo);
 
             if (comparator != null)
             {
@@ -351,14 +359,15 @@ public class FtcVisionAprilTag
     /**
      * This method returns the target info of the best detected target.
      *
+     * @param id specifies the AprilTag ID to look for, null if match to any ID.
      * @param comparator specifies the comparator to sort the array if provided, can be null if not provided.
      * @return information about the best detected target.
      */
     public TrcVisionTargetInfo<DetectedObject> getBestDetectedTargetInfo(
-        Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
+        Integer id, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
     {
         TrcVisionTargetInfo<DetectedObject> bestTarget = null;
-        TrcVisionTargetInfo<DetectedObject>[] detectedTargets = getDetectedTargetsInfo(comparator);
+        TrcVisionTargetInfo<DetectedObject>[] detectedTargets = getDetectedTargetsInfo(id, comparator);
 
         if (detectedTargets != null && detectedTargets.length > 0)
         {
