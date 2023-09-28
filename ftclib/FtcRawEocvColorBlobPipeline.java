@@ -43,7 +43,9 @@ public class FtcRawEocvColorBlobPipeline extends OpenCvPipeline
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param colorConversion specifies color space conversion (Imgproc.COLOR_*).
+     * @param colorConversion specifies color space conversion, can be null if no color space conversion.
+     *        Note: FTC ECOV input Mat format is RGBA, so you need to do Imgproc.COLOR_RGBA2xxx or
+     *        Imgproc.COLOR_RGB2xxx conversion.
      * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
      *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
      *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
@@ -51,7 +53,7 @@ public class FtcRawEocvColorBlobPipeline extends OpenCvPipeline
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcRawEocvColorBlobPipeline(
-        String instanceName, int colorConversion, double[] colorThresholds,
+        String instanceName, Integer colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(

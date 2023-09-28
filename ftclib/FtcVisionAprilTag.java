@@ -330,26 +330,30 @@ public class FtcVisionAprilTag
         Integer id, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator)
     {
         TrcVisionTargetInfo<DetectedObject>[] targetsInfo = null;
-        ArrayList<TrcVisionTargetInfo<DetectedObject>> targetsList = new ArrayList<>();
         ArrayList<AprilTagDetection> targets = aprilTagProcessor.getFreshDetections();
 
-        for (AprilTagDetection detection: targets)
+        if (targets != null)
         {
-            // Check for ID match if provided.
-            if (id == null || id == detection.id)
+            ArrayList<TrcVisionTargetInfo<DetectedObject>> targetsList = new ArrayList<>();
+
+            for (AprilTagDetection detection : targets)
             {
-                targetsList.add(getDetectedTargetInfo(detection));
+                // Check for ID match if provided.
+                if (id == null || id == detection.id)
+                {
+                    targetsList.add(getDetectedTargetInfo(detection));
+                }
             }
-        }
 
-        if (!targetsList.isEmpty())
-        {
-            targetsInfo = new TrcVisionTargetInfo[targetsList.size()];
-            targetsList.toArray(targetsInfo);
-
-            if (comparator != null)
+            if (!targetsList.isEmpty())
             {
-                Arrays.sort(targetsInfo, comparator);
+                targetsInfo = new TrcVisionTargetInfo[targetsList.size()];
+                targetsList.toArray(targetsInfo);
+
+                if (comparator != null)
+                {
+                    Arrays.sort(targetsInfo, comparator);
+                }
             }
         }
 

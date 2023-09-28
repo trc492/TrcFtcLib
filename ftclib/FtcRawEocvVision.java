@@ -157,36 +157,40 @@ public class FtcRawEocvVision
         final String funcName = instanceName + ".getDetectedTargetsInfo";
         TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] detectedTargets = null;
 
-        TrcOpenCvDetector.DetectedObject<?>[] objects = openCvPipeline.getDetectedObjects();
-
-        if (objects != null)
+        // Do this only if the pipeline is set.
+        if (openCvPipeline != null)
         {
-            ArrayList<TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> targetList = new ArrayList<>();
+            TrcOpenCvDetector.DetectedObject<?>[] objects = openCvPipeline.getDetectedObjects();
 
-            for (TrcOpenCvDetector.DetectedObject<?> obj : objects)
+            if (objects != null)
             {
-                if (filter == null || filter.validateTarget(obj))
+                ArrayList<TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> targetList = new ArrayList<>();
+
+                for (TrcOpenCvDetector.DetectedObject<?> obj : objects)
                 {
-                    TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>> targetInfo =
-                        new TrcVisionTargetInfo<>(obj, homographyMapper, objHeightOffset, cameraHeight);
-                    targetList.add(targetInfo);
+                    if (filter == null || filter.validateTarget(obj))
+                    {
+                        TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>> targetInfo =
+                            new TrcVisionTargetInfo<>(obj, homographyMapper, objHeightOffset, cameraHeight);
+                        targetList.add(targetInfo);
+                    }
                 }
-            }
 
-            if (targetList.size() > 0)
-            {
-                detectedTargets = targetList.toArray(new TrcVisionTargetInfo[0]);
-                if (comparator != null && detectedTargets.length > 1)
+                if (targetList.size() > 0)
                 {
-                    Arrays.sort(detectedTargets, comparator);
+                    detectedTargets = targetList.toArray(new TrcVisionTargetInfo[0]);
+                    if (comparator != null && detectedTargets.length > 1)
+                    {
+                        Arrays.sort(detectedTargets, comparator);
+                    }
                 }
-            }
 
-            if (detectedTargets != null && tracer != null)
-            {
-                for (int i = 0; i < detectedTargets.length; i++)
+                if (detectedTargets != null && tracer != null)
                 {
-                    tracer.traceInfo(funcName, "[%d] Target=%s", i, detectedTargets[i]);
+                    for (int i = 0; i < detectedTargets.length; i++)
+                    {
+                        tracer.traceInfo(funcName, "[%d] Target=%s", i, detectedTargets[i]);
+                    }
                 }
             }
         }

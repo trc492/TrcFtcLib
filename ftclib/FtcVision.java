@@ -24,7 +24,9 @@ package TrcFtcLib.ftclib;
 
 import android.util.Size;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
@@ -41,12 +43,15 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcVision
 {
+    private WebcamName webcam1Name;
+    private WebcamName webcam2Name;
     private final VisionPortal visionPortal;
 
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param webcamName specifies USB webcam name, null if using phone built-in camera.
+     * @param webcam1Name specifies USB webcam1 name, null if using phone built-in camera.
+     * @param webcam2Name specifies USB webcam2 name, null if has only one webcam or using phone built-in camera.
      * @param cameraDirection specifies the phone camera direction, null if using USB webcam.
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
@@ -54,19 +59,36 @@ public class FtcVision
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     private FtcVision(
-        WebcamName webcamName, BuiltinCameraDirection cameraDirection, int imageWidth, int imageHeight,
-        boolean enableLiveView, VisionProcessor... visionProcessors)
+        WebcamName webcam1Name, WebcamName webcam2Name, BuiltinCameraDirection cameraDirection, int imageWidth,
+        int imageHeight, boolean enableLiveView, VisionProcessor... visionProcessors)
     {
         VisionPortal.Builder builder = new VisionPortal.Builder();
+        CameraName camera = null;
 
-        if (webcamName != null)
+        this.webcam1Name = webcam1Name;
+        this.webcam2Name = webcam2Name;
+        if (webcam1Name != null && webcam2Name != null)
         {
-            builder.setCamera(webcamName);
+            camera = ClassFactory.getInstance().getCameraManager().nameForSwitchableCamera(webcam1Name, webcam2Name);
+        }
+        else if (webcam1Name != null)
+        {
+            camera = webcam1Name;
+        }
+        else if (webcam2Name != null)
+        {
+            camera = webcam2Name;
+        }
+
+        if (camera != null)
+        {
+            builder.setCamera(camera);
         }
         else
         {
             builder.setCamera(cameraDirection);
         }
+
         builder.setCameraResolution(new Size(imageWidth, imageHeight));
 
         if (enableLiveView)
@@ -89,7 +111,24 @@ public class FtcVision
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param webcamName specifies USB webcam name, null if using phone built-in camera.
+     * @param webcam1Name specifies USB webcam1 name.
+     * @param webcam2Name specifies USB webcam2 name, null if has only one webcam.
+     * @param imageWidth specifies the camera image width in pixels.
+     * @param imageHeight specifies the camera image height in pixels.
+     * @param enableLiveView specifies true to enable camera live view, false to disable.
+     * @param visionProcessors specifies an array of vision processors to be added.
+     */
+    public FtcVision(
+        WebcamName webcam1Name, WebcamName webcam2Name, int imageWidth, int imageHeight, boolean enableLiveView,
+        VisionProcessor... visionProcessors)
+    {
+        this(webcam1Name, webcam2Name, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
+    }   //FtcVision
+
+    /**
+     * Constructor: Create an instance of the object.
+     *
+     * @param webcamName specifies USB webcam name.
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
@@ -99,7 +138,7 @@ public class FtcVision
         WebcamName webcamName, int imageWidth, int imageHeight, boolean enableLiveView,
         VisionProcessor... visionProcessors)
     {
-        this(webcamName, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(webcamName, null, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
     }   //FtcVision
 
     /**
@@ -115,7 +154,7 @@ public class FtcVision
         BuiltinCameraDirection cameraDirection, int imageWidth, int imageHeight, boolean enableLiveView,
         VisionProcessor... visionProcessors)
     {
-        this(null, cameraDirection, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(null, null, cameraDirection, imageWidth, imageHeight, enableLiveView, visionProcessors);
     }   //FtcVision
 
     /**
