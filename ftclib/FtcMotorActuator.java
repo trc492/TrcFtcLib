@@ -159,17 +159,15 @@ public class FtcMotorActuator
             motorParams.upperLimitSwitchEnabled? new FtcDigitalInput(instanceName + ".upperLimit"): null;
 
         this.instanceName = instanceName;
-        if (lowerLimitSwitch != null)
-        {
-            lowerLimitSwitch.setInverted(motorParams.lowerLimitSwitchInverted);
-        }
-
-        if (upperLimitSwitch != null)
-        {
-            upperLimitSwitch.setInverted(motorParams.upperLimitSwitchInverted);
-        }
-
         actuator = new FtcDcMotor(instanceName + ".motor", lowerLimitSwitch, upperLimitSwitch);
+        if (motorParams.lowerLimitSwitchEnabled)
+        {
+            actuator.enableLowerLimitSwitch(motorParams.lowerLimitSwitchInverted);
+        }
+        if (motorParams.upperLimitSwitchEnabled)
+        {
+            actuator.enableUpperLimitSwitch(motorParams.upperLimitSwitchInverted);
+        }
         actuator.setBrakeModeEnabled(true);
         actuator.setOdometryEnabled(true, true, true);
         actuator.setMotorInverted(motorParams.motorInverted);
