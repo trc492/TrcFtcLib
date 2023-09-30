@@ -184,7 +184,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setCurrentLimit(double currentLimit, double triggerThresholdCurrent, double triggerThresholdTime)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setCurrentLimit.");
+        throw new UnsupportedOperationException(instanceName + " does not support setCurrentLimit.");
     }   //setCurrentLimit
 
 //    /**
@@ -220,7 +220,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setCloseLoopRampRate(double rampTime)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setCloseLoopRampRate.");
+        throw new UnsupportedOperationException(instanceName + " does not support setCloseLoopRampRate.");
     }   //setCloseLoopRampRate
 
     /**
@@ -231,7 +231,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setOpenLoopRampRate(double rampTime)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setOpenLoopRampRate.");
+        throw new UnsupportedOperationException(instanceName + " does not support setOpenLoopRampRate.");
     }   //setOpenLoopRampRate
 
     /**
@@ -256,7 +256,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void enableMotorRevLimitSwitch(boolean normalClose)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support reverse limit switch.");
     }   //enableMotorRevLimitSwitch
 
     /**
@@ -267,7 +267,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void enableMotorFwdLimitSwitch(boolean normalClose)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support forward limit switch.");
     }   //enableMotorFwdLimitSwitch
 
     /**
@@ -276,7 +276,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void disableMotorRevLimitSwitch()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support reverse limit switch.");
     }   //disableMotorRevLimitSwitch
 
     /**
@@ -285,7 +285,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void disableMotorFwdLimitSwitch()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support forward limit switch.");
     }   //disableMotorFwdLimitSwitch
 
     /**
@@ -296,7 +296,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorRevLimitSwitchEnabled()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support reverse limit switch.");
     }   //isMotorRevLimitSwitchEnabled
 
     /**
@@ -307,7 +307,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorFwdLimitSwitchEnabled()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support forward limit switch.");
     }   //isMotorFwdLimitSwitchEnabled
 
     /**
@@ -319,7 +319,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorRevLimitSwitchInverted(boolean inverted)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support reverse limit switch.");
     }   //setMotorRevLimitSwitchInverted
 
     /**
@@ -331,7 +331,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorFwdLimitSwitchInverted(boolean inverted)
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support forward limit switch.");
     }   //setMotorFwdLimitSwitchInverted
 
     /**
@@ -342,7 +342,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorRevLimitSwitchActive()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support reverse limit switch.");
     }   //isMotorRevLimitSwitchActive
 
     /**
@@ -353,7 +353,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorFwdLimitSwitchActive()
     {
-        throw new UnsupportedOperationException("Motor controller does not support limit switches.");
+        throw new UnsupportedOperationException(instanceName + " does not support forward limit switch.");
     }   //isMotorFwdLimitSwitchActive
 
     /**
@@ -364,7 +364,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorRevSoftPositionLimit(Double limit)
     {
-        throw new UnsupportedOperationException("Motor controller does not support soft limits.");
+        throw new UnsupportedOperationException(instanceName + " does not support reverse soft position limit.");
     }   //setMotorRevSoftPositionLimit
 
     /**
@@ -375,7 +375,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorFwdSoftPositionLimit(Double limit)
     {
-        throw new UnsupportedOperationException("Motor controller does not support soft limits.");
+        throw new UnsupportedOperationException(instanceName + " does not support forward soft position limit.");
     }   //setMotorFwdSoftPositionLimit
 
     /**
@@ -389,7 +389,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorPositionSensorInverted(boolean inverted)
     {
-        throw new UnsupportedOperationException("Motor controller does not support position sensor.");
+        throw new UnsupportedOperationException(instanceName + " does not support position sensor.");
     }   //setMotorPositionSensorInverted
 
     /**
@@ -400,7 +400,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean isMotorPositionSensorInverted()
     {
-        throw new UnsupportedOperationException("Motor controller does not support position sensor.");
+        throw new UnsupportedOperationException(instanceName + " does not support position sensor.");
     }   //isMotorPositionSensorInverted
 
     /**
@@ -537,13 +537,13 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorVelocity(double vel)
     {
+        motor.setVelocity(vel);
         if (runMode != DcMotor.RunMode.RUN_USING_ENCODER)
         {
             // Not in velocity control mode, set it so.
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             runMode = DcMotor.RunMode.RUN_USING_ENCODER;
         }
-        motor.setVelocity(vel);
         velocityTarget = vel;
     }   //setMotorVelocity
 
@@ -567,13 +567,13 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorPosition(double pos, double powerLimit)
     {
+        motor.setTargetPosition((int) pos);
         if (runMode != DcMotor.RunMode.RUN_TO_POSITION)
         {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             runMode = DcMotor.RunMode.RUN_TO_POSITION;
         }
         motor.setPower(powerLimit);
-        motor.setTargetPosition((int) pos);
         positionTarget = (int) pos;
     }   //setMotorPosition
 
@@ -597,7 +597,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorCurrent(double current)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setMotorCurrent.");
+        throw new UnsupportedOperationException(instanceName + " does not support setMotorCurrent.");
     }   //setMotorCurrent
 
     /**
@@ -718,7 +718,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorCurrentPidCoefficients(TrcPidController.PidCoefficients pidCoeff)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setMotorCurretPidCoefficients.");
+        throw new UnsupportedOperationException(instanceName + " does not support setMotorCurretPidCoefficients.");
     }   //setMotorCurrentPidCoefficients
 
     /**
@@ -729,7 +729,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public void setMotorCurrentPidTolerance(double tolerance)
     {
-        throw new UnsupportedOperationException("Motor controller does not support setMotorCurretPidTolerance.");
+        throw new UnsupportedOperationException(instanceName + " does not support setMotorCurretPidTolerance.");
     }   //setMotorCurrentPidTolerance
 
     /**
@@ -740,7 +740,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public TrcPidController.PidCoefficients getMotorCurrentPidCoefficients()
     {
-        throw new UnsupportedOperationException("Motor controller does not support getMotorCurretPidCoefficients.");
+        throw new UnsupportedOperationException(instanceName + " does not support getMotorCurretPidCoefficients.");
     }   //geteMotorCurrentPidCoefficients
 
     /**
@@ -751,7 +751,7 @@ public class FtcDcMotor extends TrcMotor
     @Override
     public boolean getMotorCurrentOnTarget()
     {
-        throw new UnsupportedOperationException("Motor controller does not support getMotorCurretOnTarget.");
+        throw new UnsupportedOperationException(instanceName + " does not support getMotorCurretOnTarget.");
     }   //getMotorCurrentOnTarget
 
     //
