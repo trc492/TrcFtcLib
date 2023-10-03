@@ -43,8 +43,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcVision
 {
-    private WebcamName webcam1Name;
-    private WebcamName webcam2Name;
     private final VisionPortal visionPortal;
 
     /**
@@ -65,8 +63,6 @@ public class FtcVision
         VisionPortal.Builder builder = new VisionPortal.Builder();
         CameraName camera = null;
 
-        this.webcam1Name = webcam1Name;
-        this.webcam2Name = webcam2Name;
         if (webcam1Name != null && webcam2Name != null)
         {
             camera = ClassFactory.getInstance().getCameraManager().nameForSwitchableCamera(webcam1Name, webcam2Name);
@@ -89,7 +85,9 @@ public class FtcVision
             builder.setCamera(cameraDirection);
         }
 
-        builder.setCameraResolution(new Size(imageWidth, imageHeight));
+        builder
+            .setCameraResolution(new Size(imageWidth, imageHeight))
+            .setStreamFormat(VisionPortal.StreamFormat.MJPEG);
 
         if (enableLiveView)
         {
