@@ -61,7 +61,9 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
      * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
      *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
      *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
-     * @param filterContourParams specifies the parameters for filtering contours.
+     * @param filterContourParams specifies the parameters for filtering contours, can be null if not provided.
+     * @param externalContourOnly specifies true for finding external contours only, false otherwise (not applicable
+     *        if filterContourParams is null).
      * @param lineColor specifies the line color to draw the bounding rectangle, can be null if not provided in which
      *        case default color is used.
      * @param lineWidth specifies the line width to draw the bounding rectangle, can be null if not provided in which
@@ -74,11 +76,11 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
      */
     public FtcEocvColorBlobProcessor(
         String instanceName, Integer colorConversion, double[] colorThresholds,
-        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams,
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
         Integer lineColor, Float lineWidth, Integer textColor, Float textSize, TrcDbgTrace tracer)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-            instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
+            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, tracer);
 
         linePaint = new Paint();
         linePaint.setAntiAlias(true);
@@ -103,14 +105,18 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
      * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
      *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
      *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
-     * @param filterContourParams specifies the parameters for filtering contours.
+     * @param filterContourParams specifies the parameters for filtering contours, can be null if not provided.
+     * @param externalContourOnly specifies true for finding external contours only, false otherwise (not applicable
+     *        if filterContourParams is null).
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvColorBlobProcessor(
         String instanceName, Integer colorConversion, double[] colorThresholds,
-        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
+        TrcDbgTrace tracer)
     {
-        this(instanceName, colorConversion, colorThresholds, filterContourParams, null, null, null, null, tracer);
+        this(instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, null, null, null,
+             null, tracer);
     }   //FtcEocvColorBlobProcessor
 
     /**

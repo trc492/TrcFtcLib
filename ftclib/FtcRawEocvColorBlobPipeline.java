@@ -49,15 +49,18 @@ public class FtcRawEocvColorBlobPipeline extends OpenCvPipeline
      * @param colorThresholds specifies an array of color thresholds. If useHsv is false, the array contains RGB
      *        thresholds (minRed, maxRed, minGreen, maxGreen, minBlue, maxBlue). If useHsv is true, the array contains
      *        HSV thresholds (minHue, maxHue, minSat, maxSat, minValue, maxValue).
-     * @param filterContourParams specifies the parameters for filtering contours.
+     * @param filterContourParams specifies the parameters for filtering contours, can be null if not provided.
+     * @param externalContourOnly specifies true for finding external contours only, false otherwise (not applicable
+     *        if filterContourParams is null).
      * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcRawEocvColorBlobPipeline(
         String instanceName, Integer colorConversion, double[] colorThresholds,
-        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, TrcDbgTrace tracer)
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
+        TrcDbgTrace tracer)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-            instanceName, colorConversion, colorThresholds, filterContourParams, tracer);
+            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, tracer);
     }   //FtcRawEocvColorBlobPipeline
 
     /**
