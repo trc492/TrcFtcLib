@@ -287,8 +287,8 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
         Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
         Object userContext)
     {
-        // Only one draw operation at a time thank you very much.
-        // (we could be called from two different threads - viewport or camera stream)
+        // Allow only one draw operation at a time (we could be called from two different threads - viewport or
+        // camera stream).
         if (annotate && userContext != null)
         {
             TrcOpenCvColorBlobPipeline.DetectedObject[] dets =
