@@ -245,6 +245,19 @@ public class FtcImu extends TrcGyro
     }   //isEnabled
 
     //
+    // Overriding TrcGyro methods.
+    //
+
+    /**
+     * This method overrides the TrcGyro class and calls its own.
+     */
+    @Override
+    public void resetZIntegrator()
+    {
+        imu.resetYaw();
+    }   //resetZIntegrator
+
+    //
     // Implements TrcGyro abstract methods.
     //
 
