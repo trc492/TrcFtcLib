@@ -84,17 +84,14 @@ public class FtcVision
         {
             builder.setCamera(cameraDirection);
         }
-
-        builder
-            .setCameraResolution(new Size(imageWidth, imageHeight))
-            .setStreamFormat(VisionPortal.StreamFormat.MJPEG);
+        //Set the stream format; MJPEG uses less bandwidth than default YUY2.
+        builder.setCameraResolution(new Size(imageWidth, imageHeight))
+               .setStreamFormat(VisionPortal.StreamFormat.MJPEG);
 
         if (enableLiveView)
         {
             builder.enableLiveView(true);
             builder.setAutoStopLiveView(true);
-            //Set the stream format; MJPEG uses less bandwidth than default YUY2.
-            //  builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
         }
         else
         {
