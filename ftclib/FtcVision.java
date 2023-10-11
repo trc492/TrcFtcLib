@@ -44,6 +44,7 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcVision
 {
     private final VisionPortal visionPortal;
+    private WebcamName activeCamera;
 
     /**
      * Constructor: Create an instance of the object.
@@ -101,6 +102,14 @@ public class FtcVision
         builder.addProcessors(visionProcessors);
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
+        // Wait for camera to open successfully.
+        FtcOpMode opMode = FtcOpMode.getInstance();
+        while (!opMode.isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING))
+        {
+            TrcTimer.sleep(20);
+        }
+
+        activeCamera = visionPortal.getActiveCamera();
     }   //FtcVision
 
     /**
@@ -161,6 +170,27 @@ public class FtcVision
     {
         return visionPortal;
     }   //getVisionPortal
+
+    /**
+     * This method returns the active camera if we have two webcams.
+     *
+     * @return active camera.
+     */
+    public WebcamName getActiveCamera()
+    {
+        return activeCamera;
+    }   //getActiveCamera
+
+    /**
+     * This method sets the active camera if we have two webcams.
+     *
+     * @param webcamName specifies the webcam to be the active camera.
+     */
+    public void setActiveCamera(WebcamName webcamName)
+    {
+        visionPortal.setActiveCamera(webcamName);
+        activeCamera = webcamName;
+    }   //setActiveCamera
 
     /**
      * This method enables/disables the vision processor.
