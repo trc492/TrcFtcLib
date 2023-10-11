@@ -35,6 +35,7 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 
 import java.util.concurrent.TimeUnit;
 
+import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcTimer;
 
 /**
@@ -43,6 +44,10 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcVision
 {
+    private static final String moduleName = "FtcVision";
+    private static final boolean debugEnabled = false;
+    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
+
     private final VisionPortal visionPortal;
     private WebcamName activeCamera;
 
@@ -77,6 +82,7 @@ public class FtcVision
             camera = webcam2Name;
         }
 
+        double startTime = TrcTimer.getCurrentTime();
         if (camera != null)
         {
             builder.setCamera(camera);
@@ -104,9 +110,18 @@ public class FtcVision
         visionPortal = builder.build();
         // Wait for camera to open successfully.
         FtcOpMode opMode = FtcOpMode.getInstance();
+        int loopCount = 0;
         while (!opMode.isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING))
         {
-            TrcTimer.sleep(20);
+            TrcTimer.sleep(10);
+            loopCount++;
+        }
+
+        if (debugEnabled)
+        {
+            globalTracer.traceInfo(
+                moduleName, "Camera open elapsed time=%.3f (loop=%d).",
+                TrcTimer.getCurrentTime() - startTime, loopCount);
         }
 
         activeCamera = visionPortal.getActiveCamera();
@@ -115,34 +130,34 @@ public class FtcVision
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param webcam1Name specifies USB webcam1 name.
-     * @param webcam2Name specifies USB webcam2 name, null if has only one webcam.
+     * @param webcam1 specifies USB webcam1.
+     * @param webcam2 specifies USB webcam2, null if has only one webcam.
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     public FtcVision(
-        WebcamName webcam1Name, WebcamName webcam2Name, int imageWidth, int imageHeight, boolean enableLiveView,
+        WebcamName webcam1, WebcamName webcam2, int imageWidth, int imageHeight, boolean enableLiveView,
         VisionProcessor... visionProcessors)
     {
-        this(webcam1Name, webcam2Name, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(webcam1, webcam2, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
     }   //FtcVision
 
     /**
      * Constructor: Create an instance of the object.
      *
-     * @param webcamName specifies USB webcam name.
+     * @param webcam specifies USB webcam.
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     public FtcVision(
-        WebcamName webcamName, int imageWidth, int imageHeight, boolean enableLiveView,
+        WebcamName webcam, int imageWidth, int imageHeight, boolean enableLiveView,
         VisionProcessor... visionProcessors)
     {
-        this(webcamName, null, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(webcam, null, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
     }   //FtcVision
 
     /**
@@ -188,8 +203,11 @@ public class FtcVision
      */
     public void setActiveCamera(WebcamName webcamName)
     {
-        visionPortal.setActiveCamera(webcamName);
-        activeCamera = webcamName;
+        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        {
+            visionPortal.setActiveCamera(webcamName);
+            activeCamera = webcamName;
+        }
     }   //setActiveCamera
 
     /**
@@ -311,9 +329,13 @@ public class FtcVision
         {
             GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
 
-            gains = new int[2];
-            gains[0] = (int) gainControl.getMinGain();
-            gains[1] = (int) gainControl.getMaxGain();
+            if (gainControl != null)
+            {
+                gains = new int[2];
+                gains[0] = gainControl.getMinGain();
+                gains[1] = gainControl.getMaxGain();
+            }
+            // TODO: Figure out why gainControl is NULL?!
         }
 
         return gains;
@@ -330,7 +352,12 @@ public class FtcVision
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
         {
-            currGain = (int) visionPortal.getCameraControl(GainControl.class).getGain();
+            GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+
+            if (gainControl != null)
+            {
+                currGain = gainControl.getGain();
+            }
         }
 
         return currGain;
