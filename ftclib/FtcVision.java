@@ -280,37 +280,36 @@ public class FtcVision
     /**
      * This method returns the camera min and max exposure setting.
      *
-     * @return array containing min and max exposure times in msec, null if unsuccessful.
+     * @return array containing min and max exposure times in usec, null if unsuccessful.
      */
-    public int[] getExposureSetting()
+    public long[] getExposureSetting()
     {
-        int[] exposureTimes = null;
+        long[] exposureTimes = null;
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
         {
             ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
 
-            exposureTimes = new int[2];
-            exposureTimes[0] = (int) exposureControl.getMinExposure(TimeUnit.MILLISECONDS);
-            exposureTimes[1] = (int) exposureControl.getMaxExposure(TimeUnit.MILLISECONDS);
+            exposureTimes = new long[2];
+            exposureTimes[0] = exposureControl.getMinExposure(TimeUnit.MICROSECONDS);
+            exposureTimes[1] = exposureControl.getMaxExposure(TimeUnit.MICROSECONDS);
         }
 
         return exposureTimes;
     }   //getExposureSetting
 
     /**
-     * This method returns the current camera exposure time in msec.
+     * This method returns the current camera exposure time in usec.
      *
-     * @return current exposure time in msec, 0 if unsuccessful.
+     * @return current exposure time in usec, 0 if unsuccessful.
      */
-    public int getCurrentExposure()
+    public long getCurrentExposure()
     {
-        int currExposure = 0;
+        long currExposure = 0;
 
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
         {
-            currExposure =
-                (int) visionPortal.getCameraControl(ExposureControl.class).getExposure(TimeUnit.MILLISECONDS);
+            currExposure = visionPortal.getCameraControl(ExposureControl.class).getExposure(TimeUnit.MICROSECONDS);
         }
 
         return currExposure;
@@ -328,14 +327,13 @@ public class FtcVision
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
         {
             GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
-
+            // Switchable cameras do not support gain control and will return null. So, check before we use it.
             if (gainControl != null)
             {
                 gains = new int[2];
                 gains[0] = gainControl.getMinGain();
                 gains[1] = gainControl.getMaxGain();
             }
-            // TODO: Figure out why gainControl is NULL?!
         }
 
         return gains;
@@ -368,19 +366,27 @@ public class FtcVision
      * If the camera is not already in manual exposure mode, this method will switch the camera to manual exposure mode.
      * Note: This is a synchronous call and may take some time, so it should only be called at robotInit time.
      *
-     * @param exposureMS specifies the exposure time in msec.
-     * @param gain specifies the camera gain.
+     * @param exposureUsec specifies the exposure time in usec.
+     * @param gain specifies the camera gain, null if setting exposure only.
      * @return true if successful, false otherwise.
      */
-    public boolean setManualExposure(int exposureMS, int gain)
+    public boolean setManualExposure(long exposureUsec, Integer gain)
     {
-        boolean success = false;
+        boolean success;
 
-        if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)
+        {
+            success = false;
+        }
+        else
         {
             ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
 
-            if (exposureControl.getMode() != ExposureControl.Mode.Manual)
+            if (exposureControl.getMode() == ExposureControl.Mode.Manual)
+            {
+                success = true;
+            }
+            else
             {
                 success = exposureControl.setMode(ExposureControl.Mode.Manual);
                 TrcTimer.sleep(50);
@@ -388,14 +394,18 @@ public class FtcVision
 
             if (success)
             {
-                success = exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
+                success = exposureControl.setExposure(exposureUsec, TimeUnit.MICROSECONDS);
                 TrcTimer.sleep(20);
             }
 
-            if (success)
+            if (success && gain != null)
             {
-                success = visionPortal.getCameraControl(GainControl.class).setGain(gain);
-                TrcTimer.sleep(20);
+                GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+                if (gainControl != null)
+                {
+                    success = gainControl.setGain(gain);
+                    TrcTimer.sleep(20);
+                }
             }
         }
 
