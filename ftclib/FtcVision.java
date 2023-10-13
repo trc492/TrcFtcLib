@@ -123,8 +123,8 @@ public class FtcVision
                 moduleName, "Camera open elapsed time=%.3f (loop=%d).",
                 TrcTimer.getCurrentTime() - startTime, loopCount);
         }
-        // activeCamera is only valid if we have 2 webcams.
-        activeCamera = webcam2Name != null? visionPortal.getActiveCamera(): null;
+        // activeCamera is only valid if we set up switchable cameras.
+        activeCamera = camera.isSwitchable()? visionPortal.getActiveCamera(): null;
     }   //FtcVision
 
     /**
