@@ -123,8 +123,8 @@ public class FtcVision
                 moduleName, "Camera open elapsed time=%.3f (loop=%d).",
                 TrcTimer.getCurrentTime() - startTime, loopCount);
         }
-
-        activeCamera = visionPortal.getActiveCamera();
+        // activeCamera is only valid if we have 2 webcams.
+        activeCamera = webcam2Name != null? visionPortal.getActiveCamera(): null;
     }   //FtcVision
 
     /**
@@ -200,6 +200,7 @@ public class FtcVision
      * This method sets the active camera if we have two webcams.
      *
      * @param webcamName specifies the webcam to be the active camera.
+     * @throws UnsupportedOperationException – if you are not using a switchable webcam.
      */
     public void setActiveCamera(WebcamName webcamName)
     {
