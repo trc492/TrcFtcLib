@@ -36,7 +36,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcServo extends TrcServo
 {
-    private final TrcEncoder encoder;
     private final Servo servo;
     private final ServoController controller;
     private final TrcTimer timer;
@@ -47,14 +46,11 @@ public class FtcServo extends TrcServo
      *
      * @param hardwareMap specifies the global hardware map.
      * @param instanceName specifies the instance name.
-     * @param continuous specifies true if it is a continuous servo, false otherwise.
-     * @param encoder specifies the encoder for reporting servo position, can be null if none provided.
      */
-    public FtcServo(HardwareMap hardwareMap, String instanceName, boolean continuous, TrcEncoder encoder)
+    public FtcServo(HardwareMap hardwareMap, String instanceName)
     {
-        super(instanceName, continuous);
+        super(instanceName);
 
-        this.encoder = encoder;
         servo = hardwareMap.get(Servo.class, instanceName);
         controller = servo.getController();
         timer = new TrcTimer(instanceName);
@@ -65,22 +61,10 @@ public class FtcServo extends TrcServo
      * Constructor: Creates an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param continuous specifies true if it is a continuous servo, false otherwise.
-     * @param encoder specifies the encoder for reporting servo position, can be null if none provided.
-     */
-    public FtcServo(String instanceName, boolean continuous, TrcEncoder encoder)
-    {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, continuous, encoder);
-    }   //FtcServo
-
-    /**
-     * Constructor: Creates an instance of the object.
-     *
-     * @param instanceName specifies the instance name.
      */
     public FtcServo(String instanceName)
     {
-        this(FtcOpMode.getInstance().hardwareMap, instanceName, false, null);
+        this(FtcOpMode.getInstance().hardwareMap, instanceName);
     }   //FtcServo
 
     /**
@@ -174,33 +158,6 @@ public class FtcServo extends TrcServo
     }   //isInverted
 
     /**
-     * This method resets the position sensor and therefore only applicable if the servo has one.
-     */
-    @Override
-    public void resetPosition()
-    {
-        if (encoder != null)
-        {
-            encoder.reset();
-        }
-    }   //reset
-
-    /**
-     * This method sets the position sensor scale and offset and therefore only applicable if the servo has one.
-     *
-     * @param scale specifies the position scale value.
-     * @param offset specifies the optional offset that adds to the final position value.
-     */
-    @Override
-    public void setPositionScaleAndOffset(double scale, double offset)
-    {
-        if (encoder != null)
-        {
-            encoder.setScaleAndOffset(scale, offset);
-        }
-    }   //setPositionScaleAndOffset
-
-    /**
      * This method sets the logical position of the servo motor.
      *
      * @param position specifies the logical position of the servo motor in the range of [0.0, 1.0].
@@ -227,18 +184,7 @@ public class FtcServo extends TrcServo
     @Override
     public double getLogicalPosition()
     {
-        return encoder != null? encoder.getPosition(): logicalPos != null? logicalPos: 0.0;
+        return logicalPos != null? logicalPos: 0.0;
     }   //getLogicalPosition
-
-    /**
-     * This method stops a continuous servo. It doesn't do anything if the servo is not continuous.
-     */
-    public void stopContinuous()
-    {
-        if (isContinuous())
-        {
-            setLogicalPosition(SERVO_CONTINUOUS_STOP);
-        }
-    }   //stopContinuous
 
 }   //class FtcServo
