@@ -131,8 +131,8 @@ public class FtcServoActuator
 
     }   //class ServoParams
 
-    private final String instanceName;
-    private final FtcServo actuator;
+    protected final String instanceName;
+    protected final FtcServo actuator;
 
     /**
      * Constructor: Create an instance of the object.

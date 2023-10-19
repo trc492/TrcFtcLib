@@ -138,8 +138,8 @@ public class FtcMotorActuator
 
     }   //class MotorParams
 
-    private final String instanceName;
-    private final FtcDcMotor actuator;
+    protected final String instanceName;
+    protected final FtcDcMotor actuator;
 
     /**
      * Constructor: Create an instance of the object.
