@@ -113,7 +113,7 @@ public class FtcServo extends TrcServo
     }   //onTimeExpired
 
     /**
-     * The method eanbles/disables the servo controller. If the servo controller is disabled, all servos on the
+     * The method enables/disables the servo controller. If the servo controller is disabled, all servos on the
      * controller will go limp. This is useful for preventing the servos from burning up if it is held against
      * a heavy load.
      *
@@ -136,9 +136,9 @@ public class FtcServo extends TrcServo
     //
 
     /**
-     * This methods inverts the servo motor direction.
+     * This method inverts the servo direction.
      *
-     * @param inverted specifies true if the servo direction is inverted, false otherwise.
+     * @param inverted specifies true to invert the servo direction, false otherwise.
      */
     @Override
     public void setInverted(boolean inverted)
@@ -147,7 +147,7 @@ public class FtcServo extends TrcServo
     }   //setInverted
 
     /**
-     * This method returns true if the servo direction is inverted.
+     * This method checks if the servo direction is inverted.
      *
      * @return true if the servo direction is inverted, false otherwise.
      */
@@ -158,9 +158,9 @@ public class FtcServo extends TrcServo
     }   //isInverted
 
     /**
-     * This method sets the logical position of the servo motor.
+     * This method sets the logical position of the servo.
      *
-     * @param position specifies the logical position of the servo motor in the range of [0.0, 1.0].
+     * @param position specifies the logical position of the servo in the range of [0.0, 1.0].
      */
     @Override
     public void setLogicalPosition(double position)
@@ -175,11 +175,10 @@ public class FtcServo extends TrcServo
     }   //setLogicalPosition
 
     /**
-     * This method returns the logical position value set by the last setLogicalPosition call. Note that servo motors
-     * do not provide real time position feedback. Therefore, getLogicalPosition doesn't actually return the current
-     * position.
+     * This method returns the logical position of the servo. In general, servo do not provide real time position
+     * feedback. Therefore, it will return the position set by the last setLogicalPosition call.
      *
-     * @return motor position value set by the last setLogicalPosition call in the range of [0.0, 1.0].
+     * @return logical position of the servo in the range of [0.0, 1.0].
      */
     @Override
     public double getLogicalPosition()
