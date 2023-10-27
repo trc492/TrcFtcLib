@@ -32,7 +32,7 @@ public class FtcServoActuator
     /**
      * This class contains all the parameters related to the actuator servo.
      */
-    public static class ServoParams
+    public static class Params
     {
         public boolean servoInverted = false;
         public boolean hasServo2 = false;
@@ -50,7 +50,7 @@ public class FtcServoActuator
          * @param inverted specifies true to invert servo direction, false otherwise.
          * @return this object for chaining.
          */
-        public ServoParams setServoInverted(boolean inverted)
+        public Params setServoInverted(boolean inverted)
         {
             servoInverted = inverted;
             return this;
@@ -64,7 +64,7 @@ public class FtcServoActuator
          *        hasServo2 is true.
          * @return this object for chaining.
          */
-        public ServoParams setHasServo2(boolean hasServo2, boolean servo2Inverted)
+        public Params setHasServo2(boolean hasServo2, boolean servo2Inverted)
         {
             this.hasServo2 = hasServo2;
             this.servo2Inverted = servo2Inverted;
@@ -78,7 +78,7 @@ public class FtcServoActuator
          * @param maxPos specifies the max logical position.
          * @return this object for chaining.
          */
-        public ServoParams setLogicalPosRange(double minPos, double maxPos)
+        public Params setLogicalPosRange(double minPos, double maxPos)
         {
             logicalPosMin = minPos;
             logicalPosMax = maxPos;
@@ -92,7 +92,7 @@ public class FtcServoActuator
          * @param maxPos specifies the max physical position.
          * @return this object for chaining.
          */
-        public ServoParams setPhysicalPosRange(double minPos, double maxPos)
+        public Params setPhysicalPosRange(double minPos, double maxPos)
         {
             physicalPosMin = minPos;
             physicalPosMax = maxPos;
@@ -106,7 +106,7 @@ public class FtcServoActuator
          * @param posPresets specifies an array of preset positions in scaled unit.
          * @return this object for chaining.
          */
-        public ServoParams setPositionPresets(double tolerance, double... posPresets)
+        public Params setPositionPresets(double tolerance, double... posPresets)
         {
             presetTolerance = tolerance;
             positionPresets = posPresets;
@@ -129,7 +129,7 @@ public class FtcServoActuator
                 Arrays.toString(positionPresets));
         }   //toString
 
-    }   //class ServoParams
+    }   //class Params
 
     protected final String instanceName;
     protected final FtcServo actuator;
@@ -138,22 +138,22 @@ public class FtcServoActuator
      * Constructor: Create an instance of the object.
      *
      * @param instanceName specifies the instance name.
-     * @param servoParams specifies the parameters to set up the actuator servo.
+     * @param params specifies the parameters to set up the actuator servo.
      * @param tracer specifies the tracer for debug tracing, can be null if not provided.
      */
-    public FtcServoActuator(String instanceName, ServoParams servoParams, TrcDbgTrace tracer)
+    public FtcServoActuator(String instanceName, Params params, TrcDbgTrace tracer)
     {
         this.instanceName = instanceName;
         actuator = new FtcServo(instanceName + ".servo");
-        actuator.setInverted(servoParams.servoInverted);
-        actuator.setLogicalPosRange(servoParams.logicalPosMin, servoParams.logicalPosMax);
-        actuator.setPhysicalPosRange(servoParams.physicalPosMin, servoParams.physicalPosMax);
-        actuator.setPosPresets(servoParams.presetTolerance, servoParams.positionPresets);
+        actuator.setInverted(params.servoInverted);
+        actuator.setLogicalPosRange(params.logicalPosMin, params.logicalPosMax);
+        actuator.setPhysicalPosRange(params.physicalPosMin, params.physicalPosMax);
+        actuator.setPosPresets(params.presetTolerance, params.positionPresets);
         actuator.setMsgTracer(tracer);
-        if (servoParams.hasServo2)
+        if (params.hasServo2)
         {
             FtcServo servo2 = new FtcServo(instanceName + ".servo2");
-            servo2.setInverted(servoParams.servo2Inverted);
+            servo2.setInverted(params.servo2Inverted);
             servo2.follow(actuator);
         }
     }   //FtcServoActuator
@@ -170,13 +170,13 @@ public class FtcServoActuator
     }   //toString
 
     /**
-     * This method returns the actuator motor object.
+     * This method returns the actuator object.
      *
-     * @return actuator motor object.
+     * @return actuator object.
      */
-    public FtcServo getServo()
+    public FtcServo getActuator()
     {
         return actuator;
-    }   //getServo
+    }   //getActuator
 
 }   //class FtcServoActuator
