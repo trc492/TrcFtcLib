@@ -35,8 +35,8 @@ public class FtcServoActuator
     public static class Params
     {
         public boolean servoInverted = false;
-        public boolean hasServo2 = false;
-        public boolean servo2Inverted = false;
+        public boolean hasSlaveServo = false;
+        public boolean slaveServoInverted = false;
         public double logicalPosMin = 0.0;
         public double logicalPosMax = 1.0;
         public double physicalPosMin = 0.0;
@@ -57,19 +57,19 @@ public class FtcServoActuator
         }   //setServoInverted
 
         /**
-         * This methods sets if the actuator has a second servo and if the second servo is inverted.
+         * This methods sets if the actuator has a slave servo and if the slave servo is inverted.
          *
-         * @param hasServo2 specifies true if the actuator has a second servo, false otherwise.
-         * @param servo2Inverted specifies true if the second servo is inverted, false otherwise. Only applicable if
-         *        hasServo2 is true.
+         * @param hasSlaveServo specifies true if the actuator has a slave servo, false otherwise.
+         * @param slaveServoInverted specifies true if the slave servo is inverted, false otherwise. Only applicable if
+         *        hasSlaveServo is true.
          * @return this object for chaining.
          */
-        public Params setHasServo2(boolean hasServo2, boolean servo2Inverted)
+        public Params setHasSlaveServo(boolean hasSlaveServo, boolean slaveServoInverted)
         {
-            this.hasServo2 = hasServo2;
-            this.servo2Inverted = servo2Inverted;
+            this.hasSlaveServo = hasSlaveServo;
+            this.slaveServoInverted = slaveServoInverted;
             return this;
-        }   //setHasServo2
+        }   //setHasSlaveServo
 
         /**
          * This method sets the logical position range of the servo in the range of 0.0 to 1.0.
@@ -123,10 +123,10 @@ public class FtcServoActuator
         {
             return String.format(
                 Locale.US,
-                "servoInverted=%s,hasServo2=%s,servo2Inverted=%s,logicalMin=%f,logicalMax=%f,phyMin=%f,phyMax=%f," +
-                "presets=%s",
-                servoInverted, hasServo2, servo2Inverted, logicalPosMin, logicalPosMax, physicalPosMin, physicalPosMax,
-                Arrays.toString(positionPresets));
+                "servoInverted=%s,hasSlaveServo=%s,slaveServoInverted=%s,logicalMin=%f,logicalMax=%f,phyMin=%f," +
+                "phyMax=%f,presets=%s",
+                servoInverted, hasSlaveServo, slaveServoInverted, logicalPosMin, logicalPosMax, physicalPosMin,
+                physicalPosMax, Arrays.toString(positionPresets));
         }   //toString
 
     }   //class Params
@@ -150,11 +150,11 @@ public class FtcServoActuator
         actuator.setPhysicalPosRange(params.physicalPosMin, params.physicalPosMax);
         actuator.setPosPresets(params.presetTolerance, params.positionPresets);
         actuator.setMsgTracer(tracer);
-        if (params.hasServo2)
+        if (params.hasSlaveServo)
         {
-            FtcServo servo2 = new FtcServo(instanceName + ".servo2");
-            servo2.setInverted(params.servo2Inverted);
-            servo2.follow(actuator);
+            FtcServo slaveServo = new FtcServo(instanceName + ".slaveServo");
+            slaveServo.setInverted(params.slaveServoInverted);
+            slaveServo.follow(actuator);
         }
     }   //FtcServoActuator
 
