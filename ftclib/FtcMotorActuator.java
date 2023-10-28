@@ -43,8 +43,8 @@ public class FtcMotorActuator
     public static class Params
     {
         public boolean motorInverted = false;
-        public boolean hasSlaveMotor = false;
-        public boolean slaveMotorInverted = false;
+        public boolean hasFollowerMotor = false;
+        public boolean followerMotorInverted = false;
         public boolean hasLowerLimitSwitch = false;
         public boolean lowerLimitSwitchInverted = false;
         public boolean hasUpperLimitSwitch = false;
@@ -70,18 +70,18 @@ public class FtcMotorActuator
         }   //setMotorInverted
 
         /**
-         * This methods sets the slave motor if there is one and also sets its direction.
+         * This methods sets the follower motor if there is one and also sets its direction.
          *
-         * @param hasSlaveMotor specifies true if there is a slave motor, false otherwise.
+         * @param hasFollowerMotor specifies true if there is a follower motor, false otherwise.
          * @param inverted specifies true to invert motor direction, false otherwise.
          * @return this object for chaining.
          */
-        public Params setSlaveMotor(boolean hasSlaveMotor, boolean inverted)
+        public Params setFollowerMotor(boolean hasFollowerMotor, boolean inverted)
         {
-            this.hasSlaveMotor = hasSlaveMotor;
-            this.slaveMotorInverted = inverted;
+            this.hasFollowerMotor = hasFollowerMotor;
+            this.followerMotorInverted = inverted;
             return this;
-        }   //setSlaveMotor
+        }   //setFollowerMotor
 
         /**
          * This method sets the lower limit switch properties.
@@ -165,10 +165,10 @@ public class FtcMotorActuator
         {
             return String.format(
                 Locale.US,
-                "motorInverted=%s,hasSlave=%s,slaveInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
+                "motorInverted=%s,hasFollower=%s,followerInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
                 "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s, encoderAbs=%s" +
                 "scale=%f,offset=%f,presetTolerance=%f,presets=%s",
-                motorInverted, hasSlaveMotor, slaveMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
+                motorInverted, hasFollowerMotor, followerMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
                 hasUpperLimitSwitch, upperLimitSwitchInverted, hasExternalEncoder, encoderInverted, encoderAbsolute,
                 positionScale, positionOffset, positionPresetTolerance, Arrays.toString(positionPresets));
         }   //toString
@@ -214,12 +214,13 @@ public class FtcMotorActuator
             isCRServo? new FtcCRServo(instanceName + ".servo", lowerLimitSwitch, upperLimitSwitch, encoder):
                        new FtcDcMotor(instanceName + ".motor", lowerLimitSwitch, upperLimitSwitch, encoder);
 
-        if (params.hasSlaveMotor)
+        if (params.hasFollowerMotor)
         {
-            TrcMotor slave =
-                isCRServo? new FtcCRServo(instanceName + ".slaveServo"): new FtcDcMotor(instanceName + ".slaveMotor");
-            slave.setMotorInverted(params.slaveMotorInverted);
-            slave.follow(actuator);
+            TrcMotor follower =
+                isCRServo? new FtcCRServo(instanceName + ".followerServo"):
+                           new FtcDcMotor(instanceName + ".followerMotor");
+            follower.setMotorInverted(params.followerMotorInverted);
+            follower.follow(actuator);
         }
 
         if (lowerLimitSwitch != null)
