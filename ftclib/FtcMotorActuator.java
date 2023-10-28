@@ -233,7 +233,12 @@ public class FtcMotorActuator
             actuator.enableUpperLimitSwitch(params.upperLimitSwitchInverted);
         }
 
-        if (!isCRServo)
+        if (isCRServo)
+        {
+            // CRServo does not support native PID control, use software PID instead.
+            actuator.setSoftwarePidEnabled(true);
+        }
+        else
         {
             actuator.setBrakeModeEnabled(true);
         }
