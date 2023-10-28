@@ -44,7 +44,6 @@ public class FtcAnalogInput extends TrcAnalogInput
     private TrcDbgTrace dbgTrace = null;
 
     private final AnalogInput sensor;
-    private final double maxVoltage;
 
     /**
      * Constructor: Creates an instance of the object.
@@ -64,7 +63,6 @@ public class FtcAnalogInput extends TrcAnalogInput
         }
 
         sensor = hardwareMap.get(AnalogInput.class, instanceName);
-        maxVoltage = sensor.getMaxVoltage();
     }   //FtcAnalogInput
 
     /**
@@ -123,7 +121,8 @@ public class FtcAnalogInput extends TrcAnalogInput
             double sensorData = sensor.getVoltage();
             if (getInputElapsedTimer != null) getInputElapsedTimer.recordEndTime();
             data = new SensorData<>(
-                TrcTimer.getCurrentTime(), dataType == DataType.INPUT_DATA? sensorData: sensorData/maxVoltage);
+                TrcTimer.getCurrentTime(),
+                dataType == DataType.INPUT_DATA? sensorData: sensorData/sensor.getMaxVoltage());
         }
         else
         {

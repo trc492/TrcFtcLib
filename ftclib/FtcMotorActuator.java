@@ -54,6 +54,7 @@ public class FtcMotorActuator
         public boolean encoderAbsolute = false;
         public double positionScale = 1.0;
         public double positionOffset = 0.0;
+        public double positionZeroOffset = 0.0;
         public double[] positionPresets = null;
         public double positionPresetTolerance = 0.0;
 
@@ -132,13 +133,27 @@ public class FtcMotorActuator
          *
          * @param scale specifies scale factor to multiply the position sensor reading.
          * @param offset specifies offset added to the scaled sensor reading.
+         * @param zeroOffset specifies the zero offset for absolute encoder.
+         * @return this object for chaining.
+         */
+        public Params setPositionScaleAndOffset(double scale, double offset, double zeroOffset)
+        {
+            positionScale = scale;
+            positionOffset = offset;
+            positionZeroOffset = zeroOffset;
+            return this;
+        }   //setPositionScaleAndOffset
+
+        /**
+         * This method sets the position sensor scale factor and offset.
+         *
+         * @param scale specifies scale factor to multiply the position sensor reading.
+         * @param offset specifies offset added to the scaled sensor reading.
          * @return this object for chaining.
          */
         public Params setPositionScaleAndOffset(double scale, double offset)
         {
-            positionScale = scale;
-            positionOffset = offset;
-            return this;
+            return setPositionScaleAndOffset(scale, offset, 0.0);
         }   //setPositionScaleAndOffset
 
         /**
@@ -167,10 +182,11 @@ public class FtcMotorActuator
                 Locale.US,
                 "motorInverted=%s,hasFollower=%s,followerInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
                 "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s, encoderAbs=%s" +
-                "scale=%f,offset=%f,presetTolerance=%f,presets=%s",
+                "scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s",
                 motorInverted, hasFollowerMotor, followerMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
                 hasUpperLimitSwitch, upperLimitSwitchInverted, hasExternalEncoder, encoderInverted, encoderAbsolute,
-                positionScale, positionOffset, positionPresetTolerance, Arrays.toString(positionPresets));
+                positionScale, positionOffset, positionZeroOffset, positionPresetTolerance,
+                Arrays.toString(positionPresets));
         }   //toString
 
     }   //class Params
@@ -246,7 +262,8 @@ public class FtcMotorActuator
         actuator.setOdometryEnabled(true, true, true);
         actuator.setMotorInverted(params.motorInverted);
         actuator.setVoltageCompensationEnabled(TrcUtil.BATTERY_NOMINAL_VOLTAGE);
-        actuator.setPositionSensorScaleAndOffset(params.positionScale, params.positionOffset);
+        actuator.setPositionSensorScaleAndOffset(
+            params.positionScale, params.positionOffset, params.positionZeroOffset);
         actuator.setPosPresets(params.positionPresetTolerance, params.positionPresets);
         actuator.setMsgTracer(tracer, tracePidInfo, battery);
     }   //FtcMotorActuator

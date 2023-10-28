@@ -36,7 +36,7 @@ public class FtcAnalogEncoder implements TrcEncoder
 {
     private final FtcAnalogInput analogInput;
     private final TrcCardinalConverter<TrcAnalogInput.DataType> cardinalConverter;
-    private double sign = 1.0;
+    private boolean inverted = false;
     private double scale = 1.0;
     private double offset = 0.0;
     private double zeroOffset = 0.0;
@@ -93,18 +93,8 @@ public class FtcAnalogEncoder implements TrcEncoder
      */
     public double getRawVoltage()
     {
-        return analogInput.getRawData(0, DataType.RAW_DATA).value;
+        return analogInput.getRawData(0, DataType.INPUT_DATA).value;
     }   //getRawVoltage
-
-    /**
-     * This method sets the zero offset for the absolute encoder.
-     *
-     * @param zeroOffset specifies normalized zero offset.
-     */
-    public void setZeroOffset(double zeroOffset)
-    {
-        this.zeroOffset = zeroOffset;
-    }   //setZeroOffset
 
     //
     // Implements the TrcEncoder interface.
@@ -140,7 +130,8 @@ public class FtcAnalogEncoder implements TrcEncoder
     {
         // getCartesianData returns the normalized reading from AnalogInput.
         // Offset must also be normalized.
-        return sign * (cardinalConverter.getCartesianData(0).value - zeroOffset) * scale + offset;
+        double zeroAdjPos = cardinalConverter.getCartesianData(0).value - zeroOffset;
+        return (inverted? 1.0 - zeroAdjPos: zeroAdjPos) * scale + offset;
     }   //getPosition
 
     /**
@@ -151,7 +142,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     @Override
     public void setInverted(boolean inverted)
     {
-        sign = inverted ? -1.0 : 1.0;
+        this.inverted = inverted;
     }   //setInverted
 
     /**
@@ -162,7 +153,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     @Override
     public boolean isInverted()
     {
-        return sign == -1.0;
+        return inverted;
     }   //isInverted
 
     /**
@@ -170,12 +161,14 @@ public class FtcAnalogEncoder implements TrcEncoder
      *
      * @param scale specifies the scale value.
      * @param offset specifies the offset value.
+     * @param zeroOffset specifies the zero offset for absolute encoder.
      */
     @Override
-    public void setScaleAndOffset(double scale, double offset)
+    public void setScaleAndOffset(double scale, double offset, double zeroOffset)
     {
         this.scale = scale;
         this.offset = offset;
+        this.zeroOffset = zeroOffset;
     }   //setScaleAndOffset
 
 }   //class FtcAnalogEncoder
