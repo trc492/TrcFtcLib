@@ -52,6 +52,7 @@ public class FtcMotorActuator
         public boolean hasExternalEncoder = false;
         public boolean encoderInverted = false;
         public boolean encoderAbsolute = false;
+        public boolean voltageCompensationEnabled = false;
         public double positionScale = 1.0;
         public double positionOffset = 0.0;
         public double positionZeroOffset = 0.0;
@@ -129,6 +130,18 @@ public class FtcMotorActuator
         }   //setExternalEncoder
 
         /**
+         * This method enables/disables voltage compensation on the actuator motor.
+         *
+         * @param enabled specifies true to enable voltage compensation, false to disable.
+         * @return this object for chaining.
+         */
+        public Params setVoltageCompensationEnabled(boolean enabled)
+        {
+            this.voltageCompensationEnabled = enabled;
+            return this;
+        }   //setVoltageCompensationEnabled
+
+        /**
          * This method sets the position sensor scale factor and offset.
          *
          * @param scale specifies scale factor to multiply the position sensor reading.
@@ -181,11 +194,11 @@ public class FtcMotorActuator
             return String.format(
                 Locale.US,
                 "motorInverted=%s,hasFollower=%s,followerInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
-                "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s, encoderAbs=%s" +
-                "scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s",
+                "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s,encoderAbs=%s" +
+                "voltageCompEnabled=%s,scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s",
                 motorInverted, hasFollowerMotor, followerMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
                 hasUpperLimitSwitch, upperLimitSwitchInverted, hasExternalEncoder, encoderInverted, encoderAbsolute,
-                positionScale, positionOffset, positionZeroOffset, positionPresetTolerance,
+                voltageCompensationEnabled, positionScale, positionOffset, positionZeroOffset, positionPresetTolerance,
                 Arrays.toString(positionPresets));
         }   //toString
 
@@ -257,6 +270,11 @@ public class FtcMotorActuator
         else
         {
             actuator.setBrakeModeEnabled(true);
+        }
+
+        if (params.voltageCompensationEnabled)
+        {
+            actuator.setVoltageCompensationEnabled(TrcUtil.BATTERY_NOMINAL_VOLTAGE);
         }
 
         actuator.setOdometryEnabled(true, true, true);
