@@ -45,11 +45,13 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcVision
 {
     private static final String moduleName = "FtcVision";
+    private static final long LOOP_INTERVAL_MS = 10;
+    private static final long MAX_LOOP_TIME_MS = 1000;
     private static final boolean debugEnabled = false;
     private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
 
     private final VisionPortal visionPortal;
-    private WebcamName activeCamera;
+    private WebcamName activeWebcam;
 
     /**
      * Constructor: Create an instance of the object.
@@ -110,21 +112,28 @@ public class FtcVision
         visionPortal = builder.build();
         // Wait for camera to open successfully.
         FtcOpMode opMode = FtcOpMode.getInstance();
-        int loopCount = 0;
+        long loopTimeMs = 0;
         while (!opMode.isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING))
         {
-            TrcTimer.sleep(10);
-            loopCount++;
+            TrcTimer.sleep(LOOP_INTERVAL_MS);
+            loopTimeMs += LOOP_INTERVAL_MS;
+            if (loopTimeMs > MAX_LOOP_TIME_MS)
+            {
+                globalTracer.traceWarn(
+                    moduleName, "Timeout waiting for the camera to start (LoopCount=%d).", loopTimeMs/LOOP_INTERVAL_MS);
+                break;
+            }
         }
 
         if (debugEnabled)
         {
             globalTracer.traceInfo(
                 moduleName, "Camera open elapsed time=%.3f (loop=%d).",
-                TrcTimer.getCurrentTime() - startTime, loopCount);
+                TrcTimer.getCurrentTime() - startTime, loopTimeMs/LOOP_INTERVAL_MS);
         }
-        // activeCamera is only valid if we set up switchable cameras.
-        activeCamera = camera.isSwitchable()? visionPortal.getActiveCamera(): null;
+
+        activeWebcam = camera.isSwitchable()? visionPortal.getActiveCamera():
+                       webcam1Name != null? webcam1Name: webcam2Name;
     }   //FtcVision
 
     /**
@@ -187,29 +196,29 @@ public class FtcVision
     }   //getVisionPortal
 
     /**
-     * This method returns the active camera if we have two webcams.
+     * This method returns the active webcam.
      *
-     * @return active camera.
+     * @return active webcam.
      */
-    public WebcamName getActiveCamera()
+    public WebcamName getActiveWebcam()
     {
-        return activeCamera;
-    }   //getActiveCamera
+        return activeWebcam;
+    }   //getActiveWebcam
 
     /**
-     * This method sets the active camera if we have two webcams.
+     * This method sets the active webcam if we have two webcams.
      *
-     * @param webcamName specifies the webcam to be the active camera.
+     * @param webcamName specifies the webcam to be the active webcam.
      * @throws UnsupportedOperationException – if you are not using a switchable webcam.
      */
-    public void setActiveCamera(WebcamName webcamName)
+    public void setActiveWebcam(WebcamName webcamName)
     {
         if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING)
         {
             visionPortal.setActiveCamera(webcamName);
-            activeCamera = webcamName;
+            activeWebcam = webcamName;
         }
-    }   //setActiveCamera
+    }   //setActiveWebcam
 
     /**
      * This method enables/disables the vision processor.
