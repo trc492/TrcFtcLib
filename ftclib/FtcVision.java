@@ -46,7 +46,7 @@ public class FtcVision
 {
     private static final String moduleName = "FtcVision";
     private static final long LOOP_INTERVAL_MS = 10;
-    private static final long MAX_LOOP_TIME_MS = 1000;
+    private static final long MAX_LOOP_TIME_MS = 5000;
     private static final boolean debugEnabled = false;
     private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
 
