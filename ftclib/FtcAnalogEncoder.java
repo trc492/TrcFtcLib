@@ -36,7 +36,7 @@ public class FtcAnalogEncoder implements TrcEncoder
 {
     private final FtcAnalogInput analogInput;
     private final TrcCardinalConverter<TrcAnalogInput.DataType> cardinalConverter;
-    private boolean inverted = false;
+    private double sign = 1.0;
     private double scale = 1.0;
     private double offset = 0.0;
     private double zeroOffset = 0.0;
@@ -130,8 +130,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     {
         // getCartesianData returns the normalized reading from AnalogInput.
         // Offset must also be normalized.
-        double zeroAdjPos = cardinalConverter.getCartesianData(0).value - zeroOffset;
-        return (inverted? 1.0 - zeroAdjPos: zeroAdjPos) * scale + offset;
+        return (cardinalConverter.getCartesianData(0).value - zeroOffset) * scale * sign + offset;
     }   //getPosition
 
     /**
@@ -142,7 +141,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     @Override
     public void setInverted(boolean inverted)
     {
-        this.inverted = inverted;
+        this.sign = inverted? -1.0: 1.0;
     }   //setInverted
 
     /**
@@ -153,7 +152,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     @Override
     public boolean isInverted()
     {
-        return inverted;
+        return sign < 0.0;
     }   //isInverted
 
     /**
