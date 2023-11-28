@@ -35,6 +35,7 @@ import TrcCommonLib.trclib.TrcPixyCam1;
  */
 public class FtcPixyCam1 extends TrcPixyCam1
 {
+    private static final String moduleName = FtcPixyCam1.class.getSimpleName();
     private static final int DEF_I2C_ADDRESS = 0x54;
     private static final boolean USE_BUFFERED_READ = false;
     private final FtcI2cDevice pixyCam;
