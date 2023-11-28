@@ -70,15 +70,9 @@ public class FtcDigitalInput extends TrcDigitalInput
     @Override
     public boolean getInputState()
     {
-        final String funcName = "getInputState";
         if (getInputElapsedTimer != null) getInputElapsedTimer.recordStartTime();
         boolean state = digitalInput.getState();
         if (getInputElapsedTimer != null) getInputElapsedTimer.recordEndTime();
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "%s: active=%s", instanceName, state);
-        }
 
         return state;
     }   //getInputState

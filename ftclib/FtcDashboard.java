@@ -31,7 +31,6 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 
 import TrcCommonLib.trclib.TrcDashboard;
-import TrcCommonLib.trclib.TrcDbgTrace;
 
 /**
  * This class is a wrapper for the Telemetry class. In addition to providing a way to send named data to the Driver
@@ -123,13 +122,7 @@ public class FtcDashboard extends TrcDashboard
      */
     public boolean getBoolean(String key)
     {
-        final String funcName = "getBoolean";
         boolean value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s", key);
-        }
 
         String strValue = getValue(key);
         if (strValue.equals("true"))
@@ -145,11 +138,6 @@ public class FtcDashboard extends TrcDashboard
             throw new IllegalArgumentException("object is not boolean");
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(value));
-        }
-
         return value;
     }   //getBoolean
 
@@ -161,13 +149,7 @@ public class FtcDashboard extends TrcDashboard
      */
     public double getNumber(String key)
     {
-        final String funcName = "getNumber";
         double value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s", key);
-        }
 
         try
         {
@@ -176,11 +158,6 @@ public class FtcDashboard extends TrcDashboard
         catch (NumberFormatException e)
         {
             throw new IllegalArgumentException("object is not a number");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
         }
 
         return value;
@@ -194,16 +171,7 @@ public class FtcDashboard extends TrcDashboard
      */
     public String getString(String key)
     {
-        final String funcName = "getString";
-        String value = getValue(key);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s", key);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", value);
-        }
-
-        return value;
+        return getValue(key);
     }   //getString
 
     /**
@@ -285,16 +253,6 @@ public class FtcDashboard extends TrcDashboard
      */
     public void displayText(int lineNum, String text, String colorAttrib, int fieldWidth, boolean rightJustified)
     {
-        final String funcName = "displayText";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC,
-                                "lineNum=%d,text=%s,color=%s,width=%d,rightJust=%s",
-                                lineNum, text, colorAttrib, fieldWidth, Boolean.toString(rightJustified));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-
         if (lineNum >= 0 && lineNum < numLines)
         {
             if (displayFormat == Telemetry.DisplayFormat.HTML && colorAttrib != null)
@@ -455,14 +413,6 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public void clearDisplay()
     {
-        final String funcName = "clearDisplay";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         for (int i = 0; i < numLines; i++)
         {
             display[i].setValue("");
@@ -476,14 +426,6 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public void refreshDisplay()
     {
-        final String funcName = "refreshDisplay";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         telemetry.update();
     }   //refreshDisplay
 
@@ -512,14 +454,7 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public boolean getBoolean(String key, boolean defaultValue)
     {
-        final String funcName = "getBoolean";
         boolean value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(
-                funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%s", key, Boolean.toString(defaultValue));
-        }
 
         try
         {
@@ -529,11 +464,6 @@ public class FtcDashboard extends TrcDashboard
         {
             putBoolean(key, defaultValue);
             value = defaultValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", value);
         }
 
         return value;
@@ -548,14 +478,6 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public void putBoolean(String key, boolean value)
     {
-        final String funcName = "putBoolean";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%s", key, Boolean.toString(value));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         telemetry.addData(key, Boolean.toString(value));
     }   //putBoolean
 
@@ -570,13 +492,7 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public double getNumber(String key, double defaultValue)
     {
-        final String funcName = "getNumber";
         double value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%f", key, defaultValue);
-        }
 
         try
         {
@@ -586,11 +502,6 @@ public class FtcDashboard extends TrcDashboard
         {
             putNumber(key, defaultValue);
             value = defaultValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", value);
         }
 
         return value;
@@ -605,14 +516,6 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public void putNumber(String key, double value)
     {
-        final String funcName = "putNumber";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%f", key, value);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         telemetry.addData(key, Double.toString(value));
     }   //putNumber
 
@@ -627,13 +530,7 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public String getString(String key, String defaultValue)
     {
-        final String funcName = "getString";
         String value;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,defValue=%s", key, defaultValue);
-        }
 
         try
         {
@@ -643,11 +540,6 @@ public class FtcDashboard extends TrcDashboard
         {
             putString(key, defaultValue);
             value = defaultValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", value);
         }
 
         return value;
@@ -662,14 +554,6 @@ public class FtcDashboard extends TrcDashboard
     @Override
     public void putString(String key, String value)
     {
-        final String funcName = "putString";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "key=%s,value=%s", key, value);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         telemetry.addData(key, value);
     }   //putString
 

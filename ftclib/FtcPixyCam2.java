@@ -28,7 +28,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import java.util.Arrays;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcPixyCam2;
 
 /**
@@ -57,8 +56,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
         if (USE_BUFFERED_READ)
         {
             pixyCam.deviceSynch.setBufferedReadWindow(
-                    1, I2cDeviceSynch.ReadWindow.READ_REGISTER_COUNT_MAX, I2cDeviceSynch.ReadMode.REPEAT,
-                    14);
+                1, I2cDeviceSynch.ReadWindow.READ_REGISTER_COUNT_MAX, I2cDeviceSynch.ReadMode.REPEAT, 14);
         }
     }   //FtcPixyCam2
 
@@ -91,16 +89,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
      */
     public boolean isEnabled()
     {
-        final String funcName = "isEnabled";
-        boolean enabled = pixyCam.isEnabled() && pixyCam.deviceSynch.isEnabled();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%b", enabled);
-        }
-
-        return enabled;
+        return pixyCam.isEnabled() && pixyCam.deviceSynch.isEnabled();
     }   //isEnable
 
     /**
@@ -110,20 +99,8 @@ public class FtcPixyCam2 extends TrcPixyCam2
      */
     public void setEnabled(boolean enabled)
     {
-        final String funcName = "setEnabled";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "enanbled=%b", enabled);
-        }
-
         pixyCam.deviceSynch.setEnabled(enabled);
         pixyCam.setEnabled(enabled);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //setEnabled
 
     //
@@ -136,14 +113,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
     @Override
     public byte[] syncReadResponse()
     {
-        final String funcName = "syncReadResponse";
         byte[] response;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-
-        }
 
         byte[] recvHeader = pixyCam.syncRead(-1, 6);
         byte[] recvData = recvHeader[3] > 0 ? pixyCam.syncRead(-1, recvHeader[3]) : null;
@@ -161,8 +131,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
 
         if (debugEnabled)
         {
-            dbgTrace.traceInfo(funcName, "response: %s", Arrays.toString(response));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Arrays.toString(response));
+            globalTracer.traceInfo(instanceName, "response: %s", Arrays.toString(response));
         }
 
         return response;
@@ -176,19 +145,12 @@ public class FtcPixyCam2 extends TrcPixyCam2
     @Override
     public void syncWriteRequest(byte[] data)
     {
-        final String funcName = "syncWriteRequest";
-
         if (debugEnabled)
         {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "data=%s", Arrays.toString(data));
+            globalTracer.traceInfo(instanceName, "data=%s", Arrays.toString(data));
         }
 
         pixyCam.syncWrite(-1, data, data.length);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //syncWriteRequest
 
 }   //class FtcPixyCam2
