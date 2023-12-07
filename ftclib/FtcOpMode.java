@@ -72,12 +72,8 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     public FtcOpMode()
     {
         super();
-        //
-        // We must set DbgLog as early as possible before any instantiation of TrcDbgTrace because TrcDbgTrace must
-        // have it or it will throw an exception.
-        //
-        TrcDbgTrace.setDbgLog(new FtcDbgLog());
-        globalTracer = TrcDbgTrace.getGlobalTracer();
+        // By default, global tracer message level is INFO. It can be changed by calling setTraceMessageLevel.
+        globalTracer = new TrcDbgTrace("GlobalTracer", new FtcDbgLog());
         instance = this;
         try
         {
@@ -543,13 +539,11 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
 
     /**
      * This method prints the performance metrics of all loops and taska.
-     *
-     * @param tracer specifies the tracer to be used for printing the performance metrics.
      */
-    public void printPerformanceMetrics(TrcDbgTrace tracer)
+    public void printPerformanceMetrics()
     {
-        TrcTaskMgr.printTaskPerformanceMetrics(tracer);
-        tracer.traceInfo(
+        TrcTaskMgr.printTaskPerformanceMetrics();
+        globalTracer.traceInfo(
             moduleName,
             "[%s] Main robot thread average elapsed times:\n" +
             "       robotInit=%.6fs\n" +
