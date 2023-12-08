@@ -58,6 +58,10 @@ public class FtcMotorActuator
         public double positionZeroOffset = 0.0;
         public double[] positionPresets = null;
         public double positionPresetTolerance = 0.0;
+        public TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
+        public boolean tracePidInfo = false;
+        public boolean verbosePidInfo = false;
+        public TrcRobotBattery battery = null;
 
         /**
          * This methods sets the motor direction.
@@ -184,6 +188,25 @@ public class FtcMotorActuator
         }   //setPositionPresets
 
         /**
+         * This method sets the tracing level.
+         *
+         * @param msgLevel specifies the message level.
+         * @param tracePidInfo specifies true to enable tracing of PID info, false otherwise.
+         * @param verbosePidInfo specifies true to trace verbose PID info, false otherwise.
+         * @param battery specifies the battery object to get battery info for the message, null if not provided.
+         * @return this object for chaining.
+         */
+        public Params setTraceLevel(
+            TrcDbgTrace.MsgLevel msgLevel, boolean tracePidInfo, boolean verbosePidInfo, TrcRobotBattery battery)
+        {
+            this.msgLevel = msgLevel;
+            this.tracePidInfo = tracePidInfo;
+            this.verbosePidInfo = verbosePidInfo;
+            this.battery = battery;
+            return this;
+        }   //setTraceLevel
+
+        /**
          * This method returns the string format of the Params info.
          *
          * @return string format of the params info.
@@ -195,11 +218,12 @@ public class FtcMotorActuator
                 Locale.US,
                 "motorInverted=%s,hasFollower=%s,followerInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
                 "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s,encoderAbs=%s" +
-                "voltageCompEnabled=%s,scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s",
+                "voltageCompEnabled=%s,scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s,msgLevel=%s" +
+                "tracePidInfo=%s,verbosePidInfo=%s,battery=%s",
                 motorInverted, hasFollowerMotor, followerMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
                 hasUpperLimitSwitch, upperLimitSwitchInverted, hasExternalEncoder, encoderInverted, encoderAbsolute,
                 voltageCompensationEnabled, positionScale, positionOffset, positionZeroOffset, positionPresetTolerance,
-                Arrays.toString(positionPresets));
+                Arrays.toString(positionPresets), msgLevel, tracePidInfo, verbosePidInfo, battery);
         }   //toString
 
     }   //class Params
@@ -213,13 +237,8 @@ public class FtcMotorActuator
      * @param instanceName specifies the instance name.
      * @param isCRServo specifies true if motor is a continuous rotation servo, false if it is a DC Motor.
      * @param params specifies the parameters to set up the actuator.
-     * @param tracer specifies the tracer for debug tracing, can be null if not provided.
-     * @param tracePidInfo specifies true to debug PID, ignore if tracer is null.
-     * @param battery specifies the battery object for tracing battery level, ignore if tracer is null.
      */
-    public FtcMotorActuator(
-        String instanceName, boolean isCRServo, Params params, TrcDbgTrace tracer, boolean tracePidInfo,
-        TrcRobotBattery battery)
+    public FtcMotorActuator(String instanceName, boolean isCRServo, Params params)
     {
         FtcDigitalInput lowerLimitSwitch =
             params.hasLowerLimitSwitch? new FtcDigitalInput(instanceName + ".lowerLimit"): null;
@@ -283,35 +302,7 @@ public class FtcMotorActuator
         actuator.setPositionSensorScaleAndOffset(
             params.positionScale, params.positionOffset, params.positionZeroOffset);
         actuator.setPosPresets(params.positionPresetTolerance, params.positionPresets);
-        actuator.setMsgTracer(tracer, tracePidInfo, battery);
-    }   //FtcMotorActuator
-
-    /**
-     * Constructor: Create an instance of the object.
-     *
-     * @param instanceName specifies the instance name.
-     * @param isCRServo specifies true if motor is a continuous rotation servo, false if it is a DC Motor.
-     * @param params specifies the parameters to set up the actuator.
-     * @param tracer specifies the tracer for debug tracing, can be null if not provided.
-     * @param tracePidInfo specifies true to debug PID, ignore if tracer is null.
-     */
-    public FtcMotorActuator(
-        String instanceName, boolean isCRServo, Params params, TrcDbgTrace tracer, boolean tracePidInfo)
-    {
-        this(instanceName, isCRServo, params, tracer, tracePidInfo, null);
-    }   //FtcMotorActuator
-
-    /**
-     * Constructor: Create an instance of the object.
-     *
-     * @param instanceName specifies the instance name.
-     * @param params specifies the parameters to set up the actuator.
-     * @param tracer specifies the tracer for debug tracing, can be null if not provided.
-     * @param tracePidInfo specifies true to debug PID, ignore if tracer is null.
-     */
-    public FtcMotorActuator(String instanceName, Params params, TrcDbgTrace tracer, boolean tracePidInfo)
-    {
-        this(instanceName, false, params, tracer, tracePidInfo, null);
+        actuator.setTraceLevel(params.msgLevel, params.tracePidInfo, params.verbosePidInfo, params.battery);
     }   //FtcMotorActuator
 
     /**
@@ -322,7 +313,7 @@ public class FtcMotorActuator
      */
     public FtcMotorActuator(String instanceName, Params params)
     {
-        this(instanceName, false, params, null, false, null);
+        this(instanceName, false, params);
     }   //FtcMotorActuator
 
     /**

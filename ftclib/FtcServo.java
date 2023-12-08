@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-import TrcCommonLib.trclib.TrcEncoder;
 import TrcCommonLib.trclib.TrcServo;
 import TrcCommonLib.trclib.TrcTimer;
 

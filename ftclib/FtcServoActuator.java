@@ -43,6 +43,7 @@ public class FtcServoActuator
         public double physicalPosMax = 1.0;
         public double presetTolerance = 0.0;
         public double[] positionPresets = null;
+        public TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
 
         /**
          * This methods sets the servo direction.
@@ -114,6 +115,18 @@ public class FtcServoActuator
         }   //setPositionPresets
 
         /**
+         * This method sets the tracing level.
+         *
+         * @param msgLevel specifies the message level.
+         * @return this object for chaining.
+         */
+        public Params setTraceLevel(TrcDbgTrace.MsgLevel msgLevel)
+        {
+            this.msgLevel = msgLevel;
+            return this;
+        }   //setTraceLevel
+
+        /**
          * This method returns the string format of the servoParams info.
          *
          * @return string format of the servo param info.
@@ -124,9 +137,9 @@ public class FtcServoActuator
             return String.format(
                 Locale.US,
                 "servoInverted=%s,hasFollowerServo=%s,followerServoInverted=%s,logicalMin=%f,logicalMax=%f,phyMin=%f," +
-                "phyMax=%f,presets=%s",
+                "phyMax=%f,presets=%s,msgLevel=%s",
                 servoInverted, hasFollowerServo, followerServoInverted, logicalPosMin, logicalPosMax, physicalPosMin,
-                physicalPosMax, Arrays.toString(positionPresets));
+                physicalPosMax, Arrays.toString(positionPresets), msgLevel);
         }   //toString
 
     }   //class Params
@@ -139,9 +152,8 @@ public class FtcServoActuator
      *
      * @param instanceName specifies the instance name.
      * @param params specifies the parameters to set up the actuator servo.
-     * @param tracer specifies the tracer for debug tracing, can be null if not provided.
      */
-    public FtcServoActuator(String instanceName, Params params, TrcDbgTrace tracer)
+    public FtcServoActuator(String instanceName, Params params)
     {
         this.instanceName = instanceName;
         actuator = new FtcServo(instanceName + ".servo");
@@ -149,7 +161,7 @@ public class FtcServoActuator
         actuator.setLogicalPosRange(params.logicalPosMin, params.logicalPosMax);
         actuator.setPhysicalPosRange(params.physicalPosMin, params.physicalPosMax);
         actuator.setPosPresets(params.presetTolerance, params.positionPresets);
-        actuator.setMsgTracer(tracer);
+        actuator.setTraceLevel(params.msgLevel);
         if (params.hasFollowerServo)
         {
             FtcServo follower = new FtcServo(instanceName + ".followerServo");
