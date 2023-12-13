@@ -433,14 +433,25 @@ public class FtcDashboard extends TrcDashboard
      * This method displays a formatted message in the specified display line on the Driver Station.
      *
      * @param lineNum specifies the line number on the display.
+     * @param msg specifies the message string.
+     */
+    @Override
+    public void displayPrintf(int lineNum, String msg)
+    {
+        displayText(lineNum, msg, 0, false);
+    }   //displayPrintf
+
+    /**
+     * This method displays a formatted message in the specified display line on the Driver Station.
+     *
+     * @param lineNum specifies the line number on the display.
      * @param format specifies the format string.
      * @param args specifies variable number of substitution arguments.
      */
     @Override
     public void displayPrintf(int lineNum, String format, Object... args)
     {
-        String text = String.format(format, args);
-        displayText(lineNum, text, 0, false);
+        displayText(lineNum, String.format(format, args), 0, false);
     }   //displayPrintf
 
     /**

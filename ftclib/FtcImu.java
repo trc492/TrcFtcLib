@@ -32,7 +32,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGyro;
 import TrcCommonLib.trclib.TrcRobot;
 import TrcCommonLib.trclib.TrcTaskMgr;
@@ -44,10 +43,7 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcImu extends TrcGyro
 {
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
-
-    private class GyroData
+    private static class GyroData
     {
         double timestamp = 0.0;
         double xAngle = 0.0, yAngle = 0.0, zAngle = 0.0;
@@ -270,7 +266,6 @@ public class FtcImu extends TrcGyro
     @Override
     public SensorData<Double> getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXData";
         double timestamp;
         double value = 0.0;
 
@@ -288,11 +283,7 @@ public class FtcImu extends TrcGyro
             }
         }
         SensorData<Double> data = new SensorData<>(timestamp, value);
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
-        }
+        tracer.traceDebug(instanceName, "timestamp=" + data.timestamp + ", value=" + data.value);
 
         return data;
     }   //getRawXData
@@ -306,7 +297,6 @@ public class FtcImu extends TrcGyro
     @Override
     public SensorData<Double> getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYData";
         double timestamp;
         double value = 0.0;
 
@@ -323,11 +313,7 @@ public class FtcImu extends TrcGyro
             }
         }
         SensorData<Double> data = new SensorData<>(timestamp, value);
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
-        }
+        tracer.traceDebug(instanceName, "timestamp=" + data.timestamp + ", value=" + data.value);
 
         return data;
     }   //getRawYData
@@ -341,7 +327,6 @@ public class FtcImu extends TrcGyro
     @Override
     public SensorData<Double> getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZData";
         double timestamp;
         double value = 0.0;
 
@@ -358,11 +343,7 @@ public class FtcImu extends TrcGyro
             }
         }
         SensorData<Double> data = new SensorData<>(timestamp, value);
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "timestamp=%.3f,value=%f", data.timestamp, data.value);
-        }
+        tracer.traceDebug(instanceName, "timestamp=" + data.timestamp + ", value=" + data.value);
 
         return data;
     }   //getRawZData
@@ -381,13 +362,7 @@ public class FtcImu extends TrcGyro
         Orientation orientation = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
         AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
 
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(
-                instanceName + ".gyroTask", "[%.3f]: elapsedTime=%.3f",
-                currTime, TrcTimer.getCurrentTime() - currTime);
-        }
-
+        tracer.traceVerbose(instanceName, "[" + currTime + "]: elapsedTime=" + (TrcTimer.getCurrentTime() - currTime));
         synchronized (gyroData)
         {
             gyroData.timestamp = currTime;
@@ -402,15 +377,11 @@ public class FtcImu extends TrcGyro
             gyroData.xRotationRate = angularVelocity.xRotationRate;
             gyroData.yRotationRate = angularVelocity.yRotationRate;
             gyroData.zRotationRate = angularVelocity.zRotationRate;
-
-            if (debugEnabled)
-            {
-                globalTracer.traceInfo(
-                    instanceName + ".gyroTask",
-                    "[%.3f]: %s xAngle=%.1f, yAngle=%.1f, zAngle=%.1f, xRate=%.1f, yRate=%.1f, zRate=%.1f",
-                    gyroData.timestamp, instanceName + ".gyro", gyroData.xAngle, gyroData.yAngle, gyroData.zAngle,
-                    gyroData.xRotationRate, gyroData.yRotationRate, gyroData.zRotationRate);
-            }
+            tracer.traceVerbose(
+                instanceName,
+                "[%.3f]: %s xAngle=%.1f, yAngle=%.1f, zAngle=%.1f, xRate=%.1f, yRate=%.1f, zRate=%.1f",
+                gyroData.timestamp, instanceName + ".gyro", gyroData.xAngle, gyroData.yAngle, gyroData.zAngle,
+                gyroData.xRotationRate, gyroData.yRotationRate, gyroData.zRotationRate);
         }
     }   //gyroTask
 
