@@ -22,8 +22,6 @@
 
 package TrcFtcLib.ftclib;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
-
 /**
  * This class implements a value menu where a default value is displayed. The user can press the UP and DOWN button
  * to increase or decrease the value and press the ENTER button to select the value. The user can also press the
@@ -148,14 +146,6 @@ public class FtcValueMenu extends FtcMenu
      */
     public void setChildMenu(FtcMenu childMenu)
     {
-        final String funcName = "setChildMenu";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "childMenu=%s", childMenu.getTitle());
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         this.childMenu = childMenu;
     }   //setChildMenu
 
@@ -168,14 +158,6 @@ public class FtcValueMenu extends FtcMenu
      */
     public double getCurrentValue()
     {
-        final String funcName = "getCurrentValue";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%f", currValue);
-        }
-
         return currValue == null? 0.0: currValue;
     }   //getCurrentValue
 
@@ -189,18 +171,10 @@ public class FtcValueMenu extends FtcMenu
     @Override
     public void menuUp()
     {
-        final String funcName = "menuUp";
-
         currValue += valueStep*multiplier;
         if (currValue > maxValue)
         {
             currValue = maxValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (value=%f)", currValue);
         }
     }   //menuUp
 
@@ -210,18 +184,10 @@ public class FtcValueMenu extends FtcMenu
     @Override
     public void menuDown()
     {
-        final String funcName = "menuDown";
-
         currValue -= valueStep*multiplier;
         if (currValue < minValue)
         {
             currValue = minValue;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (value=%f)", currValue);
         }
     }   //menuDown
 
@@ -231,17 +197,9 @@ public class FtcValueMenu extends FtcMenu
     @Override
     public void menuAltUp()
     {
-        final String funcName = "menuAltUp";
-
         if (currValue + multiplier*valueStep*10.0 <= maxValue)
         {
             multiplier *= 10.0;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (multiplier=%f)", multiplier);
         }
     }   //menuAltUp
 
@@ -251,17 +209,9 @@ public class FtcValueMenu extends FtcMenu
     @Override
     public void menuAltDown()
     {
-        final String funcName = "menuAltDown";
-
         if (currValue - multiplier*valueStep/10.0 >= minValue)
         {
             multiplier /= 10.0;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (multiplier=%f)", multiplier);
         }
     }   //menuAltDown
 
@@ -272,15 +222,6 @@ public class FtcValueMenu extends FtcMenu
      */
     public FtcMenu getChildMenu()
     {
-        final String funcName = "getChildMenu";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", childMenu != null? childMenu.getTitle(): "null");
-        }
-
         return childMenu;
     }   //getChildMenu
 
@@ -289,14 +230,6 @@ public class FtcValueMenu extends FtcMenu
      */
     public void displayMenu()
     {
-        final String funcName = "displayMenu";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         dashboard.clearDisplay();
         //
         // If there is a callback to get the default value, call it only for the first time. This method gets called

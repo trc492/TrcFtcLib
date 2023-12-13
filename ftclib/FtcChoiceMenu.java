@@ -24,8 +24,6 @@ package TrcFtcLib.ftclib;
 
 import java.util.ArrayList;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
-
 /**
  * This class implements a choice menu where a number of choices are presented to the user. The user can press the
  * UP and DOWN button to navigate the different choices and press the ENTER button to select the choice. The user
@@ -131,15 +129,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
      */
     public void addChoice(String choiceText, T choiceObject, boolean defChoice, FtcMenu childMenu)
     {
-        final String funcName = "addChoice";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "text=%s,obj=%s,default=%s,child=%s",
-                                choiceText, choiceObject.toString(), Boolean.toString(defChoice),
-                                childMenu == null? "null": childMenu.getTitle());
-        }
-
         choiceItems.add(new ChoiceItem(choiceText, choiceObject, childMenu));
         if (defChoice || currChoice == -1)
         {
@@ -148,11 +137,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
             // choice.
             //
             currChoice = choiceItems.size() - 1;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //addChoice
 
@@ -177,14 +161,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
      */
     public ChoiceItem getCurrentChoice()
     {
-        final String funcName = "getCurrentChoice";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", currChoice);
-        }
-
         return currChoice >= 0 && currChoice < choiceItems.size()? choiceItems.get(currChoice): null;
     }   //getCurrentChoice
 
@@ -225,13 +201,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
     @Override
     public void menuUp()
     {
-        final String funcName = "menuUp";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         if (choiceItems.size() == 0)
         {
             currChoice = -1;
@@ -252,11 +221,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
                 firstDisplayedChoice = currChoice;
             }
         }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (choice=%d)", currChoice);
-        }
     }   //menuUp
 
     /**
@@ -266,13 +230,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
     @Override
     public void menuDown()
     {
-        final String funcName = "menuDown";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         if (choiceItems.size() == 0)
         {
             currChoice = -1;
@@ -293,11 +250,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
                 //
                 firstDisplayedChoice = currChoice - (numDashboardLines - 2);
             }
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "! (choice=%d)", currChoice);
         }
     }   //menuDown
 
@@ -324,16 +276,8 @@ public class FtcChoiceMenu<T> extends FtcMenu
      */
     public FtcMenu getChildMenu()
     {
-        final String funcName = "getChildMenu";
         ChoiceItem choiceItem = getCurrentChoice();
         FtcMenu childMenu = choiceItem != null? choiceItem.getChildMenu(): null;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=%s", childMenu != null? childMenu.getTitle(): "null");
-        }
 
         return childMenu;
     }   //getChildMenu
@@ -346,14 +290,6 @@ public class FtcChoiceMenu<T> extends FtcMenu
      */
     public void displayMenu()
     {
-        final String funcName = "displayMenu";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         //
         // Determine the choice of the last display line on the dashboard.
         //

@@ -49,43 +49,48 @@ public class FtcDashboard extends TrcDashboard
     private Telemetry.DisplayFormat displayFormat;
 
     /**
-     * This static methods creates an instance of the object if none already exist. If the object exists previously,
-     * that instance is returned.
+     * This static method returns the instance of this object if one already exist, creates it if none existed.
      *
      * @param telemetry specifies the Telemetry object.
      * @param numLines specifies the number of display lines.
      * @return existing instance or newly created instance of the object.
      */
-    public static FtcDashboard createInstance(Telemetry telemetry, int numLines)
+    public static FtcDashboard getInstance(Telemetry telemetry, int numLines)
     {
         if (instance == null)
         {
-            instance = new FtcDashboard(telemetry, numLines);
+            if (telemetry != null && numLines > 0)
+            {
+                instance = new FtcDashboard(telemetry, numLines);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Must provide Telemetry and number of dashboard lines.");
+            }
         }
 
-        return (FtcDashboard)instance;
-    }   //createInstance
+        return (FtcDashboard) instance;
+    }   //getInstance
 
     /**
-     * This static methods creates an instance of the object if none already exist. If the object exists previously,
-     * that instance is returned.
+     * This static method returns the instance of this object if one already exist, creates it if none existed.
      *
      * @param telemetry specifies the Telemetry object.
      * @return existing instance or newly created instance of the object.
      */
-    public static FtcDashboard createInstance(Telemetry telemetry)
+    public static FtcDashboard getInstance(Telemetry telemetry)
     {
-        return createInstance(telemetry, MAX_NUM_TEXTLINES);
-    }   //createInstance
+        return getInstance(telemetry, MAX_NUM_TEXTLINES);
+    }   //getInstance
 
     /**
-     * This method returns the instance of this object if one already exist, returns null if none existed.
+     * This static method returns the instance of this object if one already exist, returns null if none existed.
      *
-     * @return instance of the object, null if none existed.
+     * @return existing instance or null if none existing.
      */
     public static FtcDashboard getInstance()
     {
-        return (FtcDashboard)instance;
+        return getInstance(null, 0);
     }   //getInstance
 
     /**
