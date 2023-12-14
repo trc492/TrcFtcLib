@@ -24,7 +24,6 @@ package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGameController;
 import TrcCommonLib.trclib.TrcUtil;
 
@@ -34,9 +33,6 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcGamepad extends TrcGameController
 {
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
-
 //    private enum GamepadButton
 //    {
 //        a("ButtonA", (int)1 << 0),
@@ -111,8 +107,7 @@ public class FtcGamepad extends TrcGameController
      * @param buttonHandler specifies the object that will handle the button events. If none provided, it is set to
      *        null.
      */
-    public FtcGamepad(
-        final String instanceName, Gamepad gamepad, final double deadbandThreshold, ButtonHandler buttonHandler)
+    public FtcGamepad(String instanceName, Gamepad gamepad, double deadbandThreshold, ButtonHandler buttonHandler)
     {
         super(instanceName, deadbandThreshold, buttonHandler);
         this.gamepad = gamepad;
@@ -128,7 +123,7 @@ public class FtcGamepad extends TrcGameController
      * @param buttonHandler specifies the object that will handle the button events. If none provided, it is set to
      *        null.
      */
-    public FtcGamepad(final String instanceName, Gamepad gamepad, ButtonHandler buttonHandler)
+    public FtcGamepad(String instanceName, Gamepad gamepad, ButtonHandler buttonHandler)
     {
         super(instanceName, buttonHandler);
         this.gamepad = gamepad;
@@ -143,7 +138,7 @@ public class FtcGamepad extends TrcGameController
      * @param gamepad specifies the gamepad associated with this instance.
      * @param deadbandThreshold specifies the deadband of the gamepad analog sticks.
      */
-    public FtcGamepad(final String instanceName, Gamepad gamepad, final double deadbandThreshold)
+    public FtcGamepad(String instanceName, Gamepad gamepad, double deadbandThreshold)
     {
         this(instanceName, gamepad, deadbandThreshold, null);
     }   //FtcGamepad
@@ -154,7 +149,7 @@ public class FtcGamepad extends TrcGameController
      * @param instanceName specifies the instance name.
      * @param gamepad specifies the gamepad associated with this instance.
      */
-    public FtcGamepad(final String instanceName, Gamepad gamepad)
+    public FtcGamepad(String instanceName, Gamepad gamepad)
     {
         this(instanceName, gamepad, null);
     }   //FtcGamepad
@@ -616,7 +611,6 @@ public class FtcGamepad extends TrcGameController
     public double[] getDriveInputs(
         DriveMode driveMode, boolean doExp, double drivePowerScale, double turnPowerScale)
     {
-        final String funcName = "getDriveInputs";
         double x = 0.0, y = 0.0, rot = 0.0;
 
         switch (driveMode)
@@ -625,20 +619,14 @@ public class FtcGamepad extends TrcGameController
                 x = getRightStickX(doExp);
                 y = getLeftStickY(doExp);
                 rot = getTrigger(doExp);
-                if (debugEnabled)
-                {
-                    globalTracer.traceInfo(funcName, "%s:x=%.1f,y=%.1f,rot=%.1f", driveMode, x, y, rot);
-                }
+                tracer.traceDebug(instanceName, driveMode + ":x=" + x + ",y=" + y + ",rot=" + rot);
                 break;
 
             case ARCADE_MODE:
                 x = getLeftStickX(doExp);
                 y = getLeftStickY(doExp);
                 rot = getRightStickX(doExp);
-                if (debugEnabled)
-                {
-                    globalTracer.traceInfo(funcName, "%s:x=%.1f,y=%.1f,rot=%.1f", driveMode, x, y, rot);
-                }
+                tracer.traceDebug(instanceName, driveMode + ":x=" + x + ",y=" + y + ",rot=" + rot);
                 break;
 
             case TANK_MODE:
@@ -647,10 +635,7 @@ public class FtcGamepad extends TrcGameController
                 x = 0.0;
                 y = (leftPower + rightPower)/2.0;
                 rot = (leftPower - rightPower)/2.0;
-                if (debugEnabled)
-                {
-                    globalTracer.traceInfo(funcName, "%s:left=%.1f,right=%.1f", driveMode, leftPower, rightPower);
-                }
+                tracer.traceDebug(instanceName, driveMode + ":left=" + leftPower + ",right=" + rightPower);
                 break;
         }
 
@@ -693,8 +678,6 @@ public class FtcGamepad extends TrcGameController
     @Override
     public int getButtons()
     {
-        final String funcName = "getButtons";
-
         int buttons = 0;
 //        buttons |= gamepad.a? GamepadButton.a.value: 0;
 //        buttons |= gamepad.b? GamepadButton.b.value: 0;
@@ -726,11 +709,7 @@ public class FtcGamepad extends TrcGameController
         buttons |= gamepad.dpad_up? GAMEPAD_DPAD_UP: 0;
         buttons |= gamepad.dpad_down? GAMEPAD_DPAD_DOWN: 0;
         buttons |= gamepad.guide? GAMEPAD_GUIDE: 0;
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "buttons=0x%x", buttons);
-        }
+        tracer.traceDebug(instanceName, "buttons=0x%x", buttons);
 
         return buttons;
     }   //getButtons

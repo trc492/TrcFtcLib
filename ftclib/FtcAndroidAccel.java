@@ -26,7 +26,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
 import TrcCommonLib.trclib.TrcAccelerometer;
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcTimer;
 
@@ -37,13 +36,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcAndroidAccel extends TrcAccelerometer
 {
-    private static final String moduleName = "FtcAndroidAccel";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final FtcAndroidSensor sensor;
     private int samplingPeriod = SensorManager.SENSOR_DELAY_GAME;
 
@@ -59,12 +51,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
         super(instanceName, 3,
               ACCEL_HAS_X_AXIS | ACCEL_HAS_Y_AXIS | ACCEL_HAS_Z_AXIS | ACCEL_INTEGRATE | ACCEL_DOUBLE_INTEGRATE,
               filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = new FtcAndroidSensor(instanceName, Sensor.TYPE_LINEAR_ACCELERATION, 3);
     }   //FtcAndroidAccel
 
@@ -85,14 +71,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
      */
     public synchronized void setSamplingPeriod(int period)
     {
-        final String funcName = "setSamplingPeriod";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "period=%d", period);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         samplingPeriod = period;
     }   //setSamplingPeriod
 
@@ -142,7 +120,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
     @Override
     public synchronized SensorData<Double> getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXData";
         SensorData<Double> data;
 
         if (dataType == DataType.ACCELERATION)
@@ -152,13 +129,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
         else
         {
             throw new UnsupportedOperationException("AndroidAccel sensor does not provide velocity or distance data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -173,7 +143,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
     @Override
     public synchronized SensorData<Double> getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYData";
         SensorData<Double> data;
 
         if (dataType == DataType.ACCELERATION)
@@ -183,13 +152,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
         else
         {
             throw new UnsupportedOperationException("AndroidAccel sensor does not provide velocity or distance data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -204,7 +166,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
     @Override
     public synchronized SensorData<Double> getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZData";
         SensorData<Double> data;
 
         if (dataType == DataType.ACCELERATION)
@@ -214,13 +175,6 @@ public class FtcAndroidAccel extends TrcAccelerometer
         else
         {
             throw new UnsupportedOperationException("AndroidAccel sensor does not provide velocity or distance data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;

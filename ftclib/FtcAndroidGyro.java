@@ -24,7 +24,6 @@ package TrcFtcLib.ftclib;
 
 import android.hardware.Sensor;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcGyro;
 import TrcCommonLib.trclib.TrcTimer;
@@ -36,13 +35,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcAndroidGyro extends TrcGyro
 {
-    private static final String moduleName = "FtcAndroidGyro";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final FtcAndroidSensor sensor;
 
     /**
@@ -55,12 +47,6 @@ public class FtcAndroidGyro extends TrcGyro
     public FtcAndroidGyro(String instanceName, TrcFilter[] filters)
     {
         super(instanceName, 3, GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS | GYRO_INTEGRATE, filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = new FtcAndroidSensor(instanceName, Sensor.TYPE_GYROSCOPE, 3);
     }   //FtcAndroidGyro
 
@@ -120,7 +106,6 @@ public class FtcAndroidGyro extends TrcGyro
     @Override
     public synchronized SensorData<Double> getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXData";
         SensorData<Double> data;
 
         if (dataType == DataType.ROTATION_RATE)
@@ -130,13 +115,6 @@ public class FtcAndroidGyro extends TrcGyro
         else
         {
             throw new UnsupportedOperationException("AndroidGyro sensor does not provide heading data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -151,7 +129,6 @@ public class FtcAndroidGyro extends TrcGyro
     @Override
     public synchronized SensorData<Double> getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYData";
         SensorData<Double> data;
 
         if (dataType == DataType.ROTATION_RATE)
@@ -161,13 +138,6 @@ public class FtcAndroidGyro extends TrcGyro
         else
         {
             throw new UnsupportedOperationException("AndroidGyro sensor does not provide heading data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -182,7 +152,6 @@ public class FtcAndroidGyro extends TrcGyro
     @Override
     public synchronized SensorData<Double> getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZData";
         SensorData<Double> data;
 
         if (dataType == DataType.ROTATION_RATE)
@@ -192,13 +161,6 @@ public class FtcAndroidGyro extends TrcGyro
         else
         {
             throw new UnsupportedOperationException("AndroidGyro sensor does not provide heading data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;

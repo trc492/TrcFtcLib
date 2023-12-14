@@ -28,7 +28,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 
 import TrcCommonLib.trclib.TrcAccelerometer;
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcTimer;
 
@@ -39,13 +38,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcAccelerometer extends TrcAccelerometer
 {
-    private static final String moduleName = "FtcAccelerometer";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final AccelerationSensor accel;
 
     /**
@@ -61,12 +53,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         super(instanceName, 3,
               ACCEL_HAS_X_AXIS | ACCEL_HAS_Y_AXIS | ACCEL_HAS_Z_AXIS | ACCEL_INTEGRATE | ACCEL_DOUBLE_INTEGRATE,
               filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         accel = hardwareMap.get(AccelerationSensor.class, instanceName);
     }   //FtcAccelerometer
 
@@ -113,7 +99,6 @@ public class FtcAccelerometer extends TrcAccelerometer
     @Override
     public synchronized SensorData<Double> getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXData";
         SensorData<Double> data;
 
         if (dataType == DataType.ACCELERATION)
@@ -124,13 +109,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         else
         {
             throw new UnsupportedOperationException("Accelerometer sensor does not provide velocity or distance data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -145,7 +123,6 @@ public class FtcAccelerometer extends TrcAccelerometer
     @Override
     public synchronized SensorData<Double> getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYData";
         SensorData<Double> data;
 
         if (dataType == DataType.ACCELERATION)
@@ -156,13 +133,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         else
         {
             throw new UnsupportedOperationException("Accelerometer sensor does not provide velocity or distance data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -177,7 +147,6 @@ public class FtcAccelerometer extends TrcAccelerometer
     @Override
     public synchronized SensorData<Double> getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZData";
         SensorData<Double> data;
 
         if (dataType == DataType.ACCELERATION)
@@ -188,13 +157,6 @@ public class FtcAccelerometer extends TrcAccelerometer
         else
         {
             throw new UnsupportedOperationException("Accelerometer sensor does not provide velocity or distance data.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;

@@ -27,7 +27,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
 
@@ -37,13 +36,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcDistanceSensor extends TrcSensor<FtcDistanceSensor.DataType>
 {
-    private static final String moduleName = "FtcDistanceSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         DISTANCE_MM,
@@ -63,12 +55,6 @@ public class FtcDistanceSensor extends TrcSensor<FtcDistanceSensor.DataType>
     public FtcDistanceSensor(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName, 1);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = hardwareMap.get(DistanceSensor.class, instanceName);
     }   //FtcDistanceSensor
 
@@ -96,7 +82,6 @@ public class FtcDistanceSensor extends TrcSensor<FtcDistanceSensor.DataType>
     @Override
     public synchronized SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         SensorData<Double> data = null;
 
         switch (dataType)
@@ -116,13 +101,6 @@ public class FtcDistanceSensor extends TrcSensor<FtcDistanceSensor.DataType>
             case DISTANCE_INCH:
                 data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getDistance(DistanceUnit.INCH));
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value=%d)", data.timestamp, data.value);
         }
 
         return data;

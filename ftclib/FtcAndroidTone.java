@@ -28,7 +28,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Build;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcTone;
 
 /**
@@ -37,13 +36,6 @@ import TrcCommonLib.trclib.TrcTone;
  */
 public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPositionUpdateListener
 {
-    private static final String moduleName = "FtcAndroidTone";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private static final Waveform DEF_WAVEFORM = Waveform.TRIANGLE_WAVE;
     private static final int DEF_SAMPLERATE = 16*1024;  //approx. 16kHz
 
@@ -66,12 +58,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
     public FtcAndroidTone(String instanceName, Waveform defWaveform, int sampleRate)
     {
         super(instanceName, defWaveform);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         if (sampleRate <= 0)
         {
             throw new IllegalArgumentException("Invalid sample rate.");
@@ -114,15 +100,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
      */
     public synchronized void setSoundEnvelope(double attack, double decay, double sustain, double release)
     {
-        final String funcName = "setSoundEnvelope";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "attack=%.3f,decay=%.3f,sustain=%.3f,release=%.3f", attack, decay, sustain, release);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         this.attack = attack;
         this.decay = decay;
         this.sustain = sustain;
@@ -134,14 +111,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
      */
     public synchronized void setSoundEnvelopeEnabled(boolean enabled)
     {
-        final String funcName = "setSoundEnvelopeEnabled";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "enabled=%s", Boolean.toString(enabled));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         this.envelopeEnabled = enabled;
     }   //setSoundEnvelopeEnabled
 
@@ -152,41 +121,20 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
      */
     public synchronized void playSound(short[] buffer)
     {
-        final String funcName = "playSound";
+        AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
+        attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
+        AudioFormat.Builder formatBuilder = new AudioFormat.Builder();
+        formatBuilder.setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                .setSampleRate(sampleRate)
+                .setChannelMask(AudioFormat.CHANNEL_OUT_MONO);
 
-        if (Build.VERSION.SDK_INT >= 21)
-        {
-            AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
-            attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
-
-            AudioFormat.Builder formatBuilder = new AudioFormat.Builder();
-            formatBuilder.setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                    .setSampleRate(sampleRate)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO);
-
-            audioTrack = new AudioTrack(
-                    attrBuilder.build(),
-                    formatBuilder.build(),
-                    buffer.length * 2,
-                    AudioTrack.MODE_STATIC,
-                    AudioManager.AUDIO_SESSION_ID_GENERATE);
-        }
-        else
-        {
-            audioTrack = new AudioTrack(
-                    AudioManager.STREAM_MUSIC,
-                    sampleRate,
-                    AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT,
-                    buffer.length * 2,    //buffer length in bytes
-                    AudioTrack.MODE_STATIC);
-        }
+        audioTrack = new AudioTrack(
+                attrBuilder.build(),
+                formatBuilder.build(),
+                buffer.length * 2,
+                AudioTrack.MODE_STATIC,
+                AudioManager.AUDIO_SESSION_ID_GENERATE);
 
         audioTrack.write(buffer, 0, buffer.length);
         audioTrack.setNotificationMarkerPosition(buffer.length);
@@ -210,16 +158,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
     @Override
     public synchronized void playTone(Waveform waveform, double frequency, double duration, double volume)
     {
-        final String funcName = "playTone";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "waveform=%s,freq=%.0f,dur=%.3f,vol=%.1f",
-                                waveform.toString(), frequency, duration, volume);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         if (volume < 0.0 || volume > 1.0)
         {
             throw new IllegalArgumentException("Volume must be in the range 0.0 to 1.0.");
@@ -266,14 +204,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
     @Override
     public synchronized void stop()
     {
-        final String funcName = "stop";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         if (playing)
         {
             audioTrack.pause();
@@ -290,14 +220,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
     @Override
     public synchronized boolean isPlaying()
     {
-        final String funcName = "isPlaying";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(playing));
-        }
-
         return playing;
     }   //isPlaying
 
@@ -314,14 +236,6 @@ public class FtcAndroidTone extends TrcTone implements AudioTrack.OnPlaybackPosi
     @Override
     public synchronized void onMarkerReached(AudioTrack track)
     {
-        final String funcName = "onMarkerReached";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.CALLBK);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.CALLBK);
-        }
-
         audioTrack.setNotificationMarkerPosition(0);
         playing = false;
     }   //onMarkerReached

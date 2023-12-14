@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import TrcCommonLib.trclib.TrcAnalogInput;
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcTimer;
 
@@ -36,13 +35,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcAnalogInput extends TrcAnalogInput
 {
-    private static final String moduleName = "FtcAnalogInput";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final AnalogInput sensor;
 
     /**
@@ -56,12 +48,6 @@ public class FtcAnalogInput extends TrcAnalogInput
     public FtcAnalogInput(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
         super(instanceName, 1, 0, filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = hardwareMap.get(AnalogInput.class, instanceName);
     }   //FtcAnalogInput
 
@@ -109,9 +95,7 @@ public class FtcAnalogInput extends TrcAnalogInput
     @Override
     public synchronized SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         SensorData<Double> data;
-
         //
         // Ultrasonic sensor supports only INPUT_DATA type.
         //
@@ -128,13 +112,6 @@ public class FtcAnalogInput extends TrcAnalogInput
         {
             throw new UnsupportedOperationException(
                     "AnalogInput sensor only support INPUT_DATA/NORMALIZED_DATA types.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value=%f)", data.timestamp, data.value);
         }
 
         return data;

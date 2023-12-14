@@ -23,7 +23,6 @@
 package TrcFtcLib.ftclib;
 
 import java.util.Date;
-import java.util.Locale;
 
 public class FtcMatchInfo
 {
@@ -57,8 +56,7 @@ public class FtcMatchInfo
     @Override
     public String toString()
     {
-        return String.format(
-            Locale.US, "date=\"%s\" type=\"%s\" number=%d", matchDate, matchType, matchNumber);
+        return "date=\"" + matchDate + "\" type=\"" + matchType + "\" number=" + matchNumber;
     }   //toString
 
     /**

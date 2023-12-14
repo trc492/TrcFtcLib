@@ -25,7 +25,6 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcDigitalOutput;
 
 /**
@@ -34,13 +33,6 @@ import TrcCommonLib.trclib.TrcDigitalOutput;
  */
 public class FtcDigitalOutput extends TrcDigitalOutput
 {
-    private static final String moduleName = "FtcDigitalOutput";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final DigitalChannel digitalOutput;
 
     /**
@@ -52,12 +44,6 @@ public class FtcDigitalOutput extends TrcDigitalOutput
     public FtcDigitalOutput(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         digitalOutput = hardwareMap.get(DigitalChannel.class, instanceName);
         digitalOutput.setMode(DigitalChannel.Mode.OUTPUT);
     }   //FtcDigitalOutput
@@ -82,14 +68,6 @@ public class FtcDigitalOutput extends TrcDigitalOutput
     @Override
     public void setState(boolean state)
     {
-        final String funcName = "setState";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(state));
-        }
-
         if (setOutputElapsedTimer != null) setOutputElapsedTimer.recordStartTime();
         digitalOutput.setState(state);
         if (setOutputElapsedTimer != null) setOutputElapsedTimer.recordEndTime();

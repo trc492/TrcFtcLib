@@ -30,7 +30,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcDigitalInput;
 import TrcCommonLib.trclib.TrcEncoder;
 import TrcCommonLib.trclib.TrcMotor;
@@ -46,8 +45,6 @@ import TrcCommonLib.trclib.TrcTimer;
 public class FtcDcMotor extends TrcMotor
 {
     private static final double DEF_POS_RESET_TIMEOUT = 0.1;
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
 
     public final DcMotorEx motor;
     private final VoltageSensor voltageSensor;
@@ -130,28 +127,6 @@ public class FtcDcMotor extends TrcMotor
     // Implements TrcMotorController interface.
     //
 
-//    /**
-//     * This method is used to check if the motor controller supports close loop control.
-//     *
-//     * @return true if motor controller supports close loop control, false otherwise.
-//     */
-//    @Override
-//    public boolean supportNativeCloseLoopControl()
-//    {
-//        return true;
-//    }   //supportNativeCloseloopControl
-
-//    /**
-//     * This method checks if the motor controller is connected to the robot.
-//     *
-//     * @return true if the motor is connected or if it's impossible to know, false otherwise.
-//     */
-//    @Override
-//    public boolean isConnected()
-//    {
-//        return motor.isMotorEnabled();
-//    }   //isConnected
-
     /**
      * This method resets the motor controller configurations to factory default so that everything is at known state.
      */
@@ -186,31 +161,6 @@ public class FtcDcMotor extends TrcMotor
     {
         throw new UnsupportedOperationException(instanceName + " does not support setCurrentLimit.");
     }   //setCurrentLimit
-
-//    /**
-//     * This method sets the close loop percentage output limits. By default the limits are set to the max at -1 to 1.
-//     * By setting a non-default limits, it effectively limits the output power of the close loop control.
-//     *
-//     * @param revLimit specifies the percentage output limit of the reverse direction.
-//     * @param fwdLimit specifies the percentage output limit of the forward direction.
-//     */
-//    @Override
-//    public void setCloseLoopOutputLimits(double revLimit, double fwdLimit)
-//    {
-//        // Allow this only if we are in close loop position control mode.
-//        if (runMode == DcMotor.RunMode.RUN_TO_POSITION)
-//        {
-//            revLimit = Math.abs(revLimit);
-//            fwdLimit = Math.abs(fwdLimit);
-//
-//            if (revLimit != fwdLimit)
-//            {
-//                throw new IllegalArgumentException("revLimit and fwdLimit must have the same magnitude.");
-//            }
-//
-//            setNativeMotorPower(fwdLimit);
-//        }
-//    }   //setCloseLoopOutputLimits
 
     /**
      * This method sets the close loop ramp rate.
@@ -411,20 +361,13 @@ public class FtcDcMotor extends TrcMotor
      */
     public void resetMotorPosition(double timeout)
     {
-        final String funcName = "resetMotorPosition";
         //
         // Resetting the encoder is done by setting the motor controller mode. This is a long operation and has side
         // effect of disabling the motor controller unless you do another setMode to re-enable it. Therefore,
         // resetMotorPosition is a synchronous call. This should only be called at robotInit time. For other times,
         // you should call software resetPosition instead.
         //
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(
-                funcName, "[%.3f] Before resetting %s: enc=%d",
-                TrcTimer.getModeElapsedTime(), this, motor.getCurrentPosition());
-        }
-
+        tracer.traceDebug(instanceName, "Before resetting: enc=" + motor.getCurrentPosition());
         DcMotor.RunMode prevMotorMode = motor.getMode();
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -434,12 +377,7 @@ public class FtcDcMotor extends TrcMotor
         {
             FtcOpMode.getInstance().clearBulkCacheInManualMode();
             motorPos = motor.getCurrentPosition();
-            if (debugEnabled)
-            {
-                globalTracer.traceInfo(
-                    funcName, "[%.3f] Waiting for %s to reset: enc=%d",
-                    TrcTimer.getModeElapsedTime(), this, motorPos);
-            }
+            tracer.traceDebug(instanceName, "Waiting reset: enc=" + motorPos);
 
             if (motorPos != 0)
             {
@@ -447,26 +385,18 @@ public class FtcDcMotor extends TrcMotor
             }
             else
             {
-                if (debugEnabled)
-                {
-                    globalTracer.traceInfo(
-                        funcName, "[%.3f] Reset %s success!", TrcTimer.getModeElapsedTime(), this);
-                }
+                tracer.traceDebug(instanceName, "Reset success!");
                 break;
             }
         }
 
         if (motorPos != 0)
         {
-            globalTracer.traceWarn(funcName, "motor %s encoder reset timed out (enc=%d).", this, motorPos);
+            tracer.traceWarn(instanceName, "Motor encoder reset timed out (enc=" + motorPos + ").");
         }
         // Restore previous motor mode.
         motor.setMode(prevMotorMode);
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "timeout=%.3f,pos=%d", timeout, motorPos);
-        }
+        tracer.traceDebug(instanceName, "timeout=" + timeout + ",pos=%" + motorPos);
     }   //resetMotorPosition
 
     /**

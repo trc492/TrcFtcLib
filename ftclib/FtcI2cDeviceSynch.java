@@ -31,8 +31,6 @@ import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 
 import java.util.Arrays;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
-
 /**
  * This class implements a platform dependent I2C Device that provides synchronous read/write access to the device.
  * For efficiency, it also provides a buffered read mode that uses the FTC I2C ReadWindow interface to read
@@ -43,14 +41,6 @@ import TrcCommonLib.trclib.TrcDbgTrace;
 @DeviceProperties(name = "I2C Sync Device", description = "I2C Sync Device", xmlTag = "I2cSyncDevice")
 public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
 {
-    private static final String moduleName = "FtcI2cDeviceSynch";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final boolean useGlobalTracer = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final I2cDeviceSynch device;
     private Manufacturer manufacturer = Manufacturer.Other;
     private String deviceName = "I2c Device";
@@ -67,14 +57,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
     public FtcI2cDeviceSynch(I2cDeviceSynch device)
     {
         super(device, true);
-
-        if (debugEnabled)
-        {
-            dbgTrace = useGlobalTracer?
-                    TrcDbgTrace.getGlobalTracer():
-                    new TrcDbgTrace(deviceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         this.device = device;
         super.registerArmingStateCallback(false);
     }   //FtcI2cDeviceSynch
@@ -96,16 +78,7 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public boolean isEnabled()
     {
-        final String funcName = "isEnabled";
-        boolean enabled = device.isEngaged();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%b", enabled);
-        }
-
-        return enabled;
+        return device.isEngaged();
     }   //isEnable
 
     /**
@@ -115,13 +88,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public void setEnabled(boolean enabled)
     {
-        final String funcName = "setEnabled";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "enanbled=%b", enabled);
-        }
-
         if (enabled)
         {
             device.engage();
@@ -129,11 +95,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
         else
         {
             device.disengage();
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //setEnabled
 
@@ -145,15 +106,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public void setI2cAddress(int i2cAddress, boolean addressIs7Bit)
     {
-        final String funcName = "setI2cAddress";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "addr=0x%x,7BitAddr=%s",
-                    i2cAddress, addressIs7Bit);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         device.setI2cAddress(addressIs7Bit? I2cAddr.create7bit(i2cAddress): I2cAddr.create8bit(i2cAddress));
     }   //setI2cAddress
 
@@ -165,15 +117,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public void setDeviceInfo(Manufacturer manufacturer, String deviceName)
     {
-        final String funcName = "setDeviceInfo";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "manu=%s,name=%s",
-                    manufacturer, deviceName);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         this.manufacturer = manufacturer;
         this.deviceName = deviceName;
     }   //setDeviceInfo
@@ -190,14 +133,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public void setBufferedReadWindow(int startReg, int cbReg, I2cDeviceSynch.ReadMode readMode, int bufferSize)
     {
-        final String funcName = "setBufferedReadWindow";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                    "startReg=%d,cReg=%d,readMode=%s,buffSize=%d", startReg, cbReg, readMode, bufferSize);
-        }
-
         if (bufferSize <= 0)
         {
             throw new IllegalArgumentException("Buffer size must be positive.");
@@ -207,11 +142,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
         this.bufferSize = bufferSize;
         this.buffer = null;
         this.buffIndex = 0;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //setBufferedReadWindow
 
     /**
@@ -223,20 +153,7 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public void writeData(int startReg, byte[] data, boolean waitForCompletion)
     {
-        final String funcName = "writeData";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "start=%d,data=%s,waitForCompletion=%s",
-                    startReg, Arrays.toString(data), waitForCompletion);
-        }
-
         device.write(startReg, data, waitForCompletion? I2cWaitControl.WRITTEN: I2cWaitControl.ATOMIC);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //writeData
 
     /**
@@ -249,16 +166,7 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public byte[] readData(int startReg, int len)
     {
-        final String funcName = "readData";
-        byte[] data = device.read(startReg == -1? 0: startReg, len);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "start=%d,len=%d", startReg, len);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Arrays.toString(data));
-        }
-
-        return data;
+        return device.read(startReg == -1? 0: startReg, len);
     }   //readData
 
     /**
@@ -273,13 +181,7 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
      */
     public byte[] readData(int len)
     {
-        final String funcName = "readData";
         byte[] data;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "len=%d", len);
-        }
 
         if (bufferSize > 0)
         {
@@ -327,10 +229,6 @@ public class FtcI2cDeviceSynch extends I2cDeviceSynchDevice<I2cDeviceSynch>
             data = device.read(0, len);
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Arrays.toString(data));
-        }
         return data;
     }   //readData
 

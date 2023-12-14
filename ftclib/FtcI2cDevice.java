@@ -24,9 +24,6 @@ package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import java.util.Arrays;
-
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSerialBusDevice;
 
 /**
@@ -34,13 +31,6 @@ import TrcCommonLib.trclib.TrcSerialBusDevice;
  */
 public class FtcI2cDevice extends TrcSerialBusDevice
 {
-    private static final String moduleName = "FtcI2cDevice";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     protected FtcI2cDeviceSynch deviceSynch;
 
     /**
@@ -52,16 +42,10 @@ public class FtcI2cDevice extends TrcSerialBusDevice
      * @param addressIs7Bit specifies true if the I2C address is a 7-bit address, false if it is 8-bit.
      * @param useRequestQueue specifies true to use a request queue, false otherwise.
      */
-    public FtcI2cDevice(HardwareMap hardwareMap, final String instanceName, int i2cAddress, boolean addressIs7Bit,
-                        boolean useRequestQueue)
+    public FtcI2cDevice(
+        HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit, boolean useRequestQueue)
     {
         super(instanceName, useRequestQueue);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         deviceSynch = hardwareMap.get(FtcI2cDeviceSynch.class, instanceName);
         deviceSynch.setI2cAddress(i2cAddress, addressIs7Bit);
     }   //FtcI2cDevice
@@ -74,7 +58,7 @@ public class FtcI2cDevice extends TrcSerialBusDevice
      * @param i2cAddress specifies the I2C address of the device.
      * @param addressIs7Bit specifies true if the I2C address is a 7-bit address, false if it is 8-bit.
      */
-    public FtcI2cDevice(HardwareMap hardwareMap, final String instanceName, int i2cAddress, boolean addressIs7Bit)
+    public FtcI2cDevice(HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         this(hardwareMap, instanceName, i2cAddress, addressIs7Bit, true);
     }   //FtcI2cDevice
@@ -86,7 +70,7 @@ public class FtcI2cDevice extends TrcSerialBusDevice
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    public FtcI2cDevice(HardwareMap hardwareMap, final String instanceName, int i2cAddress)
+    public FtcI2cDevice(HardwareMap hardwareMap, String instanceName, int i2cAddress)
     {
         this(hardwareMap, instanceName, i2cAddress, false, true);
     }   //FtcI2cDevice
@@ -98,7 +82,7 @@ public class FtcI2cDevice extends TrcSerialBusDevice
      * @param i2cAddress specifies the I2C address of the device.
      * @param addressIs7Bit specifies true if the I2C address is a 7-bit address, false if it is 8-bit.
      */
-    public FtcI2cDevice(final String instanceName, int i2cAddress, boolean addressIs7Bit)
+    public FtcI2cDevice(String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, i2cAddress, addressIs7Bit, true);
     }   //FtcI2cDevice
@@ -109,7 +93,7 @@ public class FtcI2cDevice extends TrcSerialBusDevice
      * @param instanceName specifies the instance name.
      * @param i2cAddress specifies the I2C address of the device.
      */
-    public FtcI2cDevice(final String instanceName, int i2cAddress)
+    public FtcI2cDevice(String instanceName, int i2cAddress)
     {
         this(FtcOpMode.getInstance().hardwareMap, instanceName, i2cAddress, false, true);
     }   //FtcI2cDevice
@@ -128,16 +112,7 @@ public class FtcI2cDevice extends TrcSerialBusDevice
     @Override
     public byte[] readData(int address, int length)
     {
-        final String funcName = "readData";
-        byte[] data = deviceSynch.readData(address, length);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "start=0x%02x,len=%d", address, length);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Arrays.toString(data));
-        }
-
-        return data;
+        return deviceSynch.readData(address, length);
     }   //readData
 
     /**
@@ -151,17 +126,7 @@ public class FtcI2cDevice extends TrcSerialBusDevice
     @Override
     public int writeData(int address, byte[] buffer, int length)
     {
-        final String funcName = "writeData";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                    "start=0x%02x,data=%s", address, Arrays.toString(buffer));
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         deviceSynch.writeData(address, buffer, true);
-
         return length;
     }   //writeData
 

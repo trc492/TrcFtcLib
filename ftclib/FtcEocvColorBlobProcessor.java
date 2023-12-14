@@ -276,9 +276,10 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
      * Called during the viewport's frame rendering operation at some later point during processFrame(). Allows you
      * to use the Canvas API to draw annotations on the frame, rather than using OpenCV calls. This allows for more
      * eye-candy annotations since you've got a high resolution canvas to work with rather than, say, a 320x240 image.
-     *
+     * <p>
      * Note that this is NOT called from the same thread that calls processFrame(), and may actually be called from
      * the UI thread depending on the viewport renderer.
+     * </p>
      *
      * @param canvas the canvas that's being drawn on NOTE: Do NOT get dimensions from it, use below
      * @param onscreenWidth the width of the canvas that corresponds to the image
