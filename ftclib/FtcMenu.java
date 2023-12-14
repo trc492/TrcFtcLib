@@ -22,7 +22,6 @@
 
 package TrcFtcLib.ftclib;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcTimer;
 
 /**
@@ -45,13 +44,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public abstract class FtcMenu
 {
-    protected static final String moduleName = "FtcMenu";
-    protected static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    protected TrcDbgTrace dbgTrace = null;
-
     /**
      * This method allows this class to displays the menu on the Driver Station.
      */
@@ -140,7 +132,7 @@ public abstract class FtcMenu
 
     }   //interface MenuButtons
 
-    private static final long LOOP_INTERVAL             = 20;       //in msec.
+    private static final long LOOP_INTERVAL_MSEC        = 20;       //in msec.
 
     private static final int MENUBUTTON_BACK            = (1 << 0);
     private static final int MENUBUTTON_ENTER           = (1 << 1);
@@ -149,7 +141,7 @@ public abstract class FtcMenu
     private static final int MENUBUTTON_ALT_UP          = (1 << 4);
     private static final int MENUBUTTON_ALT_DOWN        = (1 << 5);
 
-    protected FtcDashboard dashboard;
+    protected final FtcDashboard dashboard;
     private final FtcOpMode opMode;
     private final String menuTitle;
     private final FtcMenu parent;
@@ -168,14 +160,9 @@ public abstract class FtcMenu
      */
     protected FtcMenu(String menuTitle, FtcMenu parent, MenuButtons menuButtons)
     {
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + menuTitle, tracingEnabled, traceLevel, msgLevel);
-        }
-
         if (menuTitle == null)
         {
-            throw new NullPointerException("menuTitle cannot be null.");
+            throw new IllegalArgumentException("menuTitle cannot be null.");
         }
 
         dashboard = FtcDashboard.getInstance();
@@ -192,14 +179,6 @@ public abstract class FtcMenu
      */
     public FtcMenu getParentMenu()
     {
-        final String funcName = "getParentMenu";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", parent.getTitle());
-        }
-
         return parent;
     }   //getParentMenu
 
@@ -210,14 +189,6 @@ public abstract class FtcMenu
      */
     public String getTitle()
     {
-        final String funcName = "getTitle";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", menuTitle);
-        }
-
         return menuTitle;
     }   //getTitle
 
@@ -251,7 +222,7 @@ public abstract class FtcMenu
         while (!runMenus() && !opmode.isStopRequested())
         {
             opmode.sendWatchdogHeartBeat();
-            TrcTimer.sleep(LOOP_INTERVAL);
+            TrcTimer.sleep(LOOP_INTERVAL_MSEC);
         }
     }   //walkMenuTree
 
@@ -344,8 +315,6 @@ public abstract class FtcMenu
      */
     private int getMenuButtons()
     {
-        final String funcName = "getMenuButtons";
-
         int buttons = 0;
 
         if (menuButtons != null)
@@ -368,12 +337,6 @@ public abstract class FtcMenu
             if (opMode.gamepad1.dpad_down) buttons |= MENUBUTTON_DOWN;
             if (opMode.gamepad1.left_bumper) buttons |= MENUBUTTON_ALT_UP;
             if (opMode.gamepad1.right_bumper) buttons |= MENUBUTTON_ALT_DOWN;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "=%x", buttons);
         }
 
         return buttons;
