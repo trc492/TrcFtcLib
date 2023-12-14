@@ -48,8 +48,9 @@ public class FtcVisionEocvColorBlob
         boolean validateTarget(TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> objInfo);
     }   //interface FilterTarget
 
-    private final TrcDbgTrace tracer;
     private final FtcEocvColorBlobProcessor colorBlobProcessor;
+    private final TrcDbgTrace tracer;
+    private final String instanceName;
     private final TrcHomographyMapper homographyMapper;
 
     /**
@@ -68,18 +69,17 @@ public class FtcVisionEocvColorBlob
      * @param cameraRect specifies the camera rectangle for Homography Mapper, null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, null if not provided.
      * @param annotate specifies true to draw annotation, false otherwise.
-     * @param tracer specifies the tracer for trace info, null if not provided.
      */
     public FtcVisionEocvColorBlob(
         String instanceName, Integer colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
-        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
-        boolean annotate, TrcDbgTrace tracer)
+        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, boolean annotate)
     {
-        this.tracer = tracer;
         // Create the Color Blob processor.
         colorBlobProcessor = new FtcEocvColorBlobProcessor(
-            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, tracer);
+            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly);
+        tracer = colorBlobProcessor.getTracer();
+        this.instanceName = instanceName;
 
         if (cameraRect != null && worldRect != null)
         {
@@ -106,15 +106,13 @@ public class FtcVisionEocvColorBlob
      * @param filterContourParams specifies the parameters for filtering contours, can be null if not provided.
      * @param externalContourOnly specifies true for finding external contours only, false otherwise (not applicable
      *        if filterContourParams is null).
-     * @param tracer specifies the tracer for trace info, null if not provided.
      */
     public FtcVisionEocvColorBlob(
         String instanceName, Integer colorConversion, double[] colorThresholds,
-        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
-        TrcDbgTrace tracer)
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly)
     {
-        this(instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, null, null,
-             true, tracer);
+        this(instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly,
+             null, null, true);
     }   //FtcVisionEocvColorBlob
 
     /**
@@ -139,6 +137,16 @@ public class FtcVisionEocvColorBlob
     }   //getVisionProcessor
 
     /**
+     * This method returns its tracer used for tracing info.
+     *
+     * @return tracer.
+     */
+    public TrcDbgTrace getTracer()
+    {
+        return tracer;
+    }   //getTracer
+
+    /**
      * This method returns the target info of the given detected target.
      *
      * @param target specifies the detected target
@@ -149,14 +157,10 @@ public class FtcVisionEocvColorBlob
     public TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> getDetectedTargetInfo(
         TrcOpenCvColorBlobPipeline.DetectedObject target, double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getDetectedTargetInfo";
         TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
             target, homographyMapper, objHeightOffset, cameraHeight);
 
-        if (tracer != null)
-        {
-            tracer.traceInfo(funcName, "%s: TargetInfo=%s", this, targetInfo);
-        }
+        tracer.traceDebug(instanceName, "TargetInfo=" + targetInfo);
 
         return targetInfo;
     }   //getDetectedTargetInfo
@@ -175,7 +179,6 @@ public class FtcVisionEocvColorBlob
         Comparator<? super TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>> comparator,
         double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getDetectedTargetsInfo";
         TrcVisionTargetInfo<TrcOpenCvColorBlobPipeline.DetectedObject>[] targetsInfo = null;
         TrcOpenCvColorBlobPipeline.DetectedObject[] detectedObjects = colorBlobProcessor.getDetectedObjects();
 
@@ -196,11 +199,7 @@ public class FtcVisionEocvColorBlob
                 {
                     rejected = true;
                 }
-
-                if (tracer != null)
-                {
-                    tracer.traceInfo(funcName, "[%d] rejected=%s", i, rejected);
-                }
+                tracer.traceDebug(instanceName, "[" + i + "] rejected=" + rejected);
             }
 
             if (targets.size() > 0)

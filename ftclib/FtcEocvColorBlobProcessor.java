@@ -72,15 +72,14 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
      *        default color is used.
      * @param textSize specifies the text size to draw the label text, can be null if not provided in which case
      *        default text size is used.
-     * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvColorBlobProcessor(
         String instanceName, Integer colorConversion, double[] colorThresholds,
         TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
-        Integer lineColor, Float lineWidth, Integer textColor, Float textSize, TrcDbgTrace tracer)
+        Integer lineColor, Float lineWidth, Integer textColor, Float textSize)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, tracer);
+            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly);
 
         linePaint = new Paint();
         linePaint.setAntiAlias(true);
@@ -108,15 +107,13 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
      * @param filterContourParams specifies the parameters for filtering contours, can be null if not provided.
      * @param externalContourOnly specifies true for finding external contours only, false otherwise (not applicable
      *        if filterContourParams is null).
-     * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcEocvColorBlobProcessor(
         String instanceName, Integer colorConversion, double[] colorThresholds,
-        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
-        TrcDbgTrace tracer)
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly)
     {
-        this(instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, null, null, null,
-             null, tracer);
+        this(instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly,
+             null, null, null, null);
     }   //FtcEocvColorBlobProcessor
 
     /**
@@ -129,6 +126,16 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
     {
         return colorBlobPipeline.toString();
     }   //toString
+
+    /**
+     * This method returns its tracer used for tracing info.
+     *
+     * @return tracer.
+     */
+    public TrcDbgTrace getTracer()
+    {
+        return colorBlobPipeline.getTracer();
+    }   //getTracer
 
     //
     // Implements TrcOpenCvPipeline interface.

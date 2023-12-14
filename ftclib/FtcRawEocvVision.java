@@ -44,9 +44,9 @@ import TrcCommonLib.trclib.TrcVisionTargetInfo;
 public class FtcRawEocvVision
 {
     private static final String moduleName = "FtcRawEocvVision";
+    private final TrcDbgTrace tracer;
     private final String instanceName;
     private final OpenCvCamera openCvCamera;
-    private final TrcDbgTrace tracer;
     private final TrcHomographyMapper homographyMapper;
 
     private boolean cameraStarted = false;
@@ -62,16 +62,15 @@ public class FtcRawEocvVision
      * @param worldRect specifies the world rectangle for Homography Mapper, can be null if not provided.
      * @param openCvCamera specifies the camera object.
      * @param cameraRotation specifies the camera orientation.
-     * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcRawEocvVision(
         String instanceName, int imageWidth, int imageHeight,
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
-        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation, TrcDbgTrace tracer)
+        OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation)
     {
+        this.tracer = new TrcDbgTrace(instanceName);
         this.instanceName = instanceName;
         this.openCvCamera = openCvCamera;
-        this.tracer = tracer;
 
         if (cameraRect != null && worldRect != null)
         {
@@ -94,8 +93,7 @@ public class FtcRawEocvVision
             @Override
             public void onError(int errorCode)
             {
-                TrcDbgTrace.getGlobalTracer().traceWarn(
-                    moduleName, "Failed to open camera %s (code=%d).", instanceName, errorCode);
+                tracer.traceWarn(instanceName, "Failed to open camera (code=" + errorCode + ").");
             }
         });
     }   //FtcRawEocvVision
@@ -154,7 +152,6 @@ public class FtcRawEocvVision
         Comparator<? super TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>> comparator,
         double objHeightOffset, double cameraHeight)
     {
-        final String funcName = instanceName + ".getDetectedTargetsInfo";
         TrcVisionTargetInfo<TrcOpenCvDetector.DetectedObject<?>>[] detectedTargets = null;
 
         // Do this only if the pipeline is set.
@@ -185,11 +182,11 @@ public class FtcRawEocvVision
                     }
                 }
 
-                if (detectedTargets != null && tracer != null)
+                if (detectedTargets != null)
                 {
                     for (int i = 0; i < detectedTargets.length; i++)
                     {
-                        tracer.traceInfo(funcName, "[%d] Target=%s", i, detectedTargets[i]);
+                        tracer.traceDebug(instanceName, "[" + i + "] Target=" + detectedTargets[i]);
                     }
                 }
             }

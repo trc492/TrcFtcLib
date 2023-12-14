@@ -52,15 +52,13 @@ public class FtcRawEocvColorBlobPipeline extends OpenCvPipeline
      * @param filterContourParams specifies the parameters for filtering contours, can be null if not provided.
      * @param externalContourOnly specifies true for finding external contours only, false otherwise (not applicable
      *        if filterContourParams is null).
-     * @param tracer specifies the tracer for trace info, null if none provided.
      */
     public FtcRawEocvColorBlobPipeline(
         String instanceName, Integer colorConversion, double[] colorThresholds,
-        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly,
-        TrcDbgTrace tracer)
+        TrcOpenCvColorBlobPipeline.FilterContourParams filterContourParams, boolean externalContourOnly)
     {
         colorBlobPipeline = new TrcOpenCvColorBlobPipeline(
-            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly, tracer);
+            instanceName, colorConversion, colorThresholds, filterContourParams, externalContourOnly);
     }   //FtcRawEocvColorBlobPipeline
 
     /**
@@ -73,6 +71,16 @@ public class FtcRawEocvColorBlobPipeline extends OpenCvPipeline
     {
         return colorBlobPipeline.toString();
     }   //toString
+
+    /**
+     * This method returns its tracer used for tracing info.
+     *
+     * @return tracer.
+     */
+    public TrcDbgTrace getTracer()
+    {
+        return colorBlobPipeline.getTracer();
+    }   //getTracer
 
     /**
      * This method returns the color threshold values.

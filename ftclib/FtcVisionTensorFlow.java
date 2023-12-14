@@ -211,14 +211,13 @@ public class FtcVisionTensorFlow
      * @param objectLabels specifies the names of detectable objects.
      * @param cameraRect specifies the camera rectangle for Homography Mapper, null if not provided.
      * @param worldRect specifies the world rectangle for Homography Mapper, null if not provided.
-     * @param tracer specifies the tracer for trace info, null if not provided.
      */
     public FtcVisionTensorFlow(
         Parameters params, boolean modelIsAsset, String model, String[] objectLabels,
-        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect, TrcDbgTrace tracer)
+        TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect)
     {
-        this.instanceName = model;
-        this.tracer = tracer;
+        instanceName = model;
+        tracer = new TrcDbgTrace(instanceName);
         // Create the TensorFlow processor by using a builder.
         TfodProcessor.Builder builder = new TfodProcessor.Builder().setModelLabels(objectLabels);
 
@@ -258,26 +257,10 @@ public class FtcVisionTensorFlow
      * @param modelIsAsset specifies true if model is an asset, false if it is a file name.
      * @param model specifies the model asset or model file name.
      * @param objectLabels specifies the names of detectable objects.
-     * @param tracer specifies the tracer for trace info, null if not provided.
      */
-    public FtcVisionTensorFlow(
-        Parameters params, boolean modelIsAsset, String model, String[] objectLabels, TrcDbgTrace tracer)
+    public FtcVisionTensorFlow(Parameters params, boolean modelIsAsset, String model, String[] objectLabels)
     {
-        this(params, modelIsAsset, model, objectLabels, null, null, tracer);
-    }   //FtcVisionTensorFlow
-
-    /**
-     * Constructor: Create an instance of the object.
-     *
-     * @param params specifies the TensorFlow parameters, can be null if using default parameters.
-     * @param modelIsAsset specifies true if model is an asset, false if it is a file name.
-     * @param model specifies the model asset or model file name.
-     * @param objectLabels specifies the names of detectable objects.
-     */
-    public FtcVisionTensorFlow(
-        Parameters params, boolean modelIsAsset, String model, String[] objectLabels)
-    {
-        this(params, modelIsAsset, model, objectLabels, null, null, null);
+        this(params, modelIsAsset, model, objectLabels, null, null);
     }   //FtcVisionTensorFlow
 
     /**
@@ -302,6 +285,16 @@ public class FtcVisionTensorFlow
     }   //getVisionProcessor
 
     /**
+     * This method returns its tracer used for tracing info.
+     *
+     * @return tracer.
+     */
+    public TrcDbgTrace getTracer()
+    {
+        return tracer;
+    }   //getTracer
+
+    /**
      * This method returns the target info of the given detected target.
      *
      * @param target specifies the detected target
@@ -312,7 +305,6 @@ public class FtcVisionTensorFlow
     public TrcVisionTargetInfo<DetectedObject> getDetectedTargetInfo(
         Recognition target, double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getDetectedTargetInfo";
         TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(
             new DetectedObject(
                 target.getLabel(),
@@ -320,13 +312,14 @@ public class FtcVisionTensorFlow
                 target.estimateAngleToObject(AngleUnit.DEGREES), target.getConfidence()),
             homographyMapper, objHeightOffset, cameraHeight);
 
-        if (tracer != null)
-        {
-            tracer.traceInfo(
-                funcName, "%s.%s: x=%.0f,y=%.0f,w=%.0f,h=%.0f,TargetInfo=%s",
-                this, target.getLabel(), target.getLeft(), target.getTop(), target.getWidth(), target.getHeight(),
-                targetInfo);
-        }
+        tracer.traceInfo(
+            instanceName,
+            target.getLabel() +
+            ": x=" + target.getLeft() +
+            ",y=" + target.getTop() +
+            ",w=" + target.getWidth() +
+            ",h=" + target.getHeight() +
+            ",TargetInfo=" + targetInfo);
 
         return targetInfo;
     }   //getDetectedTargetInfo
@@ -345,7 +338,6 @@ public class FtcVisionTensorFlow
         String label, FilterTarget filter, Comparator<? super TrcVisionTargetInfo<DetectedObject>> comparator,
         double objHeightOffset, double cameraHeight)
     {
-        final String funcName = "getDetectedTargetsInfo";
         TrcVisionTargetInfo<DetectedObject>[] targetsInfo = null;
         // getFreshRecognitions() will return null if no new information is available since the last time that call
         // was made.
@@ -373,11 +365,7 @@ public class FtcVisionTensorFlow
                         rejected = true;
                     }
                 }
-
-                if (tracer != null)
-                {
-                    tracer.traceInfo(funcName, "[%d] foundIt=%s,rejected=%s", i, foundIt, rejected);
-                }
+                tracer.traceDebug(instanceName, "[" + i + "] foundIt=" + foundIt + ",rejected=" + rejected);
             }
 
             if (targets.size() > 0)
@@ -389,14 +377,6 @@ public class FtcVisionTensorFlow
                 {
                     Arrays.sort(targetsInfo, comparator);
                 }
-            }
-
-            if (targets.size() == 0)
-            {
-                //
-                // No target found.
-                //
-                targets = null;
             }
         }
 

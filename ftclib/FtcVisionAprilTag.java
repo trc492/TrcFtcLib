@@ -32,7 +32,6 @@ import org.opencv.core.Rect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcPose3D;
@@ -158,24 +157,30 @@ public class FtcVisionAprilTag
         {
             if (aprilTagDetection.ftcPose != null)
             {
-                return String.format(
-                    Locale.US,
-                    "{id=%d,center=%.1f/%.1f,rect=%s,ftcPose=(x=%.1f,y=%.1f,z=%.1f,yaw=%.1f,pitch=%.1f,roll=%.1f," +
-                    "range=%.1f,bearing=%.1f,elevator=%.1f),fieldPos=%s,hamming=%d,decisionMargin=%.1f}",
-                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
-                    aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
-                    aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll,
-                    aprilTagDetection.ftcPose.range, aprilTagDetection.ftcPose.bearing,
-                    aprilTagDetection.ftcPose.elevation, aprilTagDetection.metadata.fieldPosition,
-                    aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
+                return "{id=" + aprilTagDetection.id +
+                       ",center=" + aprilTagDetection.center.x + "/" + aprilTagDetection.center.y +
+                       ",rect=" + getRect() +
+                       ",ftcPose=(x=" + aprilTagDetection.ftcPose.x +
+                       ",y=" + aprilTagDetection.ftcPose.y +
+                       ",z=" + aprilTagDetection.ftcPose.z +
+                       ",yaw=" + aprilTagDetection.ftcPose.yaw +
+                       ",pitch=" + aprilTagDetection.ftcPose.pitch +
+                       ",roll=" + aprilTagDetection.ftcPose.roll +
+                       ",range=" + aprilTagDetection.ftcPose.range +
+                       ",bearing=" + aprilTagDetection.ftcPose.bearing +
+                       ",elevator=" + aprilTagDetection.ftcPose.elevation +
+                       "),fieldPos=" + aprilTagDetection.metadata.fieldPosition +
+                       ",hamming=" + aprilTagDetection.hamming +
+                       ",decisionMargin=" + aprilTagDetection.decisionMargin + "}";
             }
             else
             {
-                return String.format(
-                    Locale.US,
-                    "{id=%d,center=%.1f/%.1f,rect=%s,hamming=%d,decisionMargin=%.1f}",
-                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
-                    aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
+                return "{id=" + aprilTagDetection.id +
+                       ",center=" + aprilTagDetection.center.x + "/" + aprilTagDetection.center.y +
+                       ",rect=" + getRect() +
+                       ",fieldPos=" + aprilTagDetection.metadata.fieldPosition +
+                       ",hamming=" + aprilTagDetection.hamming +
+                       ",decisionMargin=" + aprilTagDetection.decisionMargin + "}";
             }
         }   //toString
 
@@ -243,12 +248,11 @@ public class FtcVisionAprilTag
      *
      * @param params specifies the AprilTag parameters, can be null if using default parameters.
      * @param tagFamily specifies the tag family.
-     * @param tracer specifies the tracer for trace info, null if none provided.
      */
-    public FtcVisionAprilTag(Parameters params, AprilTagProcessor.TagFamily tagFamily, TrcDbgTrace tracer)
+    public FtcVisionAprilTag(Parameters params, AprilTagProcessor.TagFamily tagFamily)
     {
         instanceName = tagFamily.name();
-        this.tracer = tracer;
+        tracer = new TrcDbgTrace(instanceName);
         // Create the AprilTag processor.
         AprilTagProcessor.Builder builder = new AprilTagProcessor.Builder().setTagFamily(tagFamily);
         if (params != null)
@@ -270,17 +274,6 @@ public class FtcVisionAprilTag
     }   //FtcVisionAprilTag
 
     /**
-     * Constructor: Create an instance of the object.
-     *
-     * @param params specifies the AprilTag parameters, can be null if using default parameters.
-     * @param tagFamily specifies the tag family.
-     */
-    public FtcVisionAprilTag(Parameters params, AprilTagProcessor.TagFamily tagFamily)
-    {
-        this(params, tagFamily, null);
-    }   //FtcVisionAprilTag
-
-    /**
      * This method returns the tag family string.
      *
      * @return tag family string.
@@ -290,6 +283,16 @@ public class FtcVisionAprilTag
     {
         return instanceName;
     }   //toString
+
+    /**
+     * This method returns its tracer used for tracing info.
+     *
+     * @return tracer.
+     */
+    public TrcDbgTrace getTracer()
+    {
+        return tracer;
+    }   //getTracer
 
     /**
      * This method returns the AprilTag vision processor.
@@ -309,13 +312,8 @@ public class FtcVisionAprilTag
      */
     public TrcVisionTargetInfo<DetectedObject> getDetectedTargetInfo(AprilTagDetection detection)
     {
-        final String funcName = "getDetectedTargetInfo";
         TrcVisionTargetInfo<DetectedObject> targetInfo = new TrcVisionTargetInfo<>(new DetectedObject(detection));
-
-        if (tracer != null)
-        {
-            tracer.traceInfo(funcName, "%s: TargetInfo=%s", this, targetInfo);
-        }
+        tracer.traceDebug(instanceName, "TargetInfo=" + targetInfo);
 
         return targetInfo;
     }   //getDetectedTargetInfo

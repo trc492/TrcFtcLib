@@ -305,7 +305,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         //
         // Create dashboard here. If any earlier, telemetry may not exist yet.
         //
-        FtcDashboard dashboard = FtcDashboard.createInstance(telemetry, NUM_DASHBOARD_LINES);
+        FtcDashboard dashboard = FtcDashboard.getInstance(telemetry, NUM_DASHBOARD_LINES);
         TrcRobot.RunMode runMode;
         //
         // Determine run mode. Note that it means the OpMode must be annotated with group="FtcAuto", group="FtcTeleOp"
