@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import TrcCommonLib.trclib.TrcDigitalInput;
-import TrcCommonLib.trclib.TrcDbgTrace;
 
 /**
  * This class implements a platform dependent touch sensor extending TrcDigitalInput. It provides implementation of
@@ -34,13 +33,6 @@ import TrcCommonLib.trclib.TrcDbgTrace;
  */
 public class FtcTouchSensor extends TrcDigitalInput
 {
-    private static final String moduleName = "FtcTouchSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final TouchSensor touchSensor;
 
     /**
@@ -52,12 +44,6 @@ public class FtcTouchSensor extends TrcDigitalInput
     public FtcTouchSensor(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         this.touchSensor = hardwareMap.get(TouchSensor.class, instanceName);
     }   //FtcTouchSensor
 
@@ -83,16 +69,7 @@ public class FtcTouchSensor extends TrcDigitalInput
     @Override
     public boolean getInputState()
     {
-        final String funcName = "getInputState";
-        boolean touchState = touchSensor.isPressed();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", touchState);
-        }
-
-        return touchState;
+        return touchSensor.isPressed();
     }   //getInputState
 
 }   //class FtcTouchSensor

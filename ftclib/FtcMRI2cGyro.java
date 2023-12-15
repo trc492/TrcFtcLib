@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcGyro;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
@@ -39,13 +38,6 @@ import TrcCommonLib.trclib.TrcUtil;
 public class FtcMRI2cGyro extends FtcMRI2cDevice
                           implements TrcGyro.GyroData, TrcSensor.DataSource<FtcMRI2cGyro.DataType>
 {
-    private static final String moduleName = "FtcMRI2cGyro";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         HEADING,
@@ -58,7 +50,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
     }   //enum DataType
 
     public static final int DEF_I2CADDRESS          = 0x20;
-
     //
     // I2C registers.
     //
@@ -102,15 +93,8 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
     public FtcMRI2cGyro(HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         super(hardwareMap, instanceName, i2cAddress, addressIs7Bit);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         deviceSynch.setDeviceInfo(HardwareDevice.Manufacturer.ModernRobotics, "MR Gyro Sensor");
         deviceSynch.setBufferedReadWindow(READ_START, READ_LENGTH, I2cDeviceSynch.ReadMode.REPEAT, READ_LENGTH);
-
         resetZIntegrator();
     }   //FtcMRI2cGyro
 
@@ -141,16 +125,8 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized void calibrate()
     {
-        final String funcName = "calibrate";
-
         sendByteCommand(REG_COMMAND, CMD_RESET_OFFSET_CAL, false);
         calibrating = true;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //calibrate
 
     /**
@@ -160,14 +136,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized boolean isCalibrating()
     {
-        final String funcName = "isCalibrating";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", Boolean.toString(calibrating));
-        }
-
         return calibrating;
     }   //isCalibrating
 
@@ -178,7 +146,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getHeading()
     {
-        final String funcName = "getHeading";
         byte[] regData = readData(READ_START, READ_LENGTH);
         int value = zSign*TrcUtil.bytesToInt(
                 regData[REG_HEADING_LSB - READ_START], regData[REG_HEADING_MSB - READ_START]);
@@ -186,17 +153,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
         // MR gyro heading is decreasing when turning clockwise. This is opposite to convention.
         // So we are reversing it.
         //
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-            TrcTimer.getCurrentTime(), (double)((360 - value)%360));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(TrcTimer.getCurrentTime(), (double)((360 - value)%360));
     }   //getHeading
 
     /**
@@ -206,13 +163,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getIntegratedZ()
     {
-        final String funcName = "getIntegratedZ";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         TrcSensor.SensorData<Double> data;
         byte[] regData = readData(READ_START, READ_LENGTH);
         //
@@ -230,12 +180,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
             data = new TrcSensor.SensorData<>(0, 0.0);
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
         return data;
     }   //getIntegratedZ
 
@@ -246,21 +190,11 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getRawX()
     {
-        final String funcName = "getRawX";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(),
-                -xSign*(double)TrcUtil.bytesToInt(
-                        regData[REG_RAW_X_LSB - READ_START], regData[REG_RAW_X_MSB - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(),
+            -xSign*(double)TrcUtil.bytesToInt(
+                regData[REG_RAW_X_LSB - READ_START], regData[REG_RAW_X_MSB - READ_START]));
     }   //getRawX
 
     /**
@@ -270,21 +204,11 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getRawY()
     {
-        final String funcName = "getRawY";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(),
-                -ySign*(double)TrcUtil.bytesToInt(
-                        regData[REG_RAW_Y_LSB - READ_START], regData[REG_RAW_Y_MSB - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(),
+            -ySign*(double)TrcUtil.bytesToInt(
+                regData[REG_RAW_Y_LSB - READ_START], regData[REG_RAW_Y_MSB - READ_START]));
     }   //getRawY
 
     /**
@@ -294,21 +218,11 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getRawZ()
     {
-        final String funcName = "getRawZ";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(),
-                -zSign*(double) TrcUtil.bytesToInt(
-                        regData[REG_RAW_Z_LSB - READ_START], regData[REG_RAW_Z_MSB - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(),
+            -zSign*(double) TrcUtil.bytesToInt(
+                regData[REG_RAW_Z_LSB - READ_START], regData[REG_RAW_Z_MSB - READ_START]));
     }   //getRawZ
 
     /**
@@ -318,21 +232,11 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getZOffset()
     {
-        final String funcName = "getZOffset";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(),
-                (double)TrcUtil.bytesToInt(
-                        regData[REG_Z_OFFSET_LSB - READ_START], regData[REG_Z_OFFSET_MSB - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(),
+            (double)TrcUtil.bytesToInt(
+                regData[REG_Z_OFFSET_LSB - READ_START], regData[REG_Z_OFFSET_MSB - READ_START]));
     }   //getZOffset
 
     /**
@@ -342,21 +246,11 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
      */
     public synchronized TrcSensor.SensorData<Double> getZScaling()
     {
-        final String funcName = "getZScaling";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(),
-                (double)TrcUtil.bytesToInt(
-                        regData[REG_Z_SCALING_LSB - READ_START], regData[REG_Z_SCALING_MSB - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(),
+            (double)TrcUtil.bytesToInt(
+                regData[REG_Z_SCALING_LSB - READ_START], regData[REG_Z_SCALING_MSB - READ_START]));
     }   //getZScaling
 
     //
@@ -373,7 +267,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
     @Override
     public TrcSensor.SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         TrcSensor.SensorData<Double> data = null;
 
         switch (dataType)
@@ -405,13 +298,6 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
             case Z_SCALING:
                 data = getZScaling();
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(time=%.3f,value=%.0f)", data.timestamp, data.value);
         }
 
         return data;
@@ -552,15 +438,7 @@ public class FtcMRI2cGyro extends FtcMRI2cDevice
     @Override
     public void resetZIntegrator()
     {
-        final String funcName = "resetZIntegrator";
-
         sendByteCommand(REG_COMMAND, CMD_RESET_Z_INTEGRATOR, false);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //resetZIntegrator
 
 }   //class FtcMRI2cGyro

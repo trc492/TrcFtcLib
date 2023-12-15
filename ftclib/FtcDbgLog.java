@@ -75,15 +75,4 @@ public class FtcDbgLog implements TrcDbgTrace.DbgLog
         }
     }   //msg
 
-    /**
-     * This method is called to print a message to the debug console.
-     *
-     * @param msg specifies the message.
-     */
-    @Override
-    public void traceMsg(String msg)
-    {
-        Log.d(DBG_TAG, msg);
-    }   //traceMsg
-
 }   //class FtcDbgLog

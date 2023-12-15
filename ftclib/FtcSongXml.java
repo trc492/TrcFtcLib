@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSong;
 
 /**
@@ -40,13 +39,6 @@ import TrcCommonLib.trclib.TrcSong;
  */
 public class FtcSongXml
 {
-    private static final String moduleName = "FtcSongXml";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final String instanceName;
     private final XmlPullParser parser;
     private final ArrayList<TrcSong> collection = new ArrayList<>();
@@ -59,11 +51,6 @@ public class FtcSongXml
      */
     public FtcSongXml(String instanceName, InputStream input) throws XmlPullParserException, IOException
     {
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         this.instanceName = instanceName;
         try
         {
@@ -96,14 +83,6 @@ public class FtcSongXml
      */
     public int getNumSongs()
     {
-        final String funcName = "getNumSongs";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%d", collection.size());
-        }
-
         return collection.size();
     }   //getNumSongs
 
@@ -115,16 +94,7 @@ public class FtcSongXml
      */
     public String getSongName(int index)
     {
-        final String funcName = "getSongName";
-        String name = collection.get(index).toString();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", name);
-        }
-
-        return name;
+        return collection.get(index).toString();
     }   //getSongName
 
     /**
@@ -135,16 +105,7 @@ public class FtcSongXml
      */
     public TrcSong getSong(int index)
     {
-        final String funcName = "getSong";
-        TrcSong song = collection.get(index);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", song.toString());
-        }
-
-        return song;
+        return collection.get(index);
     }   //getSong
 
     /**
@@ -155,13 +116,7 @@ public class FtcSongXml
      */
     public TrcSong getSong(String name)
     {
-        final String funcName = "getSong";
         TrcSong song = null;
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "name=%s", name);
-        }
 
         for (int i = 0; i < collection.size(); i++)
         {
@@ -176,11 +131,6 @@ public class FtcSongXml
             }
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%s", song == null? "null": song.toString());
-        }
-
         return song;
     }   //getSong
 
@@ -191,16 +141,7 @@ public class FtcSongXml
      */
     public TrcSong[] getCollection()
     {
-        final String funcName = "getCollection";
-        TrcSong[] songs = collection.toArray(new TrcSong[0]);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=(numSongs=%d)", songs.length);
-        }
-
-        return songs;
+        return collection.toArray(new TrcSong[0]);
     }   //getCollection
 
     /**
@@ -212,13 +153,6 @@ public class FtcSongXml
      */
     private void parseCollection() throws XmlPullParserException, IOException
     {
-        final String funcName = "parseCollection";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-
         parser.require(XmlPullParser.START_TAG, null, "collection");
         while (parser.next() != XmlPullParser.END_TAG)
         {
@@ -244,11 +178,6 @@ public class FtcSongXml
             }
         }
         parser.require(XmlPullParser.END_TAG, null, "collection");
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
     }   //parseCollection
 
     /**
@@ -260,13 +189,6 @@ public class FtcSongXml
      */
     private TrcSong parseSong() throws XmlPullParserException, IOException
     {
-        final String funcName = "parseSong";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-
         parser.require(XmlPullParser.START_TAG, null, "song");
         TrcSong song = new TrcSong(parser.getAttributeValue(null, "name"));
         while (parser.next() != XmlPullParser.END_TAG)
@@ -299,11 +221,6 @@ public class FtcSongXml
         }
         parser.require(XmlPullParser.END_TAG, null, "song");
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "=%s", song.toString());
-        }
-
         return song;
     }   //parseSong
 
@@ -317,13 +234,6 @@ public class FtcSongXml
      */
     private void parseSequence(TrcSong song) throws XmlPullParserException, IOException
     {
-        final String funcName = "parseSequence";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC, "song=%s", song.toString());
-        }
-
         parser.require(XmlPullParser.START_TAG, null, "sequence");
         StringBuilder sequence = new StringBuilder();
         while (parser.next() == XmlPullParser.TEXT)
@@ -332,11 +242,6 @@ public class FtcSongXml
         }
         song.setSequence(sequence.toString());
         parser.require(XmlPullParser.END_TAG, null, "sequence");
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "! (seq=%s)", sequence.toString());
-        }
     }   //parseSequence
 
     /**
@@ -349,13 +254,6 @@ public class FtcSongXml
      */
     private void parseSection(TrcSong song) throws XmlPullParserException, IOException
     {
-        final String funcName = "parseSection";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC, "song=%s", song.toString());
-        }
-
         parser.require(XmlPullParser.START_TAG, null, "section");
         String name = parser.getAttributeValue(null, "name");
         StringBuilder notation = new StringBuilder();
@@ -365,11 +263,6 @@ public class FtcSongXml
         }
         song.addSection(name, notation.toString());
         parser.require(XmlPullParser.END_TAG, null, "section");
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC, "! (%s=%s)", name, notation.toString());
-        }
     }   //parseSection
 
     /**
@@ -381,13 +274,6 @@ public class FtcSongXml
      */
     private void skipTag() throws XmlPullParserException, IOException
     {
-        final String funcName = "skipTag";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.FUNC);
-        }
-
         if (parser.getEventType() != XmlPullParser.START_TAG)
         {
             throw new XmlPullParserException("Expected start tag.");
@@ -413,11 +299,6 @@ public class FtcSongXml
                     tagNames.push(parser.getName());
                     break;
             }
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.FUNC);
         }
     }   //skipTag
 

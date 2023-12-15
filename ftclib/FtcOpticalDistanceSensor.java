@@ -25,7 +25,6 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
@@ -36,13 +35,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcOpticalDistanceSensor extends TrcSensor<FtcOpticalDistanceSensor.DataType>
 {
-    private static final String moduleName = "FtcOpticalDistanceSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         RAW_LIGHT_DETECTED,
@@ -62,12 +54,6 @@ public class FtcOpticalDistanceSensor extends TrcSensor<FtcOpticalDistanceSensor
     public FtcOpticalDistanceSensor(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
         super(instanceName, 1, filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = hardwareMap.get(OpticalDistanceSensor.class, instanceName);
     }   //FtcOpticalDistanceSensor
 
@@ -115,7 +101,6 @@ public class FtcOpticalDistanceSensor extends TrcSensor<FtcOpticalDistanceSensor
     @Override
     public synchronized SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         SensorData<Double> data = null;
         double timestamp = TrcTimer.getCurrentTime();
 
@@ -128,13 +113,6 @@ public class FtcOpticalDistanceSensor extends TrcSensor<FtcOpticalDistanceSensor
             case LIGHT_DETECTED:
                 data = new SensorData<>(timestamp, sensor.getLightDetected());
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value=%f)", data.timestamp, data.value);
         }
 
         return data;

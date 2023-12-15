@@ -26,7 +26,6 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcGyro;
 import TrcCommonLib.trclib.TrcTimer;
@@ -38,13 +37,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcMRGyro extends TrcGyro
 {
-    private static final String moduleName = "FtcMRGyro";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     private final ModernRoboticsI2cGyro gyro;
 
     /**
@@ -58,12 +50,6 @@ public class FtcMRGyro extends TrcGyro
     public FtcMRGyro(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
         super(instanceName, 3, GYRO_HAS_X_AXIS | GYRO_HAS_Y_AXIS | GYRO_HAS_Z_AXIS, filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         gyro = (ModernRoboticsI2cGyro)hardwareMap.get(GyroSensor.class, instanceName);
     }   //FtcMRGyro
 
@@ -94,22 +80,10 @@ public class FtcMRGyro extends TrcGyro
      */
     public synchronized void calibrate()
     {
-        final String funcName = "calibrate";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         gyro.calibrate();
         while (gyro.isCalibrating())
         {
             TrcTimer.sleep(10);
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
         }
     }   //calibrate
 
@@ -141,15 +115,7 @@ public class FtcMRGyro extends TrcGyro
     @Override
     public synchronized void resetZIntegrator()
     {
-        final String funcName = "resetZIntegrator";
-
         gyro.resetZAxisIntegrator();
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
     }   //resetZIntegrator
 
     //
@@ -165,7 +131,6 @@ public class FtcMRGyro extends TrcGyro
     @Override
     public synchronized SensorData<Double> getRawXData(DataType dataType)
     {
-        final String funcName = "getRawXData";
         SensorData<Double> data;
         //
         // MR gyro supports only rotation rate for the x-axis.
@@ -177,13 +142,6 @@ public class FtcMRGyro extends TrcGyro
         else
         {
             throw new UnsupportedOperationException("Modern Robotics Gyro only supports rotation rate.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -198,7 +156,6 @@ public class FtcMRGyro extends TrcGyro
     @Override
     public synchronized SensorData<Double> getRawYData(DataType dataType)
     {
-        final String funcName = "getRawYData";
         SensorData<Double> data;
         //
         // MR gyro supports only rotation rate for the y-axis.
@@ -210,13 +167,6 @@ public class FtcMRGyro extends TrcGyro
         else
         {
             throw new UnsupportedOperationException("Modern Robotics Gyro only supports rotation rate.");
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
         }
 
         return data;
@@ -231,7 +181,6 @@ public class FtcMRGyro extends TrcGyro
     @Override
     public synchronized SensorData<Double> getRawZData(DataType dataType)
     {
-        final String funcName = "getRawZData";
         double value = 0.0;
 
         if (dataType == DataType.ROTATION_RATE)
@@ -242,16 +191,8 @@ public class FtcMRGyro extends TrcGyro
         {
             value = -gyro.getIntegratedZValue();
         }
-        SensorData<Double> data = new SensorData<>(TrcTimer.getCurrentTime(), value);
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value:%f", data.timestamp, data.value);
-        }
-
-        return data;
+        return new SensorData<>(TrcTimer.getCurrentTime(), value);
     }   //getRawZData
 
 }   //class FtcMRGyro

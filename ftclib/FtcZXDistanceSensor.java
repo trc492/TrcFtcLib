@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
@@ -36,13 +35,6 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataSource<FtcZXDistanceSensor.DataType>
 {
-    private static final String moduleName = "FtcZXDistanceSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         GESTURE,
@@ -289,12 +281,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
     public FtcZXDistanceSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         super(hardwareMap, instanceName, i2cAddress, addressIs7Bit);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         deviceSynch.setDeviceInfo(HardwareDevice.Manufacturer.Other, "ZX Distance Sensor");
         deviceSynch.setBufferedReadWindow(REG_STATUS, READ_LENGTH, I2cDeviceSynch.ReadMode.REPEAT, READ_LENGTH);
 
@@ -336,7 +322,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public int getStatus()
     {
-        final String funcName = "getStatus";
         byte[] data = readData(REG_STATUS, 1);
         int deviceStatus = TrcUtil.bytesToInt(data[0]);
         double timestamp = TrcTimer.getCurrentTime();
@@ -371,12 +356,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
             rightRangingData.value = (double)TrcUtil.bytesToInt(data[0]);
         }
 
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", deviceStatus);
-        }
-
         return deviceStatus;
     }   //getStatus
 
@@ -387,18 +366,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public TrcSensor.SensorData<Gesture> getGesture()
     {
-        final String funcName = "getGesture";
         getStatus();
-        TrcSensor.SensorData<Gesture> data = new TrcSensor.SensorData<>(gesture.timestamp, gesture.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%s)", data.timestamp, data.value.toString());
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(gesture.timestamp, gesture.value);
     }   //getGesture
 
     /**
@@ -408,18 +377,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public TrcSensor.SensorData<Double> getGestureSpeed()
     {
-        final String funcName = "getGestureSpeed";
         getStatus();
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(gestureSpeed.timestamp, gestureSpeed.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(gestureSpeed.timestamp, gestureSpeed.value);
     }   //getGestureSpeed
 
     /**
@@ -429,18 +388,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public TrcSensor.SensorData<Double> getX()
     {
-        final String funcName = "getX";
         getStatus();
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(xPos.timestamp, xPos.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(xPos.timestamp, xPos.value);
     }   //getX
 
     /**
@@ -450,18 +399,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public TrcSensor.SensorData<Double> getZ()
     {
-        final String funcName = "getZ";
         getStatus();
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(zPos.timestamp, zPos.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(zPos.timestamp, zPos.value);
     }   //getZ
 
     /**
@@ -471,19 +410,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public TrcSensor.SensorData<Double> getLeftRangingData()
     {
-        final String funcName = "getLeftRangingData";
         getStatus();
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                leftRangingData.timestamp, leftRangingData.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(leftRangingData.timestamp, leftRangingData.value);
     }   //getLeftRangingData
 
     /**
@@ -493,19 +421,8 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public TrcSensor.SensorData<Double> getRightRangingData()
     {
-        final String funcName = "getRightRangingData";
         getStatus();
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                rightRangingData.timestamp, rightRangingData.value);
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(rightRangingData.timestamp, rightRangingData.value);
     }   //getRightRangingData
 
     /**
@@ -515,14 +432,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public int getRegMapVersion()
     {
-        final String funcName = "getRegMapVersion";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", regMapVersion);
-        }
-
         return regMapVersion;
     }   //getRegMapVersion
 
@@ -533,14 +442,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
      */
     public int getModelVersion()
     {
-        final String funcName = "getModelVersion";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", modelVersion);
-        }
-
         return modelVersion;
     }   //getModelVersion
 
@@ -558,7 +459,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
     @Override
     public TrcSensor.SensorData getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         TrcSensor.SensorData data = null;
 
         switch (dataType)
@@ -586,13 +486,6 @@ public class FtcZXDistanceSensor extends FtcI2cDevice implements TrcSensor.DataS
             case RIGHT_RANGING_DATA:
                 data = getRightRangingData();
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(time=%.3f,value=%s)", data.timestamp, data.value.toString());
         }
 
         return data;

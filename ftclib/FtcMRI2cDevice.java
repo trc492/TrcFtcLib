@@ -24,7 +24,6 @@ package TrcFtcLib.ftclib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcUtil;
 
 /**
@@ -33,13 +32,6 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcMRI2cDevice extends FtcI2cDevice
 {
-    private static final String moduleName = "FtcMRI2cDevice";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     //
     // I2C registers.
     //
@@ -54,7 +46,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice
     private static final int HEADER_LENGTH              = (HEADER_END - HEADER_START + 1);
 
     protected static final byte MANUFACTURER_CODE       = 0x4d;
-
     //
     // Set I2C Address.
     //
@@ -76,12 +67,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice
     public FtcMRI2cDevice(HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         super(hardwareMap, instanceName, i2cAddress, addressIs7Bit);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         byte[] data = syncRead(HEADER_START, HEADER_LENGTH);
         firmwareRev = TrcUtil.bytesToInt(data[REG_FIRMWARE_REVISION - HEADER_START]);
         manufacturerCode = TrcUtil.bytesToInt(data[REG_MANUFACTURER_CODE - HEADER_START]);
@@ -96,14 +81,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice
      */
     public void changeI2cAddress(int newAddress, boolean addressIs7Bit)
     {
-        final String funcName = "changeI2cAddress";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "addr=%x", newAddress);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API);
-        }
-
         byte[] data = {(byte)(newAddress & 0xff), I2CADDR_TRIGGER_BYTE_1, I2CADDR_TRIGGER_BYTE_2};
         asyncWrite(null, REG_SET_I2C_ADDRESS, data, data.length, null);
         deviceSynch.setI2cAddress(newAddress, addressIs7Bit);
@@ -126,14 +103,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice
      */
     public int getFirmwareRevision()
     {
-        final String funcName = "getFirmwareRevision";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", firmwareRev);
-        }
-
         return firmwareRev;
     }   //getFirmwareRevision
 
@@ -144,14 +113,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice
      */
     public int getManufacturerCode()
     {
-        final String funcName = "getManufacturerCode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", manufacturerCode);
-        }
-
         return manufacturerCode;
     }   //getManufacturerCode
 
@@ -162,14 +123,6 @@ public class FtcMRI2cDevice extends FtcI2cDevice
      */
     public int getIdCode()
     {
-        final String funcName = "getIdCode";
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=%x", idCode);
-        }
-
         return idCode;
     }   //getManufacturerCode
 

@@ -43,7 +43,6 @@ import TrcCommonLib.trclib.TrcVisionTargetInfo;
  */
 public class FtcRawEocvVision
 {
-    private static final String moduleName = "FtcRawEocvVision";
     private final TrcDbgTrace tracer;
     private final String instanceName;
     private final OpenCvCamera openCvCamera;
@@ -184,9 +183,12 @@ public class FtcRawEocvVision
 
                 if (detectedTargets != null)
                 {
-                    for (int i = 0; i < detectedTargets.length; i++)
+                    if ( tracer.getTraceLevel().getValue() >= TrcDbgTrace.MsgLevel.DEBUG.getValue())
                     {
-                        tracer.traceDebug(instanceName, "[" + i + "] Target=" + detectedTargets[i]);
+                        for (int i = 0; i < detectedTargets.length; i++)
+                        {
+                            tracer.traceDebug(instanceName, "[" + i + "] Target=" + detectedTargets[i]);
+                        }
                     }
                 }
             }

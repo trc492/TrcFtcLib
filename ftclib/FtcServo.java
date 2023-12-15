@@ -49,7 +49,6 @@ public class FtcServo extends TrcServo
     public FtcServo(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
-
         servo = hardwareMap.get(Servo.class, instanceName);
         controller = servo.getController();
         timer = new TrcTimer(instanceName);

@@ -25,7 +25,6 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHashMap;
 import TrcCommonLib.trclib.TrcRevBlinkin;
 
@@ -35,9 +34,6 @@ import TrcCommonLib.trclib.TrcRevBlinkin;
  */
 public class FtcRevBlinkin extends TrcRevBlinkin
 {
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
-
     private static final TrcHashMap<RevLedPattern, RevBlinkinLedDriver.BlinkinPattern> patternMap =
         new TrcHashMap<RevLedPattern, RevBlinkinLedDriver.BlinkinPattern>()
         /*
@@ -169,7 +165,6 @@ public class FtcRevBlinkin extends TrcRevBlinkin
     public FtcRevBlinkin(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName);
-
         blinkinLedDriver = hardwareMap.get(RevBlinkinLedDriver.class, instanceName);
         setPattern(currPattern);
     }   //FtcRevBlinkin
@@ -196,13 +191,7 @@ public class FtcRevBlinkin extends TrcRevBlinkin
     @Override
     public Pattern getPattern()
     {
-        final String funcName = "getPattern";
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "currPattern=%s", currPattern);
-        }
-
+        tracer.traceInfo(instanceName, "currPattern=" + currPattern);
         return currPattern;
     }   //getPattern
 
@@ -214,13 +203,7 @@ public class FtcRevBlinkin extends TrcRevBlinkin
     @Override
     public void setPattern(Pattern pattern)
     {
-        final String funcName = "setPattern";
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "pattern=%s", pattern);
-        }
-
+        tracer.traceDebug(instanceName, "pattern=" + pattern);
         currPattern = pattern == null ? offPattern : pattern;
         blinkinLedDriver.setPattern(patternMap.get(currPattern.ledPattern));
     }   //setPattern

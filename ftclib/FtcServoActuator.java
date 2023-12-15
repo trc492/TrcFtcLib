@@ -23,7 +23,6 @@
 package TrcFtcLib.ftclib;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 
@@ -134,12 +133,15 @@ public class FtcServoActuator
         @Override
         public String toString()
         {
-            return String.format(
-                Locale.US,
-                "servoInverted=%s,hasFollowerServo=%s,followerServoInverted=%s,logicalMin=%f,logicalMax=%f,phyMin=%f," +
-                "phyMax=%f,presets=%s,msgLevel=%s",
-                servoInverted, hasFollowerServo, followerServoInverted, logicalPosMin, logicalPosMax, physicalPosMin,
-                physicalPosMax, Arrays.toString(positionPresets), msgLevel);
+            return "servoInverted=" + servoInverted +
+                   ", hasFollowerServo=" + hasFollowerServo +
+                   ", followerServoInverted=" + followerServoInverted +
+                   ", logicalMin=" + logicalPosMin +
+                   ", logicalMax=" + logicalPosMax +
+                   ", phyMin=" + physicalPosMin +
+                   ", phyMax=" + physicalPosMax +
+                   ", presets=" + Arrays.toString(positionPresets) +
+                   ", msgLevel=" + msgLevel;
         }   //toString
 
     }   //class Params

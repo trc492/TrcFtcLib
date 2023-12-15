@@ -25,7 +25,6 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
 
@@ -35,13 +34,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcMRColorSensor extends TrcSensor<FtcMRColorSensor.DataType>
 {
-    private static final String moduleName = "FtcMRColorSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         COLOR_NUMBER,
@@ -62,12 +54,6 @@ public class FtcMRColorSensor extends TrcSensor<FtcMRColorSensor.DataType>
     public FtcMRColorSensor(HardwareMap hardwareMap, String instanceName)
     {
         super(instanceName, 1);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = hardwareMap.get(ModernRoboticsI2cColorSensor.class, instanceName);
     }   //FtcMRColorSensor
 
@@ -95,7 +81,6 @@ public class FtcMRColorSensor extends TrcSensor<FtcMRColorSensor.DataType>
     @Override
     public SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         SensorData<Double> data = null;
 
         switch (dataType)
@@ -119,13 +104,6 @@ public class FtcMRColorSensor extends TrcSensor<FtcMRColorSensor.DataType>
             case WHITE:
                 data = new SensorData<>(TrcTimer.getCurrentTime(), (double)sensor.alpha());
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp:%.3f,value=%d)", data.timestamp, data.value);
         }
 
         return data;

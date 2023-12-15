@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
@@ -37,13 +36,6 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.DataSource<FtcMRI2cColorSensor.DataType>
 {
-    private static final String moduleName = "FtcMRI2cColorSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         COLOR_NUMBER,
@@ -110,12 +102,6 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
     public FtcMRI2cColorSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         super(hardwareMap, instanceName, i2cAddress, addressIs7Bit);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         deviceSynch.setDeviceInfo(HardwareDevice.Manufacturer.ModernRobotics, "MR Color Sensor");
         deviceSynch.setBufferedReadWindow(READ_START, READ_LENGTH, I2cDeviceSynch.ReadMode.REPEAT, READ_LENGTH);
     }   //FtcMRI2cColorSensor
@@ -209,19 +195,9 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getColorNumber()
     {
-        final String funcName = "getColorNumber";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
+        return new TrcSensor.SensorData<>(
             TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_COLOR_NUMBER - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
     }   //getColorNumber
 
     /**
@@ -231,19 +207,9 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getRedValue()
     {
-        final String funcName = "getRedValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_RED - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_RED - READ_START]));
     }   //getRedValue
 
     /**
@@ -253,19 +219,9 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getGreenValue()
     {
-        final String funcName = "getGreenValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_GREEN - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_GREEN - READ_START]));
     }   //getGreenValue
 
     /**
@@ -275,19 +231,9 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getBlueValue()
     {
-        final String funcName = "getBlueValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_BLUE - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_BLUE - READ_START]));
     }   //getBlueValue
 
     /**
@@ -297,19 +243,9 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getWhiteValue()
     {
-        final String funcName = "getWhiteValue";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(), (double) TrcUtil.bytesToInt(regData[REG_WHITE - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(), (double) TrcUtil.bytesToInt(regData[REG_WHITE - READ_START]));
     }   //getWhiteValue
 
     //
@@ -326,7 +262,6 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
     @Override
     public TrcSensor.SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         TrcSensor.SensorData<Double> data = null;
 
         switch (dataType)
@@ -350,13 +285,6 @@ public class FtcMRI2cColorSensor extends FtcMRI2cDevice implements TrcSensor.Dat
             case WHITE:
                 data = getWhiteValue();
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API, "index=%d", index);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(time=%.3f,value=%.0f)", data.timestamp, data.value);
         }
 
         return data;

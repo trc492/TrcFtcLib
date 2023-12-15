@@ -23,7 +23,6 @@
 package TrcFtcLib.ftclib;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcMotor;
@@ -214,16 +213,26 @@ public class FtcMotorActuator
         @Override
         public String toString()
         {
-            return String.format(
-                Locale.US,
-                "motorInverted=%s,hasFollower=%s,followerInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
-                "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s,encoderAbs=%s" +
-                "voltageCompEnabled=%s,scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s,msgLevel=%s" +
-                "tracePidInfo=%s,verbosePidInfo=%s,battery=%s",
-                motorInverted, hasFollowerMotor, followerMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
-                hasUpperLimitSwitch, upperLimitSwitchInverted, hasExternalEncoder, encoderInverted, encoderAbsolute,
-                voltageCompensationEnabled, positionScale, positionOffset, positionZeroOffset, positionPresetTolerance,
-                Arrays.toString(positionPresets), msgLevel, tracePidInfo, verbosePidInfo, battery);
+            return "motorInverted=" + motorInverted +
+                   ",hasFollower=" + hasFollowerMotor +
+                   ",followerInverted=" + followerMotorInverted +
+                   ",hasLowerLimit=" + hasLowerLimitSwitch +
+                   ",lowerLimitInverted=" + lowerLimitSwitchInverted +
+                   ",hasUpperLimit=" + hasUpperLimitSwitch +
+                   ",upperLimitInverted=" + upperLimitSwitchInverted +
+                   ",hasEncoder=" + hasExternalEncoder +
+                   ",encoderInverted=" + encoderInverted +
+                   ",encoderAbs=" + encoderAbsolute +
+                   ",voltageCompEnabled=" + voltageCompensationEnabled +
+                   ",scale=" + positionScale +
+                   ",offset=" + positionOffset +
+                   ",zeroOffset=" + positionZeroOffset +
+                   ",presetTolerance=" + positionPresetTolerance +
+                   ",presets=" + Arrays.toString(positionPresets) +
+                   ",msgLevel=" + msgLevel +
+                   ",tracePidInfo=" + tracePidInfo +
+                   ",verbosePidInfo=" + verbosePidInfo +
+                   ",battery=" + battery;
         }   //toString
 
     }   //class Params

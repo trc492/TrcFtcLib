@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
 import TrcCommonLib.trclib.TrcUtil;
@@ -37,13 +36,6 @@ import TrcCommonLib.trclib.TrcUtil;
  */
 public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.DataSource<FtcMRI2cRangeSensor.DataType>
 {
-    private static final String moduleName = "FtcMRI2cRangeSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         ULTRASONIC_DISTANCE,
@@ -51,7 +43,6 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
     }
 
     public static final int DEF_I2CADDRESS          = 0x28;     //8-bit address.
-
     //
     // I2C registers.
     //
@@ -73,12 +64,6 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
     public FtcMRI2cRangeSensor(HardwareMap hardwareMap, String instanceName, int i2cAddress, boolean addressIs7Bit)
     {
         super(hardwareMap, instanceName, i2cAddress, addressIs7Bit);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         deviceSynch.setDeviceInfo(HardwareDevice.Manufacturer.ModernRobotics, "MR Range Sensor");
         deviceSynch.setBufferedReadWindow(READ_START, READ_LENGTH, I2cDeviceSynch.ReadMode.REPEAT, READ_LENGTH);
     }   //FtcMRI2cRangeSensor
@@ -112,19 +97,9 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getUltrasonicDistance()
     {
-        final String funcName = "getUltrasonicDistance";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
+        return new TrcSensor.SensorData<>(
             TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_ULTRSONIC_DISTANCE - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
     }   //getUltrasonicDistance
 
     /**
@@ -134,19 +109,9 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
      */
     public TrcSensor.SensorData<Double> getOpticalDistance()
     {
-        final String funcName = "getOpticalDistance";
         byte[] regData = readData(READ_START, READ_LENGTH);
-        TrcSensor.SensorData<Double> data = new TrcSensor.SensorData<>(
-                TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_OPTICAL_DISTANCE - READ_START]));
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(timestamp=%.3f,value=%.0f)", data.timestamp, data.value);
-        }
-
-        return data;
+        return new TrcSensor.SensorData<>(
+            TrcTimer.getCurrentTime(), (double)TrcUtil.bytesToInt(regData[REG_OPTICAL_DISTANCE - READ_START]));
     }   //getOpticalDistance
 
     //
@@ -163,7 +128,6 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
     @Override
     public TrcSensor.SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         TrcSensor.SensorData<Double> data = null;
 
         switch (dataType)
@@ -175,14 +139,6 @@ public class FtcMRI2cRangeSensor extends FtcMRI2cDevice implements TrcSensor.Dat
             case OPTICAL_DISTANCE:
                 data = getOpticalDistance();
                 break;
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API,
-                                "index=%d,dataType=%s", index, dataType.toString());
-            dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API,
-                               "=(time=%.3f,value=%.0f)", data.timestamp, data.value);
         }
 
         return data;

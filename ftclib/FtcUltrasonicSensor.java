@@ -25,7 +25,6 @@ package TrcFtcLib.ftclib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcFilter;
 import TrcCommonLib.trclib.TrcSensor;
 import TrcCommonLib.trclib.TrcTimer;
@@ -36,13 +35,6 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcUltrasonicSensor extends TrcSensor<FtcUltrasonicSensor.DataType>
 {
-    private static final String moduleName = "FtcUltrasonicSensor";
-    private static final boolean debugEnabled = false;
-    private static final boolean tracingEnabled = false;
-    private static final TrcDbgTrace.TraceLevel traceLevel = TrcDbgTrace.TraceLevel.API;
-    private static final TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-    private TrcDbgTrace dbgTrace = null;
-
     public enum DataType
     {
         ULTRASONIC
@@ -61,12 +53,6 @@ public class FtcUltrasonicSensor extends TrcSensor<FtcUltrasonicSensor.DataType>
     public FtcUltrasonicSensor(HardwareMap hardwareMap, String instanceName, TrcFilter[] filters)
     {
         super(instanceName, 1, filters);
-
-        if (debugEnabled)
-        {
-            dbgTrace = new TrcDbgTrace(moduleName + "." + instanceName, tracingEnabled, traceLevel, msgLevel);
-        }
-
         sensor = hardwareMap.get(UltrasonicSensor.class, instanceName);
     }   //FtcUltrasonicSensor
 
@@ -106,26 +92,11 @@ public class FtcUltrasonicSensor extends TrcSensor<FtcUltrasonicSensor.DataType>
     @Override
     public SensorData<Double> getRawData(int index, DataType dataType)
     {
-        final String funcName = "getRawData";
         SensorData<Double> data = null;
 
         if (dataType == DataType.ULTRASONIC)
         {
             data = new SensorData<>(TrcTimer.getCurrentTime(), sensor.getUltrasonicLevel());
-        }
-
-        if (debugEnabled)
-        {
-            dbgTrace.traceEnter(funcName, TrcDbgTrace.TraceLevel.API);
-            if (data != null)
-            {
-                dbgTrace.traceExit(
-                    funcName, TrcDbgTrace.TraceLevel.API, "=(timestamp:%.3f,value=%f)", data.timestamp, data.value);
-            }
-            else
-            {
-                dbgTrace.traceExit(funcName, TrcDbgTrace.TraceLevel.API, "=null");
-            }
         }
 
         return data;

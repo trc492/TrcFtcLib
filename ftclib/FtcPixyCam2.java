@@ -38,6 +38,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
 {
     private static final int DEF_I2C_ADDRESS = 0x54;
     private static final boolean USE_BUFFERED_READ = false;
+
     private final FtcI2cDevice pixyCam;
 
     /**
@@ -128,11 +129,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
         {
             response = recvHeader;
         }
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(instanceName, "response: %s", Arrays.toString(response));
-        }
+        tracer.traceDebug(instanceName, "Response: " + Arrays.toString(response));
 
         return response;
     }   //syncReadResponse
@@ -145,11 +142,7 @@ public class FtcPixyCam2 extends TrcPixyCam2
     @Override
     public void syncWriteRequest(byte[] data)
     {
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(instanceName, "data=%s", Arrays.toString(data));
-        }
-
+        tracer.traceDebug(instanceName, "data=" + Arrays.toString(data));
         pixyCam.syncWrite(-1, data, data.length);
     }   //syncWriteRequest
 

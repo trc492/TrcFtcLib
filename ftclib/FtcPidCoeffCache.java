@@ -31,7 +31,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcPidController;
 
 /**
@@ -43,10 +42,6 @@ import TrcCommonLib.trclib.TrcPidController;
  */
 public class FtcPidCoeffCache
 {
-    private static final String moduleName = "FtcPidCoeffCache";
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
-    private static final boolean debugEnabled = false;
-
     private final String cacheFilePrefix;
     private final HashMap<TrcPidController, TrcPidController.PidCoefficients> pidCoeffCache = new HashMap<>();
 
@@ -73,7 +68,6 @@ public class FtcPidCoeffCache
      */
     public TrcPidController.PidCoefficients getCachedPidCoeff(TrcPidController pidCtrl)
     {
-        final String funcName = "getCachedPidCoeff";
         TrcPidController.PidCoefficients pidCoeff;
 
         if (pidCoeffCache.containsKey(pidCtrl))
@@ -106,11 +100,6 @@ public class FtcPidCoeffCache
             }
         }
 
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "pidCtrl=%s, pidCoeff=%s", pidCtrl, pidCoeff);
-        }
-
         return pidCoeff;
     }   //getCachedPidCoeff
 
@@ -122,13 +111,7 @@ public class FtcPidCoeffCache
      */
     public void writeCachedPidCoeff(TrcPidController pidCtrl, TrcPidController.PidCoefficients pidCoeff)
     {
-        final String funcName = "writeCachedPidCoeff";
         PrintWriter writer;
-
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(funcName, "pidCtrl=%s,pidCoeff=%s", pidCtrl, pidCoeff);
-        }
 
         pidCoeffCache.put(pidCtrl, pidCoeff);
 

@@ -44,12 +44,11 @@ import TrcCommonLib.trclib.TrcTimer;
  */
 public class FtcVision
 {
-    private static final String moduleName = "FtcVision";
+    private static final String moduleName = FtcVision.class.getSimpleName();
     private static final long LOOP_INTERVAL_MS = 10;
     private static final long MAX_LOOP_TIME_MS = 5000;
-    private static final boolean debugEnabled = false;
-    private static final TrcDbgTrace globalTracer = TrcDbgTrace.getGlobalTracer();
 
+    private final TrcDbgTrace tracer;
     private final VisionPortal visionPortal;
     private WebcamName activeWebcam;
 
@@ -68,6 +67,7 @@ public class FtcVision
         WebcamName webcam1Name, WebcamName webcam2Name, BuiltinCameraDirection cameraDirection, int imageWidth,
         int imageHeight, boolean enableLiveView, VisionProcessor... visionProcessors)
     {
+        this.tracer = new TrcDbgTrace(moduleName);
         VisionPortal.Builder builder = new VisionPortal.Builder();
         CameraName camera = null;
 
@@ -119,20 +119,19 @@ public class FtcVision
             loopTimeMs += LOOP_INTERVAL_MS;
             if (loopTimeMs > MAX_LOOP_TIME_MS)
             {
-                globalTracer.traceWarn(
+                tracer.traceWarn(
                     moduleName, "Timeout waiting for the camera to start (LoopCount=%d).", loopTimeMs/LOOP_INTERVAL_MS);
                 break;
             }
         }
 
-        if (debugEnabled)
-        {
-            globalTracer.traceInfo(
-                moduleName, "Camera open elapsed time=%.3f (loop=%d).",
-                TrcTimer.getCurrentTime() - startTime, loopTimeMs/LOOP_INTERVAL_MS);
-        }
+        tracer.traceDebug(
+            moduleName,
+            "Camera open elapsed time=" + (TrcTimer.getCurrentTime() - startTime) +
+            "(loop=" + loopTimeMs/LOOP_INTERVAL_MS + ").");
 
-        activeWebcam = camera.isSwitchable()? visionPortal.getActiveCamera():
+        activeWebcam = camera == null? null:
+                       camera.isSwitchable()? visionPortal.getActiveCamera():
                        webcam1Name != null? webcam1Name: webcam2Name;
     }   //FtcVision
 
@@ -344,6 +343,10 @@ public class FtcVision
                 gains[0] = gainControl.getMinGain();
                 gains[1] = gainControl.getMaxGain();
             }
+            else
+            {
+                tracer.traceWarn(moduleName, "Gain Control is not supported.");
+            }
         }
 
         return gains;
@@ -365,6 +368,10 @@ public class FtcVision
             if (gainControl != null)
             {
                 currGain = gainControl.getGain();
+            }
+            else
+            {
+                tracer.traceWarn(moduleName, "Gain Control is not supported.");
             }
         }
 
@@ -415,6 +422,10 @@ public class FtcVision
                 {
                     success = gainControl.setGain(gain);
                     TrcTimer.sleep(20);
+                }
+                else
+                {
+                    tracer.traceWarn(moduleName, "Gain Control is not supported.");
                 }
             }
         }
