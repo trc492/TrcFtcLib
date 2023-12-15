@@ -120,7 +120,8 @@ public class FtcVision
             if (loopTimeMs > MAX_LOOP_TIME_MS)
             {
                 tracer.traceWarn(
-                    moduleName, "Timeout waiting for the camera to start (LoopCount=%d).", loopTimeMs/LOOP_INTERVAL_MS);
+                    moduleName,
+                    "Timeout waiting for the camera to start (LoopCount=" + (loopTimeMs/LOOP_INTERVAL_MS) + ").");
                 break;
             }
         }

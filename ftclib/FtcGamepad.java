@@ -709,7 +709,7 @@ public class FtcGamepad extends TrcGameController
         buttons |= gamepad.dpad_up? GAMEPAD_DPAD_UP: 0;
         buttons |= gamepad.dpad_down? GAMEPAD_DPAD_DOWN: 0;
         buttons |= gamepad.guide? GAMEPAD_GUIDE: 0;
-        tracer.traceDebug(instanceName, "buttons=0x%x", buttons);
+        tracer.traceDebug(instanceName, "buttons=" + Integer.toHexString(buttons));
 
         return buttons;
     }   //getButtons

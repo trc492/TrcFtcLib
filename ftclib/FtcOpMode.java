@@ -435,7 +435,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
         }
         catch (Exception e)
         {
-            globalTracer.traceFatal(moduleName, "Caught unexpected exception:\n%s", e);
+            globalTracer.traceFatal(moduleName, "Caught unexpected exception:\n" + e);
             throw e;
         }
         finally

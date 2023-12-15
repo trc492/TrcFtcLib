@@ -379,9 +379,13 @@ public class FtcImu extends TrcGyro
             gyroData.zRotationRate = angularVelocity.zRotationRate;
             tracer.traceVerbose(
                 instanceName,
-                "[%.3f]: %s xAngle=%.1f, yAngle=%.1f, zAngle=%.1f, xRate=%.1f, yRate=%.1f, zRate=%.1f",
-                gyroData.timestamp, instanceName + ".gyro", gyroData.xAngle, gyroData.yAngle, gyroData.zAngle,
-                gyroData.xRotationRate, gyroData.yRotationRate, gyroData.zRotationRate);
+                "[" + gyroData.timestamp +
+                "]: xAngle=" + gyroData.xAngle +
+                ", yAngle=" + gyroData.yAngle +
+                ", zAngle=" + gyroData.zAngle +
+                ", xRate=" + gyroData.xRotationRate +
+                ", yRate=" + gyroData.yRotationRate +
+                ", zRate=" + gyroData.zRotationRate);
         }
     }   //gyroTask
 

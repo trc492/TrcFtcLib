@@ -396,7 +396,7 @@ public class FtcDcMotor extends TrcMotor
         }
         // Restore previous motor mode.
         motor.setMode(prevMotorMode);
-        tracer.traceDebug(instanceName, "timeout=" + timeout + ",pos=%" + motorPos);
+        tracer.traceDebug(instanceName, "timeout=" + timeout + ",pos=" + motorPos);
     }   //resetMotorPosition
 
     /**
