@@ -619,14 +619,14 @@ public class FtcGamepad extends TrcGameController
                 x = getRightStickX(doExp);
                 y = getLeftStickY(doExp);
                 rot = getTrigger(doExp);
-                tracer.traceDebug(instanceName, driveMode + ":x=" + x + ",y=" + y + ",rot=" + rot);
+                tracer.traceDebug(instanceName, "%s:x=%.3f,y=%.df,rot=%.3f", driveMode, x, y, rot);
                 break;
 
             case ARCADE_MODE:
                 x = getLeftStickX(doExp);
                 y = getLeftStickY(doExp);
                 rot = getRightStickX(doExp);
-                tracer.traceDebug(instanceName, driveMode + ":x=" + x + ",y=" + y + ",rot=" + rot);
+                tracer.traceDebug(instanceName, "%s:x=%.3f,y=%.3f,rot=%.3f", driveMode, x, y, rot);
                 break;
 
             case TANK_MODE:
@@ -635,7 +635,7 @@ public class FtcGamepad extends TrcGameController
                 x = 0.0;
                 y = (leftPower + rightPower)/2.0;
                 rot = (leftPower - rightPower)/2.0;
-                tracer.traceDebug(instanceName, driveMode + ":left=" + leftPower + ",right=" + rightPower);
+                tracer.traceDebug(instanceName, "%s:left=%.3f,right=%.3f", driveMode, leftPower, rightPower);
                 break;
         }
 
@@ -709,7 +709,7 @@ public class FtcGamepad extends TrcGameController
         buttons |= gamepad.dpad_up? GAMEPAD_DPAD_UP: 0;
         buttons |= gamepad.dpad_down? GAMEPAD_DPAD_DOWN: 0;
         buttons |= gamepad.guide? GAMEPAD_GUIDE: 0;
-        tracer.traceDebug(instanceName, "buttons=" + Integer.toHexString(buttons));
+        tracer.traceDebug(instanceName, "buttons=0x" + Integer.toHexString(buttons));
 
         return buttons;
     }   //getButtons

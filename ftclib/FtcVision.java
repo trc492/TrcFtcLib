@@ -127,9 +127,8 @@ public class FtcVision
         }
 
         tracer.traceDebug(
-            moduleName,
-            "Camera open elapsed time=" + (TrcTimer.getCurrentTime() - startTime) +
-            "(loop=" + loopTimeMs/LOOP_INTERVAL_MS + ").");
+            moduleName, "Camera open elapsed time=%.3f (loop=%d).",
+            TrcTimer.getCurrentTime() - startTime, loopTimeMs/LOOP_INTERVAL_MS);
 
         activeWebcam = camera == null? null:
                        camera.isSwitchable()? visionPortal.getActiveCamera():

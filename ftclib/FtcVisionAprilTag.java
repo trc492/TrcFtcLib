@@ -32,6 +32,7 @@ import org.opencv.core.Rect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcPose3D;
@@ -157,30 +158,24 @@ public class FtcVisionAprilTag
         {
             if (aprilTagDetection.ftcPose != null)
             {
-                return "{id=" + aprilTagDetection.id +
-                       ",center=" + aprilTagDetection.center.x + "/" + aprilTagDetection.center.y +
-                       ",rect=" + getRect() +
-                       ",ftcPose=(x=" + aprilTagDetection.ftcPose.x +
-                       ",y=" + aprilTagDetection.ftcPose.y +
-                       ",z=" + aprilTagDetection.ftcPose.z +
-                       ",yaw=" + aprilTagDetection.ftcPose.yaw +
-                       ",pitch=" + aprilTagDetection.ftcPose.pitch +
-                       ",roll=" + aprilTagDetection.ftcPose.roll +
-                       ",range=" + aprilTagDetection.ftcPose.range +
-                       ",bearing=" + aprilTagDetection.ftcPose.bearing +
-                       ",elevator=" + aprilTagDetection.ftcPose.elevation +
-                       "),fieldPos=" + aprilTagDetection.metadata.fieldPosition +
-                       ",hamming=" + aprilTagDetection.hamming +
-                       ",decisionMargin=" + aprilTagDetection.decisionMargin + "}";
+                return String.format(
+                    Locale.US,
+                    "{id=%d,center=%.1f/%.1f,rect=%s,ftcPose=(x=%.1f,y=%.1f,z=%.1f,yaw=%.1f,pitch=%.1f,roll=%.1f," +
+                    "range=%.1f,bearing=%.1f,elevator=%.1f),fieldPos=%s,hamming=%d,decisionMargin=%.1f}",
+                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
+                    aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
+                    aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll,
+                    aprilTagDetection.ftcPose.range, aprilTagDetection.ftcPose.bearing,
+                    aprilTagDetection.ftcPose.elevation, aprilTagDetection.metadata.fieldPosition,
+                    aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
             }
             else
             {
-                return "{id=" + aprilTagDetection.id +
-                       ",center=" + aprilTagDetection.center.x + "/" + aprilTagDetection.center.y +
-                       ",rect=" + getRect() +
-                       ",fieldPos=" + aprilTagDetection.metadata.fieldPosition +
-                       ",hamming=" + aprilTagDetection.hamming +
-                       ",decisionMargin=" + aprilTagDetection.decisionMargin + "}";
+                return String.format(
+                    Locale.US,
+                    "{id=%d,center=%.1f/%.1f,rect=%s,fieldPos=%s,hamming=%d,decisionMargin=%.1f}",
+                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
+                    aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
             }
         }   //toString
 

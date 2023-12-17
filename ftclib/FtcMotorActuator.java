@@ -23,6 +23,7 @@
 package TrcFtcLib.ftclib;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcMotor;
@@ -57,10 +58,6 @@ public class FtcMotorActuator
         public double positionZeroOffset = 0.0;
         public double[] positionPresets = null;
         public double positionPresetTolerance = 0.0;
-        public TrcDbgTrace.MsgLevel msgLevel = TrcDbgTrace.MsgLevel.INFO;
-        public boolean tracePidInfo = false;
-        public boolean verbosePidInfo = false;
-        public TrcRobotBattery battery = null;
 
         /**
          * This methods sets the motor direction.
@@ -187,25 +184,6 @@ public class FtcMotorActuator
         }   //setPositionPresets
 
         /**
-         * This method sets the tracing level.
-         *
-         * @param msgLevel specifies the message level.
-         * @param tracePidInfo specifies true to enable tracing of PID info, false otherwise.
-         * @param verbosePidInfo specifies true to trace verbose PID info, false otherwise.
-         * @param battery specifies the battery object to get battery info for the message, null if not provided.
-         * @return this object for chaining.
-         */
-        public Params setTraceLevel(
-            TrcDbgTrace.MsgLevel msgLevel, boolean tracePidInfo, boolean verbosePidInfo, TrcRobotBattery battery)
-        {
-            this.msgLevel = msgLevel;
-            this.tracePidInfo = tracePidInfo;
-            this.verbosePidInfo = verbosePidInfo;
-            this.battery = battery;
-            return this;
-        }   //setTraceLevel
-
-        /**
          * This method returns the string format of the Params info.
          *
          * @return string format of the params info.
@@ -213,26 +191,15 @@ public class FtcMotorActuator
         @Override
         public String toString()
         {
-            return "motorInverted=" + motorInverted +
-                   ",hasFollower=" + hasFollowerMotor +
-                   ",followerInverted=" + followerMotorInverted +
-                   ",hasLowerLimit=" + hasLowerLimitSwitch +
-                   ",lowerLimitInverted=" + lowerLimitSwitchInverted +
-                   ",hasUpperLimit=" + hasUpperLimitSwitch +
-                   ",upperLimitInverted=" + upperLimitSwitchInverted +
-                   ",hasEncoder=" + hasExternalEncoder +
-                   ",encoderInverted=" + encoderInverted +
-                   ",encoderAbs=" + encoderAbsolute +
-                   ",voltageCompEnabled=" + voltageCompensationEnabled +
-                   ",scale=" + positionScale +
-                   ",offset=" + positionOffset +
-                   ",zeroOffset=" + positionZeroOffset +
-                   ",presetTolerance=" + positionPresetTolerance +
-                   ",presets=" + Arrays.toString(positionPresets) +
-                   ",msgLevel=" + msgLevel +
-                   ",tracePidInfo=" + tracePidInfo +
-                   ",verbosePidInfo=" + verbosePidInfo +
-                   ",battery=" + battery;
+            return String.format(
+                Locale.US,
+                "motorInverted=%s,hasFollower=%s,followerInverted=%s,hasLowerLimit=%s,lowerLimitInverted=%s," +
+                "hasUpperLimit=%s,upperLimitInverted=%s,hasEncoder=%s,encoderInverted=%s, encoderAbs=%s," +
+                "voltageCompEnabled=%s,scale=%f,offset=%f,zeroOffset=%f,presetTolerance=%f,presets=%s",
+                motorInverted, hasFollowerMotor, followerMotorInverted, hasLowerLimitSwitch, lowerLimitSwitchInverted,
+                hasUpperLimitSwitch, upperLimitSwitchInverted, hasExternalEncoder, encoderInverted, encoderAbsolute,
+                voltageCompensationEnabled, positionScale, positionOffset, positionZeroOffset, positionPresetTolerance,
+                Arrays.toString(positionPresets));
         }   //toString
 
     }   //class Params
@@ -311,7 +278,6 @@ public class FtcMotorActuator
         actuator.setPositionSensorScaleAndOffset(
             params.positionScale, params.positionOffset, params.positionZeroOffset);
         actuator.setPosPresets(params.positionPresetTolerance, params.positionPresets);
-        actuator.setTraceLevel(params.msgLevel, params.tracePidInfo, params.verbosePidInfo, params.battery);
     }   //FtcMotorActuator
 
     /**
@@ -335,6 +301,20 @@ public class FtcMotorActuator
     {
         return instanceName;
     }   //toString
+
+    /**
+     * This method sets the tracing level.
+     *
+     * @param msgLevel specifies the message level.
+     * @param tracePidInfo specifies true to enable tracing of PID info, false otherwise.
+     * @param verbosePidInfo specifies true to trace verbose PID info, false otherwise.
+     * @param battery specifies the battery object to get battery info for the message, null if not provided.
+     */
+    public void setTraceLevel(
+        TrcDbgTrace.MsgLevel msgLevel, boolean tracePidInfo, boolean verbosePidInfo, TrcRobotBattery battery)
+    {
+        actuator.setTraceLevel(msgLevel, tracePidInfo, verbosePidInfo, battery);
+    }   //setTraceLevel
 
     /**
      * This method returns the actuator object.

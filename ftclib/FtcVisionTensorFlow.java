@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHomographyMapper;
@@ -140,7 +141,8 @@ public class FtcVisionTensorFlow
         @Override
         public String toString()
         {
-            return "{" + label + "," + rect.toString() + ",angle=" + angle + ",confidence=" + confidence + "}";
+            return String.format(
+                Locale.US, "{label=%s,rect=%s,angle=%f,confidence=%f}", label, rect, angle, confidence);
         }   //toString
 
     }   //class DetectedObject
@@ -313,13 +315,8 @@ public class FtcVisionTensorFlow
             homographyMapper, objHeightOffset, cameraHeight);
 
         tracer.traceInfo(
-            instanceName,
-            target.getLabel() +
-            ": x=" + target.getLeft() +
-            ",y=" + target.getTop() +
-            ",w=" + target.getWidth() +
-            ",h=" + target.getHeight() +
-            ",TargetInfo=" + targetInfo);
+            instanceName, "%s: x=%.0f,y=%.0f,w=%.0f,h=%.0f,TargetInfo=%s",
+            target.getLabel(), target.getLeft(), target.getTop(), target.getWidth(), target.getHeight(), targetInfo);
 
         return targetInfo;
     }   //getDetectedTargetInfo

@@ -191,7 +191,7 @@ public class FtcRevBlinkin extends TrcRevBlinkin
     @Override
     public Pattern getPattern()
     {
-        tracer.traceInfo(instanceName, "currPattern=" + currPattern);
+        tracer.traceDebug(instanceName, "currPattern=" + currPattern);
         return currPattern;
     }   //getPattern
 
