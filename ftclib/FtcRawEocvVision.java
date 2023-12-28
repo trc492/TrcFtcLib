@@ -67,7 +67,7 @@ public class FtcRawEocvVision
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect,
         OpenCvCamera openCvCamera, OpenCvCameraRotation cameraRotation)
     {
-        this.tracer = new TrcDbgTrace(instanceName);
+        this.tracer = new TrcDbgTrace();
         this.instanceName = instanceName;
         this.openCvCamera = openCvCamera;
 

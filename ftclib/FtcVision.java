@@ -67,7 +67,7 @@ public class FtcVision
         WebcamName webcam1Name, WebcamName webcam2Name, BuiltinCameraDirection cameraDirection, int imageWidth,
         int imageHeight, boolean enableLiveView, VisionProcessor... visionProcessors)
     {
-        this.tracer = new TrcDbgTrace(moduleName);
+        this.tracer = new TrcDbgTrace();
         VisionPortal.Builder builder = new VisionPortal.Builder();
         CameraName camera = null;
 

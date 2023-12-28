@@ -219,7 +219,7 @@ public class FtcVisionTensorFlow
         TrcHomographyMapper.Rectangle cameraRect, TrcHomographyMapper.Rectangle worldRect)
     {
         instanceName = model;
-        tracer = new TrcDbgTrace(instanceName);
+        tracer = new TrcDbgTrace();
         // Create the TensorFlow processor by using a builder.
         TfodProcessor.Builder builder = new TfodProcessor.Builder().setModelLabels(objectLabels);
 

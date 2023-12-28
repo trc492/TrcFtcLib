@@ -247,7 +247,7 @@ public class FtcVisionAprilTag
     public FtcVisionAprilTag(Parameters params, AprilTagProcessor.TagFamily tagFamily)
     {
         instanceName = tagFamily.name();
-        tracer = new TrcDbgTrace(instanceName);
+        tracer = new TrcDbgTrace();
         // Create the AprilTag processor.
         AprilTagProcessor.Builder builder = new AprilTagProcessor.Builder().setTagFamily(tagFamily);
         if (params != null)

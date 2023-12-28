@@ -72,7 +72,7 @@ public abstract class FtcOpMode extends LinearOpMode implements TrcRobot.RobotMo
     {
         super();
         // By default, global tracer message level is INFO. It can be changed by calling setTraceMessageLevel.
-        globalTracer = new TrcDbgTrace(moduleName, "GlobalTracer", new FtcDbgLog());
+        globalTracer = new TrcDbgTrace(moduleName, new FtcDbgLog());
         instance = this;
         try
         {
