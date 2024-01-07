@@ -126,12 +126,12 @@ public class FtcAnalogEncoder implements TrcEncoder
      * @return encoder position adjusted by scale and offset.
      */
     @Override
-    public double getPosition()
+    public double getScaledPosition()
     {
         // getCartesianData returns the normalized reading from AnalogInput.
         // Offset must also be normalized.
         return (cardinalConverter.getCartesianData(0).value - zeroOffset) * scale * sign + offset;
-    }   //getPosition
+    }   //getScaledPosition
 
     /**
      * This method reverses the direction of the encoder.

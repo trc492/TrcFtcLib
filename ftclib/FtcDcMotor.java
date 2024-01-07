@@ -49,7 +49,6 @@ public class FtcDcMotor extends TrcMotor
     public final DcMotorEx motor;
     private final VoltageSensor voltageSensor;
     private DcMotor.RunMode runMode;
-    private double velocityPidTolerance = 0.0;
     private double velocityTarget = 0.0;
     private int positionTarget = 0;
 
@@ -553,17 +552,6 @@ public class FtcDcMotor extends TrcMotor
     }   //setMotorVelocityPidCoefficients
 
     /**
-     * This method sets the PID tolerance of the motor controller's velocity PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorVelocityPidTolerance(double tolerance)
-    {
-        velocityPidTolerance = tolerance;
-    }   //setMotorVelocityPidTolerance
-
-    /**
      * This method returns the PID coefficients of the motor controller's velocity PID controller.
      *
      * @return PID coefficients of the motor's veloicty PID controller.
@@ -580,14 +568,26 @@ public class FtcDcMotor extends TrcMotor
     }   //getMotorVelocityPidCoefficients
 
     /**
+     * This method sets the PID tolerance of the motor controller's velocity PID controller.
+     *
+     * @param tolerance specifies the PID tolerance to set.
+     */
+    @Override
+    public void setMotorVelocityPidTolerance(double tolerance)
+    {
+        throw new UnsupportedOperationException("Controller does not support setting PID Tolerance.");
+    }   //setMotorVelocityPidTolerance
+
+    /**
      * This method checks if the motor is at the set velocity.
      *
+     * @param tolerance specifies the PID tolerance.
      * @return true if motor is on target, false otherwise.
      */
     @Override
-    public boolean getMotorVelocityOnTarget()
+    public boolean getMotorVelocityOnTarget(double tolerance)
     {
-        return Math.abs(velocityTarget - motor.getVelocity()) <= velocityPidTolerance;
+        return Math.abs(velocityTarget - motor.getVelocity()) <= tolerance;
     }   //getMotorVelocityOnTarget
 
     /**
@@ -601,17 +601,6 @@ public class FtcDcMotor extends TrcMotor
     {
         motor.setPositionPIDFCoefficients(pidCoeff.kP);
     }   //setMotorPositionPidCoefficients
-
-    /**
-     * This method sets the PID tolerance of the motor controller's position PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorPositionPidTolerance(double tolerance)
-    {
-        motor.setTargetPositionTolerance((int) tolerance);
-    }   //setMotorPositionPidTolerance
 
     /**
      * This method returns the PID coefficients of the motor controller's position PID controller.
@@ -630,12 +619,24 @@ public class FtcDcMotor extends TrcMotor
     }   //getMotorPositionPidCoefficients
 
     /**
+     * This method sets the PID tolerance of the motor controller's position PID controller.
+     *
+     * @param tolerance specifies the PID tolerance to set.
+     */
+    @Override
+    public void setMotorPositionPidTolerance(double tolerance)
+    {
+        motor.setTargetPositionTolerance((int) tolerance);
+    }   //setMotorPositionPidTolerance
+
+    /**
      * This method checks if the motor is at the set position.
      *
+     * @param tolerance specifies the PID tolerance.
      * @return true if motor is on target, false otherwise.
      */
     @Override
-    public boolean getMotorPositionOnTarget()
+    public boolean getMotorPositionOnTarget(double tolerance)
     {
         return Math.abs(positionTarget - motor.getCurrentPosition()) <= motor.getTargetPositionTolerance();
     }   //getMotorPositionOnTarget
@@ -652,17 +653,6 @@ public class FtcDcMotor extends TrcMotor
     }   //setMotorCurrentPidCoefficients
 
     /**
-     * This method sets the PID tolerance of the motor controller's current PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorCurrentPidTolerance(double tolerance)
-    {
-        throw new UnsupportedOperationException(instanceName + " does not support setMotorCurretPidTolerance.");
-    }   //setMotorCurrentPidTolerance
-
-    /**
      * This method returns the PID coefficients of the motor controller's current PID controller.
      *
      * @return PID coefficients of the motor's current PID controller.
@@ -674,12 +664,24 @@ public class FtcDcMotor extends TrcMotor
     }   //geteMotorCurrentPidCoefficients
 
     /**
+     * This method sets the PID tolerance of the motor controller's current PID controller.
+     *
+     * @param tolerance specifies the PID tolerance to set.
+     */
+    @Override
+    public void setMotorCurrentPidTolerance(double tolerance)
+    {
+        throw new UnsupportedOperationException(instanceName + " does not support setMotorCurretPidTolerance.");
+    }   //setMotorCurrentPidTolerance
+
+    /**
      * This method checks if the motor is at the set current.
      *
+     * @param tolerance specifies the PID tolerance.
      * @return true if motor is on target, false otherwise.
      */
     @Override
-    public boolean getMotorCurrentOnTarget()
+    public boolean getMotorCurrentOnTarget(double tolerance)
     {
         throw new UnsupportedOperationException(instanceName + " does not support getMotorCurretOnTarget.");
     }   //getMotorCurrentOnTarget
