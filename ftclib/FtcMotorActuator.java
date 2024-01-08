@@ -243,8 +243,7 @@ public class FtcMotorActuator
             TrcMotor follower =
                 isCRServo? new FtcCRServo(instanceName + ".followerServo"):
                            new FtcDcMotor(instanceName + ".followerMotor");
-            follower.setMotorInverted(params.followerMotorInverted);
-            follower.follow(actuator);
+            follower.follow(actuator, params.motorInverted != params.followerMotorInverted);
         }
 
         if (lowerLimitSwitch != null)
