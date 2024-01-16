@@ -461,19 +461,22 @@ public class FtcDcMotor extends TrcMotor
     /**
      * This method commands the motor to spin at the given velocity using close loop control.
      *
-     * @param vel specifies the motor velocity in raw sensor units per second (encoder counts per sec).
+     * @param velocity specifies the motor velocity in rotations per second.
+     * @param acceleration specifies the max motor acceleration rotations per second square, can be 0 if not provided
+     *        (not supported).
+     * @param feedForward specifies feedforward in volts (not supported).
      */
     @Override
-    public void setMotorVelocity(double vel)
+    public void setMotorVelocity(double velocity, double acceleration, double feedForward)
     {
-        motor.setVelocity(vel);
+        motor.setVelocity(velocity);
         if (runMode != DcMotor.RunMode.RUN_USING_ENCODER)
         {
             // Not in velocity control mode, set it so.
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             runMode = DcMotor.RunMode.RUN_USING_ENCODER;
         }
-        velocityTarget = vel;
+        velocityTarget = velocity;
     }   //setMotorVelocity
 
     /**
@@ -488,22 +491,26 @@ public class FtcDcMotor extends TrcMotor
     }   //getMotorVelocity
 
     /**
-     * This method commands the motor to go to the given position using close loop control.
+     * This method commands the motor to go to the given position using close loop control and optionally limits the
+     * power of the motor movement.
      *
-     * @param pos specifies the motor position in raw sensor units (encoder counts).
-     * @param powerLimit specifies the maximum power limit the motor will move.
+     * @param position specifies the position in rotations.
+     * @param powerLimit specifies the maximum power output limits, can be null if not provided. If not provided, the
+     *        previous set limit is applied.
+     * @param velocity specifies the max motor velocity rotations per second, can be 0 if not provided (not supported).
+     * @param feedForward specifies feedforward in volts (not supported).
      */
     @Override
-    public void setMotorPosition(double pos, double powerLimit)
+    public void setMotorPosition(double position, Double powerLimit, double velocity, double feedForward)
     {
-        motor.setTargetPosition((int) pos);
+        motor.setTargetPosition((int) position);
         if (runMode != DcMotor.RunMode.RUN_TO_POSITION)
         {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             runMode = DcMotor.RunMode.RUN_TO_POSITION;
         }
         motor.setPower(powerLimit);
-        positionTarget = (int) pos;
+        positionTarget = (int) position;
     }   //setMotorPosition
 
     /**

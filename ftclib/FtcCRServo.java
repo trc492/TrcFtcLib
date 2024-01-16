@@ -431,9 +431,11 @@ public class FtcCRServo extends TrcMotor
      * This method commands the motor to spin at the given velocity using close loop control.
      *
      * @param velocity specifies the motor velocity in rotations per second.
+     * @param acceleration specifies the max motor acceleration rotations per second square, can be 0 if not provided.
+     * @param feedForward specifies feedforward in volts.
      */
     @Override
-    public void setMotorVelocity(double velocity)
+    public void setMotorVelocity(double velocity, double acceleration, double feedForward)
     {
         throw new UnsupportedOperationException("CRServo does not support setMotorVelocity.");
     }   //setMotorVelocity
@@ -450,13 +452,17 @@ public class FtcCRServo extends TrcMotor
     }   //getMotorVelocity
 
     /**
-     * This method commands the motor to go to the given position using close loop control.
+     * This method commands the motor to go to the given position using close loop control and optionally limits the
+     * power of the motor movement.
      *
-     * @param position specifies the motor position in number of rotations.
-     * @param powerLimit specifies the maximum power output limits.
+     * @param position specifies the position in rotations.
+     * @param powerLimit specifies the maximum power output limits, can be null if not provided. If not provided, the
+     *        previous set limit is applied.
+     * @param velocity specifies the max motor velocity rotations per second, can be 0 if not provided.
+     * @param feedForward specifies feedforward in volts.
      */
     @Override
-    public void setMotorPosition(double position, double powerLimit)
+    public void setMotorPosition(double position, Double powerLimit, double velocity, double feedForward)
     {
         throw new UnsupportedOperationException("CRServo does not support setMotorPosition.");
     }   //setMotorPosition
