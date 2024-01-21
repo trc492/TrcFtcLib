@@ -31,8 +31,11 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.VisionPortalImpl;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.openftc.easyopencv.OpenCvCamera;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.TimeUnit;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
@@ -51,6 +54,7 @@ public class FtcVision
     private final TrcDbgTrace tracer;
     private final VisionPortal visionPortal;
     private WebcamName activeWebcam;
+    private OpenCvCamera openCvCamera;
 
     /**
      * Constructor: Create an instance of the object.
@@ -130,6 +134,18 @@ public class FtcVision
             moduleName, "Camera open elapsed time=%.3f (loop=%d).",
             TrcTimer.getCurrentTime() - startTime, loopTimeMs/LOOP_INTERVAL_MS);
 
+        try
+        {
+            Field cameraField = VisionPortalImpl.class.getDeclaredField("camera");
+            cameraField.setAccessible(true);
+            openCvCamera = (OpenCvCamera) cameraField.get(visionPortal);
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
+            tracer.traceWarn(moduleName, "Failed to access OpenCvCamera.");
+            openCvCamera = null;
+        }
+
         activeWebcam = camera == null? null:
                        camera.isSwitchable()? visionPortal.getActiveCamera():
                        webcam1Name != null? webcam1Name: webcam2Name;
@@ -193,6 +209,29 @@ public class FtcVision
     {
         return visionPortal;
     }   //getVisionPortal
+
+    /**
+     * This method returns the OpenCvCamera object.
+     *
+     * @return OpenCvCamera object.
+     */
+    public OpenCvCamera getOpenCvCamera()
+    {
+        return openCvCamera;
+    }   //getOpenCvCamera
+
+    /**
+     * This method enables/disables FPS meter on the viewport.
+     *
+     * @param enabled specifies true to enable FPS meter, false to disable.
+     */
+    public void setFpsMeterEnabled(boolean enabled)
+    {
+        if (openCvCamera != null)
+        {
+            openCvCamera.showFpsMeterOnViewport(enabled);
+        }
+    }   //setFpsMeterEnabled
 
     /**
      * This method returns the active webcam.
