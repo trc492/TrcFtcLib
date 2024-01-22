@@ -98,6 +98,26 @@ public class FtcRawEocvVision
     }   //FtcRawEocvVision
 
     /**
+     * This method returns the OpenCvCamera object.
+     *
+     * @return OpenCvCamera object.
+     */
+    public OpenCvCamera getOpenCvCamera()
+    {
+        return openCvCamera;
+    }   //getOpenCvCamera
+
+    /**
+     * This method enables/disables FPS meter on the viewport.
+     *
+     * @param enabled specifies true to enable FPS meter, false to disable.
+     */
+    public void setFpsMeterEnabled(boolean enabled)
+    {
+        openCvCamera.showFpsMeterOnViewport(enabled);
+    }   //setFpsMeterEnabled
+
+    /**
      * This method checks if the camera is started successfully. It is important to make sure the camera is started
      * successfully before calling any camera APIs.
      *
