@@ -79,11 +79,11 @@ public class FtcVisionTensorFlow
          * @return rect of the detected object.
          */
         @Override
-        public Rect getRect()
+        public Rect getObjectRect()
         {
             // Get rect from detected object.
             return rect;
-        }   //getRect
+        }   //getObjectRect
 
         /**
          * This method returns the area of the detected object.
@@ -91,11 +91,11 @@ public class FtcVisionTensorFlow
          * @return area of the detected object.
          */
         @Override
-        public double getArea()
+        public double getObjectArea()
         {
             // Detected object does not provide area, just calculate it from rect.
             return rect.area();
-        }   //getArea
+        }   //getObjectArea
 
         /**
          * This method returns the pose of the detected object relative to the camera.

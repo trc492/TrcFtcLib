@@ -302,7 +302,7 @@ public class FtcEocvColorBlobProcessor implements TrcOpenCvPipeline<TrcOpenCvDet
 
             for (TrcOpenCvColorBlobPipeline.DetectedObject object : dets)
             {
-                org.opencv.core.Rect objRect = object.getRect();
+                org.opencv.core.Rect objRect = object.getObjectRect();
                 // Detected rect is on camera Mat that has different resolution from the canvas. Therefore, we must
                 // scale the rect to canvas resolution.
                 float left = objRect.x * scaleBmpPxToCanvasPx;

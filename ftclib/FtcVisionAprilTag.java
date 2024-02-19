@@ -85,11 +85,11 @@ public class FtcVisionAprilTag
          * @return rect of the detected object.
          */
         @Override
-        public Rect getRect()
+        public Rect getObjectRect()
         {
             // Calculate rect from AprilTag detection corner points.
             return getDetectedRect(aprilTagDetection);
-        }   //getRect
+        }   //getObjectRect
 
         /**
          * This method returns the area of the detected object.
@@ -97,11 +97,11 @@ public class FtcVisionAprilTag
          * @return area of the detected object.
          */
         @Override
-        public double getArea()
+        public double getObjectArea()
         {
             // AprilTag detection does not provide area, just calculate it from rect.
             return getDetectedRect(aprilTagDetection).area();
-        }   //getArea
+        }   //getObjectArea
 
         /**
          * This method returns the pose of the detected object relative to the camera.
@@ -162,7 +162,7 @@ public class FtcVisionAprilTag
                     Locale.US,
                     "{id=%d,center=%.1f/%.1f,rect=%s,ftcPose=(x=%.1f,y=%.1f,z=%.1f,yaw=%.1f,pitch=%.1f,roll=%.1f," +
                     "range=%.1f,bearing=%.1f,elevator=%.1f),fieldPos=%s,hamming=%d,decisionMargin=%.1f}",
-                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
+                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getObjectRect(),
                     aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
                     aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll,
                     aprilTagDetection.ftcPose.range, aprilTagDetection.ftcPose.bearing,
@@ -174,7 +174,7 @@ public class FtcVisionAprilTag
                 return String.format(
                     Locale.US,
                     "{id=%d,center=%.1f/%.1f,rect=%s,fieldPos=%s,hamming=%d,decisionMargin=%.1f}",
-                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getRect(),
+                    aprilTagDetection.id, aprilTagDetection.center.x, aprilTagDetection.center.y, getObjectRect(),
                     aprilTagDetection.hamming, aprilTagDetection.decisionMargin);
             }
         }   //toString

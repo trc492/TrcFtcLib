@@ -53,8 +53,8 @@ public class FtcVision
 
     private final TrcDbgTrace tracer;
     private final VisionPortal visionPortal;
-    private WebcamName activeWebcam;
     private OpenCvCamera openCvCamera;
+    private WebcamName activeWebcam;
 
     /**
      * Constructor: Create an instance of the object.
@@ -65,11 +65,12 @@ public class FtcVision
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
+     * @param enableStatOverlay specifies true to enable stat overlay, false to disable.
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     private FtcVision(
         WebcamName webcam1Name, WebcamName webcam2Name, BuiltinCameraDirection cameraDirection, int imageWidth,
-        int imageHeight, boolean enableLiveView, VisionProcessor... visionProcessors)
+        int imageHeight, boolean enableLiveView, boolean enableStatOverlay, VisionProcessor... visionProcessors)
     {
         this.tracer = new TrcDbgTrace();
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -105,6 +106,7 @@ public class FtcVision
         {
             builder.enableLiveView(true);
             builder.setAutoStopLiveView(true);
+            builder.setShowStatsOverlay(enableStatOverlay);
         }
         else
         {
@@ -159,13 +161,14 @@ public class FtcVision
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
+     * @param enableStatOverlay specifies true to enable stat overlay, false to disable.
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     public FtcVision(
         WebcamName webcam1, WebcamName webcam2, int imageWidth, int imageHeight, boolean enableLiveView,
-        VisionProcessor... visionProcessors)
+        boolean enableStatOverlay, VisionProcessor... visionProcessors)
     {
-        this(webcam1, webcam2, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(webcam1, webcam2, null, imageWidth, imageHeight, enableLiveView, enableStatOverlay, visionProcessors);
     }   //FtcVision
 
     /**
@@ -175,13 +178,14 @@ public class FtcVision
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
+     * @param enableStatOverlay specifies true to enable stat overlay, false to disable.
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     public FtcVision(
-        WebcamName webcam, int imageWidth, int imageHeight, boolean enableLiveView,
+        WebcamName webcam, int imageWidth, int imageHeight, boolean enableLiveView, boolean enableStatOverlay,
         VisionProcessor... visionProcessors)
     {
-        this(webcam, null, null, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(webcam, null, null, imageWidth, imageHeight, enableLiveView, enableStatOverlay, visionProcessors);
     }   //FtcVision
 
     /**
@@ -191,13 +195,14 @@ public class FtcVision
      * @param imageWidth specifies the camera image width in pixels.
      * @param imageHeight specifies the camera image height in pixels.
      * @param enableLiveView specifies true to enable camera live view, false to disable.
+     * @param enableStatOverlay specifies true to enable stat overlay, false to disable.
      * @param visionProcessors specifies an array of vision processors to be added.
      */
     public FtcVision(
         BuiltinCameraDirection cameraDirection, int imageWidth, int imageHeight, boolean enableLiveView,
-        VisionProcessor... visionProcessors)
+        boolean enableStatOverlay, VisionProcessor... visionProcessors)
     {
-        this(null, null, cameraDirection, imageWidth, imageHeight, enableLiveView, visionProcessors);
+        this(null, null, cameraDirection, imageWidth, imageHeight, enableLiveView, enableStatOverlay, visionProcessors);
     }   //FtcVision
 
     /**
