@@ -35,7 +35,7 @@ import java.util.Comparator;
 import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
-import TrcCommonLib.trclib.TrcPose3D;
+import TrcCommonLib.trclib.TrcPose2D;
 import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
@@ -109,19 +109,18 @@ public class FtcVisionAprilTag
          * @return pose of the detected object relative to camera.
          */
         @Override
-        public TrcPose3D getObjectPose()
+        public TrcPose2D getObjectPose()
         {
-            TrcPose3D pose3d = null;
+            TrcPose2D pose = null;
 
             if (aprilTagDetection.ftcPose != null)
             {
                 // Get pose from AprilTag detection ftcPose.
-                pose3d = new TrcPose3D(
-                    aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.z,
-                    aprilTagDetection.ftcPose.yaw, aprilTagDetection.ftcPose.pitch, aprilTagDetection.ftcPose.roll);
+                pose = new TrcPose2D(
+                    aprilTagDetection.ftcPose.x, aprilTagDetection.ftcPose.y, aprilTagDetection.ftcPose.yaw);
             }
 
-            return pose3d;
+            return pose;
         }   //getObjectPose
 
         /**

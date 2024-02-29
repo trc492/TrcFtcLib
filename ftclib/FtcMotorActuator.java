@@ -276,7 +276,7 @@ public class FtcMotorActuator
         actuator.setVoltageCompensationEnabled(TrcUtil.BATTERY_NOMINAL_VOLTAGE);
         actuator.setPositionSensorScaleAndOffset(
             params.positionScale, params.positionOffset, params.positionZeroOffset);
-        actuator.setPosPresets(params.positionPresetTolerance, params.positionPresets);
+        actuator.setPresets(false, params.positionPresetTolerance, params.positionPresets);
     }   //FtcMotorActuator
 
     /**

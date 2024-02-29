@@ -37,7 +37,7 @@ import java.util.Locale;
 
 import TrcCommonLib.trclib.TrcDbgTrace;
 import TrcCommonLib.trclib.TrcHomographyMapper;
-import TrcCommonLib.trclib.TrcPose3D;
+import TrcCommonLib.trclib.TrcPose2D;
 import TrcCommonLib.trclib.TrcVisionTargetInfo;
 
 /**
@@ -103,7 +103,7 @@ public class FtcVisionTensorFlow
          * @return pose of the detected object relative to camera.
          */
         @Override
-        public TrcPose3D getObjectPose()
+        public TrcPose2D getObjectPose()
         {
             // TensorFlow does not provide detected object pose, let caller use homography to calculate it.
             return null;
