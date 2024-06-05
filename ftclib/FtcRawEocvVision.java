@@ -203,7 +203,7 @@ public class FtcRawEocvVision
 
                 if (detectedTargets != null)
                 {
-                    if ( tracer.getTraceLevel().getValue() >= TrcDbgTrace.MsgLevel.DEBUG.getValue())
+                    if ( tracer.getTraceLevel().ordinal() >= TrcDbgTrace.MsgLevel.DEBUG.ordinal())
                     {
                         for (int i = 0; i < detectedTargets.length; i++)
                         {

@@ -162,6 +162,17 @@ public class FtcDcMotor extends TrcMotor
     }   //setCurrentLimit
 
     /**
+     * This method sets the stator current limit of the motor.
+     *
+     * @param currentLimit specifies the stator current limit in amperes.
+     */
+    @Override
+    public void setStatorCurrentLimit(double currentLimit)
+    {
+        throw new UnsupportedOperationException(instanceName + " does not support setStatorCurrentLimit.");
+    }   //setStatorCurrentLimit
+
+    /**
      * This method sets the close loop ramp rate.
      *
      * @param rampTime specifies the ramp time in seconds from neutral to full speed.
@@ -575,29 +586,6 @@ public class FtcDcMotor extends TrcMotor
     }   //getMotorVelocityPidCoefficients
 
     /**
-     * This method sets the PID tolerance of the motor controller's velocity PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorVelocityPidTolerance(double tolerance)
-    {
-        throw new UnsupportedOperationException("Controller does not support setting PID Tolerance.");
-    }   //setMotorVelocityPidTolerance
-
-    /**
-     * This method checks if the motor is at the set velocity.
-     *
-     * @param tolerance specifies the PID tolerance.
-     * @return true if motor is on target, false otherwise.
-     */
-    @Override
-    public boolean getMotorVelocityOnTarget(double tolerance)
-    {
-        return Math.abs(velocityTarget - motor.getVelocity()) <= tolerance;
-    }   //getMotorVelocityOnTarget
-
-    /**
      * This method sets the PID coefficients for the motor's position PID controller. For FTC motors, only kP makes
      * sense because of the double layer architecture (i.e. position PID is used in conjunction with velocity PID).
      *
@@ -626,29 +614,6 @@ public class FtcDcMotor extends TrcMotor
     }   //getMotorPositionPidCoefficients
 
     /**
-     * This method sets the PID tolerance of the motor controller's position PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorPositionPidTolerance(double tolerance)
-    {
-        motor.setTargetPositionTolerance((int) tolerance);
-    }   //setMotorPositionPidTolerance
-
-    /**
-     * This method checks if the motor is at the set position.
-     *
-     * @param tolerance specifies the PID tolerance.
-     * @return true if motor is on target, false otherwise.
-     */
-    @Override
-    public boolean getMotorPositionOnTarget(double tolerance)
-    {
-        return Math.abs(positionTarget - motor.getCurrentPosition()) <= motor.getTargetPositionTolerance();
-    }   //getMotorPositionOnTarget
-
-    /**
      * This method sets the PID coefficients of the motor controller's current PID controller.
      *
      * @param pidCoeff specifies the PID coefficients to set.
@@ -669,29 +634,6 @@ public class FtcDcMotor extends TrcMotor
     {
         throw new UnsupportedOperationException(instanceName + " does not support getMotorCurretPidCoefficients.");
     }   //geteMotorCurrentPidCoefficients
-
-    /**
-     * This method sets the PID tolerance of the motor controller's current PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorCurrentPidTolerance(double tolerance)
-    {
-        throw new UnsupportedOperationException(instanceName + " does not support setMotorCurretPidTolerance.");
-    }   //setMotorCurrentPidTolerance
-
-    /**
-     * This method checks if the motor is at the set current.
-     *
-     * @param tolerance specifies the PID tolerance.
-     * @return true if motor is on target, false otherwise.
-     */
-    @Override
-    public boolean getMotorCurrentOnTarget(double tolerance)
-    {
-        throw new UnsupportedOperationException(instanceName + " does not support getMotorCurretOnTarget.");
-    }   //getMotorCurrentOnTarget
 
     //
     // The following methods override the software simulation in TrcMotor providing direct support in hardware.

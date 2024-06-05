@@ -170,6 +170,17 @@ public class FtcCRServo extends TrcMotor
         throw new UnsupportedOperationException("CRServo does not support setCurrentLimit.");
     }   //setCurrentLimit
 
+    /**
+     * This method sets the stator current limit of the motor.
+     *
+     * @param currentLimit specifies the stator current limit in amperes.
+     */
+    @Override
+    public void setStatorCurrentLimit(double currentLimit)
+    {
+        throw new UnsupportedOperationException(instanceName + " does not support setStatorCurrentLimit.");
+    }   //setStatorCurrentLimit
+
 //     /**
 //      * This method sets the close loop percentage output limits. By default the limits are set to the max at -1 to 1.
 //      * By setting a non-default limits, it effectively limits the output power of the close loop control.
@@ -523,29 +534,6 @@ public class FtcCRServo extends TrcMotor
     }   //getMotorVelocityPidCoefficients
 
     /**
-     * This method sets the PID tolerance of the motor controller's velocity PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorVelocityPidTolerance(double tolerance)
-    {
-        throw new UnsupportedOperationException("CRServo does not support setMotorVelocityPidTolerance.");
-    }   //setMotorVelocityPidTolerance
-
-    /**
-     * This method checks if the motor is at the set velocity.
-     *
-     * @param tolerance specifies the PID tolerance.
-     * @return true if motor is on target, false otherwise.
-     */
-    @Override
-    public boolean getMotorVelocityOnTarget(double tolerance)
-    {
-        throw new UnsupportedOperationException("CRServo does not support getMotorVelocityOnTarget.");
-    }   //getMotorVelocityOnTarget
-
-    /**
      * This method sets the PID coefficients of the motor controller's position PID controller.
      *
      * @param pidCoeff specifies the PID coefficients to set.
@@ -568,29 +556,6 @@ public class FtcCRServo extends TrcMotor
     }   //getMotorPositionPidCoefficients
 
     /**
-     * This method sets the PID tolerance of the motor controller's position PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorPositionPidTolerance(double tolerance)
-    {
-        throw new UnsupportedOperationException("CRServo does not support setMotorPositionPidTolerance.");
-    }   //setMotorPositionPidTolerance
-
-    /**
-     * This method checks if the motor is at the set position.
-     *
-     * @param tolerance specifies the PID tolerance.
-     * @return true if motor is on target, false otherwise.
-     */
-    @Override
-    public boolean getMotorPositionOnTarget(double tolerance)
-    {
-        throw new UnsupportedOperationException("CRServo does not support getMotorPositionOnTarget.");
-    }   //getMotorPositionOnTarget
-
-    /**
      * This method sets the PID coefficients of the motor controller's current PID controller.
      *
      * @param pidCoeff specifies the PID coefficients to set.
@@ -611,29 +576,6 @@ public class FtcCRServo extends TrcMotor
     {
         throw new UnsupportedOperationException("CRServo does not support getMotorCurretPidCoefficients.");
     }   //geteMotorCurrentPidCoefficients
-
-    /**
-     * This method sets the PID tolerance of the motor controller's current PID controller.
-     *
-     * @param tolerance specifies the PID tolerance to set.
-     */
-    @Override
-    public void setMotorCurrentPidTolerance(double tolerance)
-    {
-        throw new UnsupportedOperationException("CRServo does not support setMotorCurretPidTolerance.");
-    }   //setMotorCurrentPidTolerance
-
-    /**
-     * This method checks if the motor is at the set current.
-     *
-     * @param tolerance specifies the PID tolerance.
-     * @return true if motor is on target, false otherwise.
-     */
-    @Override
-    public boolean getMotorCurrentOnTarget(double tolerance)
-    {
-        throw new UnsupportedOperationException("CRServo does not support getMotorCurretOnTarget.");
-    }   //getMotorCurrentOnTarget
 
     //
     // The following methods override the software simulation in TrcMotor providing direct support in hardware.
