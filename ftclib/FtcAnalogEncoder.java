@@ -147,7 +147,7 @@ public class FtcAnalogEncoder implements TrcEncoder
     /**
      * This method checks if the encoder direction is inverted.
      *
-     * @return true if encoder direction is rerversed, false otherwise.
+     * @return true if encoder direction is reversed, false otherwise.
      */
     @Override
     public boolean isInverted()
