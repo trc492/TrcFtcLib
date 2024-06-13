@@ -20,13 +20,13 @@
  * SOFTWARE.
  */
 
-package ftclib.archive;
+package TrcFtcLib.ftclib;
 
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import trclib.archive.TrcEncoder;
-import trclib.archive.TrcWrapValueConverter;
+import TrcCommonLib.trclib.TrcEncoder;
+import TrcCommonLib.trclib.TrcWrapValueConverter;
 
 /**
  * This class implements a wrapper to OctoQuad that supports up to 8 quadrature or PWM encoders. It implements the
